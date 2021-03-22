@@ -1,0 +1,15 @@
+Package: CrowdQC.plus
+Type: Package
+Title: Enhanced quality control for crowdsourced data from CWS
+Version: 0.0.1
+Author: Daniel Fenner, Tom Grassmann, Fred Meier
+Maintainer: Daniel Fenner <daniel.fenner@rub.de>
+Description: This package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It was designed for hourly air temperature data from Netatmo stations but should work with any normally-distributed data. It is based on the package 'CrowdQC' but offers several additions and improvements. All code is fully backwards compatible so that existing users of 'CrowdQC' can also use the new functions with existing code.
+License: GNU GPLv3
+Citation: Fenner et al. 2021
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports: data.table, robustbase, lubridate, raster
+NeedsCompilation: no
+Packaged: 2018-06-25 19:45:21 UTC;
