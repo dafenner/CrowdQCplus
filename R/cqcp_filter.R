@@ -99,9 +99,11 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug =
 }
 
 #' add_episode
+#' 
+#' 
 #'
 #' @param data data.table with at least columns 'p_id' and 'time'
-#' @param column 
+#' @param duration 
 #'
 #' @return data.table with additional column 'episode'
 cqcp_add_episode <- function(data, duration){
