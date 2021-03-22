@@ -1,4 +1,4 @@
-# CrowdQC.plus
+# CrowdQCplus
 
 Quality control (QC) to filters suspicious data from citizen weather stations (CWS). 
 
