@@ -7,7 +7,7 @@
 cqcp_Qnr(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{numeric}
 }
 \value{
 NaN for no valid values, otherwise robust scale estimator 'Qn' without NaN

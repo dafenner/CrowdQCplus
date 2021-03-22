@@ -24,7 +24,7 @@ filtered data at level m4 with the interpolated data.
 }
 \examples{
 #default
-o_1 <- o1(m_4)
+o_1 <- cqcp_o1(m_4)
 #interpolate gaps up to 5 hours
-o_1 <- o1(m_4, maxLength = 5)
+o_1 <- cqcp_o1(m_4, maxLength = 5)
 }

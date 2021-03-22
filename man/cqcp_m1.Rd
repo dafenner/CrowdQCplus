@@ -22,5 +22,5 @@ values which occur more often than the 'cutOff' value.
 }
 \examples{
 data(netatmoBer)
-x <- m1(netatmoBer)
+x <- cqcp_m1(netatmoBer)
 }

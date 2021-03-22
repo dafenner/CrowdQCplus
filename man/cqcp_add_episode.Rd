@@ -9,11 +9,13 @@ cqcp_add_episode(data, duration)
 \arguments{
 \item{data}{data.table with at least columns 'p_id' and 'time'}
 
-\item{column}{}
+\item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
+This can be, e.g., '10 days'.}
 }
 \value{
 data.table with additional column 'episode'
 }
 \description{
-add_episode
+Adds a column 'episode' with integer values that indicate which entries belong
+to a specific episode, defined by 'duration'.
 }

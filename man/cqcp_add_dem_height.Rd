@@ -31,6 +31,8 @@ cqcp_add_dem_height(
 
 \item{crop}{crop SRTM raster/geotiff to data extent}
 
+\item{na_vals}{set NA values in DEM to this value to avoid missing value in m2. Default: 0}
+
 \item{...}{additional parameters supported by raster::getData}
 }
 \value{

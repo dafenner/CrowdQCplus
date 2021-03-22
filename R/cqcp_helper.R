@@ -100,7 +100,8 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param directory directory path to optionally store downloaded SRTM data 
 #' @param outfile file path to save the created SRTM raster as geotiff 
 #' @param overwrite overwrite existing geotiff? 
-#' @param crop crop SRTM raster/geotiff to data extent 
+#' @param crop crop SRTM raster/geotiff to data extent
+#' @param na_vals set NA values in DEM to this value to avoid missing value in m2. Default: 0
 #' @param ... additional parameters supported by raster::getData
 #'
 #' @return data table with new column 'z' with DEM information
@@ -141,7 +142,10 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
 #' no interpolation is carried out to the data itself.
 #'
 #' @param data data.table with at least columns 'p_id', 'time, 'ta' 
-#' @param resolution temporal resolution as supported by lubridate
+#' @param resolution temporal resolution as supported by lubridate. Default: '1 hour'
+#' @param rounding_method Method to apply to round the time values to (cf. lubridate). 
+#'   Default is 'nearest', to assign the values to the nearest full time value, 
+#'   defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.
 #'
 #' @return data.table with regular time series for all stations.
 cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest") {

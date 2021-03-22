@@ -7,6 +7,8 @@
 cqcp_has_column(data, column = "month")
 }
 \arguments{
+\item{data}{data.table}
+
 \item{column}{The column to look for. Default: "month"}
 }
 \value{

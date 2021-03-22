@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' data(netatmoBer)
-#' x <- m1(netatmoBer)
+#' x <- cqcp_m1(netatmoBer)
 cqcp_m1 <- function(data, cutOff = 1){
   val  <- data[!is.na(ta),.(a = 1), by = .(p_id,lon,lat)]
   bad_s  <- val[,.(anz = sum(lon == val$lon & lat == val$lat)), by = p_id]
@@ -26,7 +26,7 @@ cqcp_m1 <- function(data, cutOff = 1){
 
 #' Version of the Qn function respecting NaN values
 #'
-#' @param x
+#' @param x numeric
 #'
 #' @return NaN for no valid values, otherwise robust scale estimator 'Qn' without NaN
 cqcp_Qnr <- function(x){
@@ -66,14 +66,15 @@ cqcp_getZ <- function(x){
 #'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 #'   lapse_rate = 0.01 to set a dry adiabatic lapse rate.
 #' @param debug set to true to keep intermediate results
+#' @param fun distribution function to use. Default: 'qnorm'
 #'
 #' @return data.table
 #' @export
 #'
 #' @examples
 #' data(netatmoBer)
-#' x <- m1(netatmoBer)
-#' y <- m2(x)
+#' x <- cqcp_m1(netatmoBer)
+#' y <- cqcp_m2(x)
 #'
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug = F,
                lapse_rate = 0.0065, fun = qnorm){
@@ -100,10 +101,12 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug =
 
 #' add_episode
 #' 
-#' 
+#' Adds a column 'episode' with integer values that indicate which entries belong
+#' to a specific episode, defined by 'duration'.
 #'
 #' @param data data.table with at least columns 'p_id' and 'time'
-#' @param duration 
+#' @param duration A fixed duration to be used (cf. lubridate duration documentation).
+#'   This can be, e.g., '10 days'.
 #'
 #' @return data.table with additional column 'episode'
 cqcp_add_episode <- function(data, duration){
@@ -133,9 +136,6 @@ cqcp_add_episode <- function(data, duration){
 #'
 #' @return TRUE if correlation for the given month is higher than cutOff, FALSE
 #'   otherwise
-#'
-#' @examples
-#' see m4
 cqcp_cor_month <- function(x, y, m, cutOff){
   if(length(x) != length(y[month == m,]$med)){
     stop("Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
@@ -153,19 +153,27 @@ cqcp_cor_month <- function(x, y, m, cutOff){
 #' Main QC step m3
 #'
 #' Flag values with FALSE if more than cutOff percent values are removed during
-#' m2 per month. This is done since it is assumed that if too many individual
+#' m2. This is done since it is assumed that if too many individual
 #' values are flagged FALSE in m2, the station is too suspicious to be kept.
+#' Default is to apply m3 per month, but can be changed to use the complete data
+#' set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
+#' rolling, in combination with 'duration' (not yet implemented.)
 #'
 #' @param data data.table object obtained from m2
 #' @param cutOff value above which data are flagged with FALSE, 0 < cutOff < 1.
 #'   Default is 0.2, i.e., 20 percent of data.
+#' @param complete Use the complete data set for the filter (priority over 'duration').
+#' @param duration A fixed duration to be used (cf. lubridate duration documentation).
+#'   This can be, e.g., '10 days'.
+#' @param rolling Set to TRUE to carry out the filter on a rolling basis. A 'duration'
+#'   has to be specified too.
 #'
 #' @return data.table
 #' @export
 #'
 #' @examples
-#' y <- m2(x)
-#' z <- m3(y)
+#' y <- cqcp_m2(x)
+#' z <- cqcp_m3(y)
 cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL, 
                     rolling = FALSE){
   
@@ -203,19 +211,27 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 
 #' Main QC step m4
 #'
-#' Flag values with FALSE if they belong to a month in which the correlation
-#' with the median of all stations is lower than cutOff.
+#' Flag values with FALSE if the correlation with the median of all stations is 
+#' lower than cutOff.
+#' Default is to apply m4 per month, but can be changed to use the complete data
+#' set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
+#' rolling, in combination with 'duration' (not yet implemented.)
 #'
 #' @param data data.table as returned by m3
 #' @param cutOff value of correlation coefficient below which data are flagged
 #'   with FALSE, 0 < cutOff < 1. Default is 0.9.
+#' @param complete Use the complete data set for the filter (priority over 'duration').
+#' @param duration A fixed duration to be used (cf. lubridate duration documentation).
+#'   This can be, e.g., '10 days'.
+#' @param rolling Set to TRUE to carry out the filter on a rolling basis. A 'duration'
+#'   has to be specified too.
 #'
 #' @return data.table
 #' @export
 #'
 #' @examples
-#' y <- m3(x)
-#' z <- m4(y)
+#' y <- cqcp_m3(x)
+#' z <- cqcp_m4(y)
 cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL, 
                     rolling = FALSE){
   
@@ -278,8 +294,8 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #'
 #' @examples
 #' x <- x(1, NaN, 3, NaN NaN, 6, NaN, 8)
-#' interpol(x)
-#' interpol(x, 2)
+#' cqcp_interpol(x)
+#' cqcp_interpol(x, 2)
 cqcp_interpol <- function(x, maxLength = 1){
   rl <- rle(is.na(x))
   re <- rl$lengths <= maxLength & rl$values
@@ -307,9 +323,9 @@ cqcp_interpol <- function(x, maxLength = 1){
 #'
 #' @examples
 #' #default
-#' o_1 <- o1(m_4)
+#' o_1 <- cqcp_o1(m_4)
 #' #interpolate gaps up to 5 hours
-#' o_1 <- o1(m_4, maxLength = 5)
+#' o_1 <- cqcp_o1(m_4, maxLength = 5)
 cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
   data[,ta_int := ta]
   data[!m4, "ta_int"] <- NA
@@ -339,7 +355,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
 #' @export
 #'
 #' @examples
-#' o_2 <- o2(o_1)
+#' o_2 <- cqcp_o2(o_1)
 cqcp_o2 <- function(data, cutOff = 0.8){
   has_d <- "day" %in% colnames(data)
   if(!has_d){
@@ -367,7 +383,7 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 #' @export
 #'
 #' @examples
-#' o_3 <- o3(o_2)
+#' o_3 <- cqcp_o3(o_2)
 cqcp_o3 <- function(data, cutOff = 0.8){
   has_m <- cqcp_has_column(data, column = "month")
   if(!has_m){
@@ -382,7 +398,7 @@ cqcp_o3 <- function(data, cutOff = 0.8){
 
 #' has_column
 #'
-#' @param data
+#' @param data data.table
 #' @param column The column to look for. Default: "month"
 #'
 #' @return true if data contains a specific column
@@ -410,6 +426,8 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m1_cutOff see cutOff in ?m1
 #' @param m2_low see low in ?m2
 #' @param m2_high see high in ?m2
+#' @param m2_lapse_rate see lapse_rate in ?m2
+#' @param m2_fun see fun in ?m2
 #' @param m3_cutOff see cutOff in ?m3
 #' @param m4_cutOff see cutOff in ?m4
 #' @param o1_fun see fun in ?o1
@@ -424,7 +442,7 @@ cqcp_has_column <- function(data, column = "month"){
 #'
 #' @examples
 #' data(netatmoBer)
-#' y <- qcCWS(netatmoBer)
+#' y <- cqcp_qcCWS(netatmoBer)
 cqcp_qcCWS <- function(data,
                   m1_cutOff = 1,
                   m2_low = 0.1, m2_high = 0.95, m2_lapse_rate = 0.006, m2_fun = qnorm, 

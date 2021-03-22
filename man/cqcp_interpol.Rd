@@ -22,6 +22,6 @@ maxLength. Internally called by o1.
 }
 \examples{
 x <- x(1, NaN, 3, NaN NaN, 6, NaN, 8)
-interpol(x)
-interpol(x, 2)
+cqcp_interpol(x)
+cqcp_interpol(x, 2)
 }

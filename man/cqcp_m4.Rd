@@ -11,15 +11,26 @@ cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, rolling = FALSE)
 
 \item{cutOff}{value of correlation coefficient below which data are flagged
 with FALSE, 0 < cutOff < 1. Default is 0.9.}
+
+\item{complete}{Use the complete data set for the filter (priority over 'duration').}
+
+\item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
+This can be, e.g., '10 days'.}
+
+\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. A 'duration'
+has to be specified too.}
 }
 \value{
 data.table
 }
 \description{
-Flag values with FALSE if they belong to a month in which the correlation
-with the median of all stations is lower than cutOff.
+Flag values with FALSE if the correlation with the median of all stations is 
+lower than cutOff.
+Default is to apply m4 per month, but can be changed to use the complete data
+set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
+rolling, in combination with 'duration' (not yet implemented.)
 }
 \examples{
-y <- m3(x)
-z <- m4(y)
+y <- cqcp_m3(x)
+z <- cqcp_m4(y)
 }
