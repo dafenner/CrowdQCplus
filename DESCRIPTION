@@ -1,4 +1,4 @@
-Package: CrowdQC.plus
+Package: CrowdQCplus
 Type: Package
 Title: Enhanced quality control for crowdsourced data from CWS
 Version: 0.0.1
