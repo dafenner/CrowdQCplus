@@ -22,5 +22,5 @@ as FALSE if less than 'cutOff' percent of valid values are available for that
 month.
 }
 \examples{
-o_3 <- o3(o_2)
+o_3 <- cqcp_o3(o_2)
 }

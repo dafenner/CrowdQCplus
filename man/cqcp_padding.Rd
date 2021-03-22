@@ -9,7 +9,11 @@ cqcp_padding(data, resolution = "1 hour", rounding_method = "nearest")
 \arguments{
 \item{data}{data.table with at least columns 'p_id', 'time, 'ta'}
 
-\item{resolution}{temporal resolution as supported by lubridate}
+\item{resolution}{temporal resolution as supported by lubridate. Default: '1 hour'}
+
+\item{rounding_method}{Method to apply to round the time values to (cf. lubridate). 
+Default is 'nearest', to assign the values to the nearest full time value, 
+defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.}
 }
 \value{
 data.table with regular time series for all stations.

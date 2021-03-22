@@ -22,5 +22,5 @@ calendar day as FALSE if less than 'cutOff' percent of valid values are
 available for that day.
 }
 \examples{
-o_2 <- o2(o_1)
+o_2 <- cqcp_o2(o_1)
 }

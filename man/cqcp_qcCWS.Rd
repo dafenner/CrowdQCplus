@@ -29,6 +29,10 @@ cqcp_qcCWS(
 
 \item{m2_high}{see high in ?m2}
 
+\item{m2_lapse_rate}{see lapse_rate in ?m2}
+
+\item{m2_fun}{see fun in ?m2}
+
 \item{m3_cutOff}{see cutOff in ?m3}
 
 \item{m4_cutOff}{see cutOff in ?m4}
@@ -63,5 +67,5 @@ QC.
 }
 \examples{
 data(netatmoBer)
-y <- qcCWS(netatmoBer)
+y <- cqcp_qcCWS(netatmoBer)
 }

@@ -26,6 +26,3 @@ aggregated time series in the column 'med' per month. Both series need to
 have the same length and values at the same position are expected to belong
 to the same position in time. Function is called internally by QC m4.
 }
-\examples{
-see m4
-}

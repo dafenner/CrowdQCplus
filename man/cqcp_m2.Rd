@@ -31,6 +31,8 @@ where mz is the spatial mean of z at each time step.}
 \item{lapse_rate}{Lapse rate to use in 'heightCorrection'. Default is the 
 environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 lapse_rate = 0.01 to set a dry adiabatic lapse rate.}
+
+\item{fun}{distribution function to use. Default: 'qnorm'}
 }
 \value{
 data.table
@@ -43,7 +45,7 @@ better to use the Student t distribution (to be implemented)!
 }
 \examples{
 data(netatmoBer)
-x <- m1(netatmoBer)
-y <- m2(x)
+x <- cqcp_m1(netatmoBer)
+y <- cqcp_m2(x)
 
 }
