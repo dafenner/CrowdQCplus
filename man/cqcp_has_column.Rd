@@ -15,5 +15,5 @@ cqcp_has_column(data, column = "month")
 true if data contains a specific column
 }
 \description{
-has_column
+This function was formerly has_month but is now more flexible.
 }
