@@ -77,7 +77,7 @@ cqcp_getZ <- function(x){
 #' y <- cqcp_m2(x)
 #'
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug = F,
-               lapse_rate = 0.0065, fun = qnorm){
+                    lapse_rate = 0.0065, fun = qnorm){
   data[,rem_ta := ta]
   # ensures that all what is wrong in m1 is wrong in m2 too
   data[!m1, "rem_ta"] <- NaN
@@ -121,26 +121,28 @@ cqcp_add_episode <- function(data, duration){
   return(data)
 }
 
-#' Monthly correlation of individual CWS with median
+#' Correlation of individual CWS with median for a certain timespan.
 #'
 #' Calculates the correlation of each CWS vs. a data.set containing an
-#' aggregated time series in the column 'med' per month. Both series need to
+#' aggregated time series in the column 'med' per timespan. Both series need to
 #' have the same length and values at the same position are expected to belong
 #' to the same position in time. Function is called internally by QC m4.
+#' This function was formerly cor_month but is now compatible with 'duration' parameter.
 #'
 #' @param x values of unaggregated time series
 #' @param y data.table containing column 'med' holding aggregated values and
-#'   month holding the month the time series belongs to
-#' @param m month to base the calculation on
+#'   column specified via 'timespan', holding the group the time series belongs to
+#' @param t timespan (month, or episode number) to base the calculation on
 #' @param cutOff value below which FALSE is returned.
+#' @param timespan column name to base the calculations on. Default: 'month'
 #'
 #' @return TRUE if correlation for the given month is higher than cutOff, FALSE
 #'   otherwise
-cqcp_cor_month <- function(x, y, m, cutOff){
-  if(length(x) != length(y[month == m,]$med)){
+cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
+  if(length(x) != length(y[get(timespan) == t,]$med)){
     stop("Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
   }
-  c <- suppressWarnings(cor(x, y[month == m,]$med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
+  c <- suppressWarnings(cor(x, y[get(timespan) == t,]$med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
   if(is.na(c)){
     return(F) #treat NA as no correlation
   }
@@ -162,11 +164,11 @@ cqcp_cor_month <- function(x, y, m, cutOff){
 #' @param data data.table object obtained from m2
 #' @param cutOff value above which data are flagged with FALSE, 0 < cutOff < 1.
 #'   Default is 0.2, i.e., 20 percent of data.
-#' @param complete Use the complete data set for the filter (priority over 'duration').
+#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
-#' @param rolling Set to TRUE to carry out the filter on a rolling basis. A 'duration'
-#'   has to be specified too.
+#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#'   A 'duration' has to be specified too.
 #'
 #' @return data.table
 #' @export
@@ -177,7 +179,7 @@ cqcp_cor_month <- function(x, y, m, cutOff){
 cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL, 
                     rolling = FALSE){
   
-  # case 1: nothing specified (rolling ignored, bec. duration has to be set).
+  # case 1: nothing specified (rolling ignored, because duration has to be set).
   # as in original CrowdQC: per month
   if(is.null(duration) & !complete) {
     has_m <- cqcp_has_column(data, column = "month")
@@ -193,7 +195,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
   } else { # per duration
     if(rolling) { # rolling application
       if(!is.null(duration)) {
-      print("Rolling application not yet possible.") # not yet implemented
+        print("Rolling application not yet possible.") # not yet implemented
       }
     } else { # per duration, not rolling
       has_e <- cqcp_has_column(data, column = "episode")
@@ -220,11 +222,11 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' @param data data.table as returned by m3
 #' @param cutOff value of correlation coefficient below which data are flagged
 #'   with FALSE, 0 < cutOff < 1. Default is 0.9.
-#' @param complete Use the complete data set for the filter (priority over 'duration').
+#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
-#' @param rolling Set to TRUE to carry out the filter on a rolling basis. A 'duration'
-#'   has to be specified too.
+#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#'   A 'duration' has to be specified too.
 #'
 #' @return data.table
 #' @export
@@ -238,7 +240,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
   data[,rem_ta := ta]
   data[!m3, "rem_ta"] <- NaN
   
-  # case 1: nothing specified (rolling ignored, bec. duration has to be set).
+  # case 1: nothing specified (rolling ignored, because duration has to be set).
   # as in original CrowdQC: per month
   if(is.null(duration) & !complete) {
     has_m <- cqcp_has_column(data, column = "month")
@@ -246,15 +248,21 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
       data[,month := lubridate::floor_date(time,"month")]
     }
     data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(month, time)]
-    cor_station <- data[,.(c = cqcp_cor_month(rem_ta, data_agg, unique(month), cutOff)), by = .(month, p_id)]
+    cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(month), 
+                                                 cutOff, timespan = "month")), 
+                        by = .(month, p_id)]
     data <- merge(data, cor_station, all.x = T, by = c("month", "p_id"))
     if(!has_m){
       data$month <- NULL
     }
   } else if(complete) { # complete time series, 'duration' and 'rolling' ignored
-    data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(time)]
-    cor_station <- data[,.(c = cqcp_cor_month(rem_ta, data_agg, unique(month), cutOff)), by = .(p_id)]
-    data <- merge(data, cor_station, all.x = T, by = "p_id")
+    data <- data[, episode := 1] # only one episode, the whole data set
+    data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(episode, time)]
+    cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(episode), 
+                                                 cutOff, timespan = "episode")), 
+                        by = .(episode, p_id)]
+    data <- merge(data, cor_station, all.x = T, by = c("episode", "p_id"))
+    data$episode <- NULL
   } else { # per duration
     if(rolling) { # rolling application
       if(!is.null(duration)) {
@@ -266,7 +274,9 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
         data <- cqcp_add_episode(data, duration)
       }
       data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(episode, time)]
-      cor_station <- data[,.(c = cqcp_cor_month(rem_ta, data_agg, unique(episode), cutOff)), by = .(episode, p_id)]
+      cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(episode), 
+                                                   cutOff, timespan = "episode")), 
+                          by = .(episode, p_id)]
       data <- merge(data, cor_station, all.x = T, by = c("episode", "p_id"))
       if(!has_e){
         data$episode <- NULL
@@ -397,6 +407,8 @@ cqcp_o3 <- function(data, cutOff = 0.8){
 }
 
 #' has_column
+#' 
+#' This function was formerly has_month but is now more flexible.
 #'
 #' @param data data.table
 #' @param column The column to look for. Default: "month"
@@ -421,6 +433,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' kept throughout the remaining QC steps. In the end, only those data
 #' values containing TRUE after the all QC steps are valid according to this
 #' QC.
+#' 'complete' currently does not work with the example data set (netatmoBer).
 #'
 #' @param data input data in the format as the example data (netatmoBer)
 #' @param m1_cutOff see cutOff in ?m1
@@ -435,6 +448,9 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param o3_cutOff see cutOff in ?o3
 #' @param includeOptional set to TRUE if QC steps o1 to o3 shall be
 #'   performed, default: TRUE
+#' @param complete see complete in ?m3 or ?m4
+#' @param duration see duration in ?m3 or ?m4
+#' @param rolling see rolling in ?m3 or ?m4
 #' @param ... additional parameters used in o1. For details see ?o1
 #'
 #' @return data.table
@@ -444,26 +460,41 @@ cqcp_has_column <- function(data, column = "month"){
 #' data(netatmoBer)
 #' y <- cqcp_qcCWS(netatmoBer)
 cqcp_qcCWS <- function(data,
-                  m1_cutOff = 1,
-                  m2_low = 0.1, m2_high = 0.95, m2_lapse_rate = 0.006, m2_fun = qnorm, 
-                  m3_cutOff = 0.2,
-                  m4_cutOff = 0.9,
-                  o1_fun = interpol,
-                  o2_cutOff = 0.8,
-                  o3_cutOff = 0.8,
-                  includeOptional = T,
-                  ...){
-  data[, month := lubridate::floor_date(time,"month")]
+                       m1_cutOff = 1,
+                       m2_low = 0.1, m2_high = 0.95, 
+                       m2_lapse_rate = 0.006, m2_fun = qnorm, 
+                       m3_cutOff = 0.2,
+                       m4_cutOff = 0.9,
+                       o1_fun = cqcp_interpol,
+                       o2_cutOff = 0.8,
+                       o3_cutOff = 0.8,
+                       includeOptional = T,
+                       complete = FALSE, 
+                       duration = NULL,
+                       rolling = FALSE,
+                       ...){
+  
+  if(is.null(duration) & !complete) { # monthly application
+    data[, month := lubridate::floor_date(time,"month")]
+  } else if(!complete) { # per given duration
+    data <- cqcp_add_episode(data, duration)
+  }
   data <- cqcp_m1(data, cutOff = m1_cutOff)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
-             fun = m2_fun)
-  data <- cqcp_m3(data, cutOff = m3_cutOff)
-  data <- cqcp_m4(data, cutOff = m4_cutOff)
+                  fun = m2_fun)
+  data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration,
+                  rolling = rolling)
+  data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
+                  rolling = rolling)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
     data <- cqcp_o2(data, cutOff = o2_cutOff)
     data <- cqcp_o3(data, cutOff = o3_cutOff)
   }
-  data$month <- NULL
+  if(cqcp_has_column(data, "month")) {
+    data$month <- NULL
+  } else if(cqcp_has_column(data, "episode")) {
+    data$episode <- NULL
+  }
   return(data)
 }
