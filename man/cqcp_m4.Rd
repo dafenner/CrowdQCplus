@@ -12,13 +12,13 @@ cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, rolling = FALSE)
 \item{cutOff}{value of correlation coefficient below which data are flagged
 with FALSE, 0 < cutOff < 1. Default is 0.9.}
 
-\item{complete}{Use the complete data set for the filter (priority over 'duration').}
+\item{complete}{logical. Use the complete data set for the filter (priority over 'duration')?}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
 
-\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. A 'duration'
-has to be specified too.}
+\item{rolling}{logical. Set to TRUE to carry out the filter on a rolling basis. 
+A 'duration' has to be specified too.}
 }
 \value{
 data.table

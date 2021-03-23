@@ -13,10 +13,13 @@ cqcp_qcCWS(
   m2_fun = qnorm,
   m3_cutOff = 0.2,
   m4_cutOff = 0.9,
-  o1_fun = interpol,
+  o1_fun = cqcp_interpol,
   o2_cutOff = 0.8,
   o3_cutOff = 0.8,
   includeOptional = T,
+  complete = FALSE,
+  duration = NULL,
+  rolling = FALSE,
   ...
 )
 }
@@ -46,6 +49,12 @@ cqcp_qcCWS(
 \item{includeOptional}{set to TRUE if QC steps o1 to o3 shall be
 performed, default: TRUE}
 
+\item{complete}{see complete in ?m3 or ?m4}
+
+\item{duration}{see duration in ?m3 or ?m4}
+
+\item{rolling}{see rolling in ?m3 or ?m4}
+
 \item{...}{additional parameters used in o1. For details see ?o1}
 }
 \value{
@@ -64,6 +73,7 @@ levels are carried along, i.e., if a value failed in step m2, this FALSE is
 kept throughout the remaining QC steps. In the end, only those data
 values containing TRUE after the all QC steps are valid according to this
 QC.
+'complete' currently does not work with the example data set (netatmoBer).
 }
 \examples{
 data(netatmoBer)

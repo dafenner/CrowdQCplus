@@ -10,6 +10,6 @@ Citation: Fenner et al. 2021
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: data.table, robustbase, lubridate, raster
+Imports: data.table, robustbase, lubridate, sp, raster
 NeedsCompilation: no
 Packaged: 2018-06-25 19:45:21 UTC;
