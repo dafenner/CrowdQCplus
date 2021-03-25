@@ -81,7 +81,7 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug =
   data[,rem_ta := ta]
   # ensures that all what is wrong in m1 is wrong in m2 too
   data[!m1, "rem_ta"] <- NaN
-  if(heightCorrection & "z" %in% colnames(data)){
+  if(heightCorrection & cqcp_has_column(data, column = "z")){
     agg <- data[,.(mz = mean(z, na.rm = T)), by=.(time)]
     data <- merge(data,agg, by = "time")
     data[, rem_ta := rem_ta + (lapse_rate * (z - mz))]
@@ -92,7 +92,7 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug =
   if(!debug){
     data$rem_ta <- NULL
     data$z_ta <- NULL
-    if(heightCorrection & "z" %in% colnames(data)){
+    if(heightCorrection & cqcp_has_column(data, column = "z")){
       data$mz <- NULL
     }
   }
@@ -115,7 +115,7 @@ cqcp_add_episode <- function(data, duration){
   n <- data[p_id == data[1]$p_id, .N]
   episode <- rep(1:ceiling(n/steps), each = steps)
   if(length(episode) != n) {
-    print("Last episode shorter than specified duration.")
+    print("[CrowdQC+] Last episode in data shorter than specified duration.")
   }
   data <- data[, episode := episode[1:n], by = .(p_id)]
   return(data)
@@ -289,6 +289,60 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
   return(data)
 }
 
+cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 2, 
+                    heightCorrection = T, lapse_rate = 0.0065) {
+  
+  # transform data with lapse rate to make it comparable, as in m2
+  data[, rem_ta := ta]
+  data[!m4, "rem_ta"] <- NaN
+  if(heightCorrection & cqcp_has_column(data, column = "z")){
+    agg <- data[,.(mz = mean(z, na.rm = T)), by = .(time)]
+    data <- merge(data,agg, by = "time")
+    data[, rem_ta := rem_ta + (lapse_rate * (z - mz))]
+  }
+  
+  # calculate distances between stations and get relevant stations
+  p_id <- unique(data$p_id)
+  loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
+  dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
+  colnames(dist) <- p_id
+  rownames(dist) <- p_id
+  dist <- as.data.table(as.table(dist))
+  setnames(dist, new = c("p_x", "p_y", "distance"))
+  dist <- dist[(p_x != p_y) & (!is.na(distance))] # reduce table size
+  combi <- dist[distance <= radius] # station within radius
+  
+  # ensure the right keys are set to make subsetting fast
+  setkey(data, p_id, time)
+  # loop over stations, more efficient solution?
+  for(i in p_id) {
+    rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
+    uni_p <- unique(c(rel_stat$p_x, rel_stat$p_y)) # retrieve unique
+    uni_p <- as.integer(uni_p[which(uni_p != i)]) # remove station itself
+    
+    if(length(uni_p) < n_station) next # not enough stations in surroundings
+    
+    mean_v <- data[.(uni_p), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
+                                      val = length(!is.na(rem_ta)) >= n_station), keyby = .(time)]
+    #mean_v <- data[p_id %in% uni_p, .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
+            #       val = length(!is.na(rem_ta)) >= n_station), by = .(time)]
+    
+    data <- data[p_id == i, c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
+  }
+  
+  data[, m5 := m4 & val_rad & (rem_ta < (mean_rad + multiple_sd*sd_rad) | rem_ta > (mean_rad - multiple_sd*sd_rad))]
+  data[is.na(m5), m5 := FALSE]
+  
+  data$rem_ta <- NULL
+  data$val_rad <- NULL
+  data$mean_rad <- NULL
+  data$sd_rad <- NULL
+  if(heightCorrection & cqcp_has_column(data, column = "z")){
+    data$mz <- NULL
+  }
+  return(data)
+}
+
 #' Interpolation
 #'
 #' This function takes a numerical vector x and fills NaNs with linearly
@@ -338,7 +392,7 @@ cqcp_interpol <- function(x, maxLength = 1){
 #' o_1 <- cqcp_o1(m_4, maxLength = 5)
 cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
   data[,ta_int := ta]
-  data[!m4, "ta_int"] <- NA
+  data[!m5, "ta_int"] <- NA
   data[,ta_int := fun(ta_int, ...), by = .(p_id)]
   is_interpolated = data$ta != data$ta_int
   #handle NA compare
@@ -346,7 +400,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
   is_interpolated[is.na(is_interpolated)] <- FALSE
   #but if we created a value it has to be interpolated
   is_interpolated[is.na(data$ta) & !is.na(data$ta_int)] <- TRUE
-  data[, o1:= is_interpolated | m4] #a value ready to use
+  data[, o1:= is_interpolated | m5] #a value ready to use
   return(data)
 }
 
@@ -367,7 +421,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
 #' @examples
 #' o_2 <- cqcp_o2(o_1)
 cqcp_o2 <- function(data, cutOff = 0.8){
-  has_d <- "day" %in% colnames(data)
+  has_d <- cqcp_has_column(data, column = "day")
   if(!has_d){
     data[, day := lubridate::floor_date(time,"day")]
   }
@@ -462,7 +516,7 @@ cqcp_has_column <- function(data, column = "month"){
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.1, m2_high = 0.95, 
-                       m2_lapse_rate = 0.006, m2_fun = qnorm, 
+                       m2_lapse_rate = 0.0065, m2_fun = qnorm, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
                        o1_fun = cqcp_interpol,
@@ -486,6 +540,8 @@ cqcp_qcCWS <- function(data,
                   rolling = rolling)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
+  data <- cqcp_m5(data, radius = 1000, n_station = 5, multiple_sd = 2, 
+                  lapse_rate = m2_lapse_rate)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
     data <- cqcp_o2(data, cutOff = o2_cutOff)

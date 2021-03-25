@@ -9,7 +9,7 @@ cqcp_qcCWS(
   m1_cutOff = 1,
   m2_low = 0.1,
   m2_high = 0.95,
-  m2_lapse_rate = 0.006,
+  m2_lapse_rate = 0.0065,
   m2_fun = qnorm,
   m3_cutOff = 0.2,
   m4_cutOff = 0.9,
