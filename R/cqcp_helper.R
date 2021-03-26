@@ -1,4 +1,155 @@
 
+#' Checks if a data.table has the required format for CrowdQC+ and gives hints
+#' regarding the application of the package.
+#' 
+#' 1. Check for column names.
+#' 2. Check for data regularity.
+#' 3. Geographical extend of data.
+#' 4. Number of stations. 
+#'
+#' @param data data.table to be checked.
+#'
+#' @return Print some information (to a file)
+cqcp_check_input <- function(data, print = TRUE, file = NULL){
+  
+  ok <- TRUE
+ 
+  # (1) Check for column names
+  # required
+  has_p_id <- cqcp_has_column(data, column = "p_id")
+  has_time <- cqcp_has_column(data, column = "time")
+  has_ta <- cqcp_has_column(data, column = "ta")
+  has_lon <- cqcp_has_column(data, column = "lon")
+  has_lat <- cqcp_has_column(data, column = "lat")
+  # optional
+  has_z <- cqcp_has_column(data, column = "z")
+  
+  # (2) Check for data regularity.
+  if(has_time & has_p_id) {
+    setkey(data, p_id, time)
+    dt <- data[, length(unique(diff(time))) == 1, keyby=p_id]
+    if(all(dt)) {
+      mess_2 <- "     OK\n"
+    } else {
+      mess_2 <- "     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
+      ok <- FALSE
+    }
+  } else {
+    mess_2 <- "     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n"
+    ok <- FALSE
+  }
+    
+  # (3) Geographical extend.
+  if(has_p_id & has_lon & has_lon) {
+    p_id <- unique(data$p_id)
+    loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
+    dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
+    if(max(dist, na.rm = T) > 141421.4) {
+      mess_3 <- "     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n"
+      ok <- FALSE
+    } else {
+      mess_3 <- "     OK\n"
+      ok <- FALSE
+    }
+  } else {
+    mess_3 <- "     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n"
+    ok <- FALSE
+  }
+  
+  # (4) Number of stations.
+  if(has_p_id) {
+    pid <- unique(data$p_id)
+    if(length(pid) < 250) {
+      mess_4 <- paste0("     ! Low number of stations (",length(pid),").\n     --> Usage of 'fun=qt' in filter M2 is recommended.\n")
+      ok <- FALSE
+    } else {
+      mess_4 <- "     OK\n"
+      ok <- FALSE
+    }
+  } else {
+    mess_4 <- "     ! Column needed for this check: 'p_id'.\n"
+    ok <- FALSE
+  }
+  
+  # Print
+  if(print) {
+    cat("+++++++++++++++++++++++++++++\n")
+    cat("+ CrowdQC+ input data check +\n")
+    cat("+++++++++++++++++++++++++++++\n")
+    # (1)
+    cat("(Check 1a) Required columns:\n")
+    if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
+      miss <- c()
+      if(!has_p_id) miss <- c(miss, "p_id")
+      if(!has_time) miss <- c(miss, "time")
+      if(!has_ta) miss <- c(miss, "ta")
+      if(!has_lon) miss <- c(miss, "lon")
+      if(!has_lat) miss <- c(miss, "lat")
+      cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
+      ok <- FALSE
+    } else cat("     OK\n")
+    cat("(Check 1b) Optional columns:\n")
+    if(!has_z) {
+      cat("     ! Missing: z\n")
+      cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
+    } else cat("     OK\n")
+    # (2)
+    cat("(Check 2) Regularity:\n")
+    cat(mess_2)
+    # (3)
+    cat("(Check 3) Geographical extend:\n")
+    cat(mess_3)
+    # (4)
+    cat("(Check 4) Number of stations:\n")
+    cat(mess_4)
+  }
+  
+  # File?
+  if (!is.null(file)) {
+    
+    sink(file)
+    
+    cat("+++++++++++++++++++++++++++++\n")
+    cat("+ CrowdQC+ input data check +\n")
+    cat("+++++++++++++++++++++++++++++\n")
+    
+    cat(paste0("File created: ",now("UTC")," UTC\n"))
+    cat("+++++++++++++++++++++++++++++\n")
+    cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
+    
+    # (1)
+    cat("(Check 1a) Required columns:\n")
+    if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
+      miss <- c()
+      if(!has_p_id) miss <- c(miss, "p_id")
+      if(!has_time) miss <- c(miss, "time")
+      if(!has_ta) miss <- c(miss, "ta")
+      if(!has_lon) miss <- c(miss, "lon")
+      if(!has_lat) miss <- c(miss, "lat")
+      cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
+      ok <- FALSE
+    } else cat("     OK\n")
+    cat("(Check 1b) Optional columns:\n")
+    if(!has_z) {
+      cat("     ! Missing: z\n")
+      cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
+    } else cat("     OK\n")
+    # (2)
+    cat("(Check 2) Regularity:\n")
+    cat(mess_2)
+    # (3)
+    cat("(Check 3) Geographical extend:\n")
+    cat(mess_3)
+    # (4)
+    cat("(Check 4) Number of stations:\n")
+    cat(mess_4)
+    
+    sink()
+  }
+  
+  return(ok)
+}
+
 #' Extract raster value at given position(s) for a RasterLayer Object or geotiff
 #' file.
 #'
