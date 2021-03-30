@@ -53,7 +53,7 @@ cqcp_getZ <- function(x){
 #' Flags all values as FALSE if robust z-score is not within the critical values
 #' obtained from low and high. This approach is based on the distribution
 #' function of all values. !Careful: if number of stations is < 200, it would be
-#' better to use the Student t distribution (to be implemented)!
+#' better to use the Student-t distribution (t_distribution = TRUE)!
 #'
 #' @param data data.table object obtained from m1
 #' @param low 0 < low < high < 1
@@ -66,7 +66,8 @@ cqcp_getZ <- function(x){
 #'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 #'   lapse_rate = 0.01 to set a dry adiabatic lapse rate.
 #' @param debug set to true to keep intermediate results
-#' @param fun distribution function to use. Default: 'qnorm'
+#' @param t_distribution Set to TRUE to assume a Student-t distribution of the 
+#'   data instead of the normal distribution. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -77,8 +78,8 @@ cqcp_getZ <- function(x){
 #' y <- cqcp_m2(x)
 #'
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug = F,
-                    lapse_rate = 0.0065, fun = qnorm){
-  data[,rem_ta := ta]
+                    lapse_rate = 0.0065, t_distribution = F){
+  data[, rem_ta := ta]
   # ensures that all what is wrong in m1 is wrong in m2 too
   data[!m1, "rem_ta"] <- NaN
   if(heightCorrection & cqcp_has_column(data, column = "z")){
@@ -88,7 +89,12 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug =
   }
   data[, z_ta := cqcp_getZ(rem_ta), by = time]
   data[, m2 := T]
-  data[z_ta < fun(low) | z_ta > fun(high) | is.nan(z_ta), "m2"] <- F
+  if(t_distribution){
+    data[, n := sum(!is.nan(rem_ta))-1, by = time]
+    data[z_ta < qt(low, n) | z_ta > qt(high, n) | is.nan(z_ta), m2 := F, by = time]
+  } else {
+    data[z_ta < qnorm(low) | z_ta > qnorm(high) | is.nan(z_ta), m2 := F]
+  }
   if(!debug){
     data$rem_ta <- NULL
     data$z_ta <- NULL
@@ -314,23 +320,27 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 2,
   
   # ensure the right keys are set to make subsetting fast
   setkey(data, p_id, time)
+
+  start_time <- Sys.time()
+  
   # loop over stations, more efficient solution?
   for(i in p_id) {
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
     uni_p <- unique(c(rel_stat$p_x, rel_stat$p_y)) # retrieve unique
     uni_p <- as.integer(uni_p[which(uni_p != i)]) # remove station itself
-    
+
     if(length(uni_p) < n_station) next # not enough stations in surroundings
-    
+
     mean_v <- data[.(uni_p), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
                                       val = length(!is.na(rem_ta)) >= n_station), keyby = .(time)]
-    #mean_v <- data[p_id %in% uni_p, .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
-            #       val = length(!is.na(rem_ta)) >= n_station), by = .(time)]
-    
-    data <- data[p_id == i, c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
+    data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
   }
   
-  data[, m5 := m4 & val_rad & (rem_ta < (mean_rad + multiple_sd*sd_rad) | rem_ta > (mean_rad - multiple_sd*sd_rad))]
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  data[, m5 := m4 & val_rad & rem_ta < (mean_rad + multiple_sd*sd_rad) & 
+         rem_ta > (mean_rad - multiple_sd*sd_rad)]
   data[is.na(m5), m5 := FALSE]
   
   data$rem_ta <- NULL
@@ -494,7 +504,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m2_low see low in ?m2
 #' @param m2_high see high in ?m2
 #' @param m2_lapse_rate see lapse_rate in ?m2
-#' @param m2_fun see fun in ?m2
+#' @param t_distribution see t_distribution in ?m2
 #' @param m3_cutOff see cutOff in ?m3
 #' @param m4_cutOff see cutOff in ?m4
 #' @param o1_fun see fun in ?o1
@@ -516,7 +526,7 @@ cqcp_has_column <- function(data, column = "month"){
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.1, m2_high = 0.95, 
-                       m2_lapse_rate = 0.0065, m2_fun = qnorm, 
+                       m2_lapse_rate = 0.0065, t_distribution = FALSE, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
                        o1_fun = cqcp_interpol,
@@ -535,12 +545,12 @@ cqcp_qcCWS <- function(data,
   }
   data <- cqcp_m1(data, cutOff = m1_cutOff)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
-                  fun = m2_fun)
+                  t_distribution = t_distribution)
   data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
-  data <- cqcp_m5(data, radius = 1000, n_station = 5, multiple_sd = 2, 
+  data <- cqcp_m5(data, radius = 2000, n_station = 5, multiple_sd = 2, 
                   lapse_rate = m2_lapse_rate)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
