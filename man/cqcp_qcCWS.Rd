@@ -10,9 +10,13 @@ cqcp_qcCWS(
   m2_low = 0.1,
   m2_high = 0.95,
   m2_lapse_rate = 0.0065,
-  m2_fun = qnorm,
+  m2_t_distribution = FALSE,
   m3_cutOff = 0.2,
   m4_cutOff = 0.9,
+  m5_radius = 3000,
+  m5_n_station = 5,
+  m5_multiple_sd = 3,
+  m5_lapse_rate = 0.0065,
   o1_fun = cqcp_interpol,
   o2_cutOff = 0.8,
   o3_cutOff = 0.8,
@@ -34,11 +38,19 @@ cqcp_qcCWS(
 
 \item{m2_lapse_rate}{see lapse_rate in ?m2}
 
-\item{m2_fun}{see fun in ?m2}
+\item{m2_t_distribution}{see t_distribution in ?m2}
 
 \item{m3_cutOff}{see cutOff in ?m3}
 
 \item{m4_cutOff}{see cutOff in ?m4}
+
+\item{m5_radius}{see radius in ?m5}
+
+\item{m5_n_station}{see n_station in ?m5}
+
+\item{m5_multiple_sd}{see multiple_sd in ?m5}
+
+\item{m5_lapse_rate}{see lapse_rate in ?m5}
 
 \item{o1_fun}{see fun in ?o1}
 
@@ -49,11 +61,11 @@ cqcp_qcCWS(
 \item{includeOptional}{set to TRUE if QC steps o1 to o3 shall be
 performed, default: TRUE}
 
-\item{complete}{see complete in ?m3 or ?m4}
+\item{complete}{see complete in ?m3, ?m4, or ?o3}
 
-\item{duration}{see duration in ?m3 or ?m4}
+\item{duration}{see duration in ?m3, ?m4, or ?o3}
 
-\item{rolling}{see rolling in ?m3 or ?m4}
+\item{rolling}{see rolling in ?m3, ?m4, or ?o3}
 
 \item{...}{additional parameters used in o1. For details see ?o1}
 }

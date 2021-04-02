@@ -11,7 +11,7 @@ cqcp_m2(
   heightCorrection = T,
   debug = F,
   lapse_rate = 0.0065,
-  fun = qnorm
+  t_distribution = F
 )
 }
 \arguments{
@@ -32,7 +32,8 @@ where mz is the spatial mean of z at each time step.}
 environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 lapse_rate = 0.01 to set a dry adiabatic lapse rate.}
 
-\item{fun}{distribution function to use. Default: 'qnorm'}
+\item{t_distribution}{Set to TRUE to assume a Student-t distribution of the 
+data instead of the normal distribution. Default: FALSE}
 }
 \value{
 data.table
@@ -41,7 +42,7 @@ data.table
 Flags all values as FALSE if robust z-score is not within the critical values
 obtained from low and high. This approach is based on the distribution
 function of all values. !Careful: if number of stations is < 200, it would be
-better to use the Student t distribution (to be implemented)!
+better to use the Student-t distribution (t_distribution = TRUE)!
 }
 \examples{
 data(netatmoBer)
