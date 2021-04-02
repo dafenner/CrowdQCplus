@@ -1,15 +1,19 @@
 
+#' Input check of data for CrowdQC+
+#' 
 #' Checks if a data.table has the required format for CrowdQC+ and gives hints
 #' regarding the application of the package.
 #' 
 #' 1. Check for column names.
 #' 2. Check for data regularity.
-#' 3. Geographical extend of data.
+#' 3. Geographical extent of data.
 #' 4. Number of stations. 
 #'
 #' @param data data.table to be checked.
+#' @param print Set to TRUE to print information in the console. Default: TRUE
+#' @param file Provide a file path to store the information in a file.
 #'
-#' @return Print some information (to a file)
+#' @return logical, TRUE if data passed all checks.
 cqcp_check_input <- function(data, print = TRUE, file = NULL){
   
   ok <- TRUE
@@ -27,7 +31,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   # (2) Check for data regularity.
   if(has_time & has_p_id) {
     setkey(data, p_id, time)
-    dt <- data[, length(unique(diff(time))) == 1, keyby=p_id]
+    dt <- data[, length(unique(diff(time))) == 1, keyby=p_id] # data regular
     if(all(dt)) {
       mess_2 <- "     OK\n"
     } else {
@@ -39,7 +43,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     ok <- FALSE
   }
     
-  # (3) Geographical extend.
+  # (3) Geographical extent
   if(has_p_id & has_lon & has_lon) {
     p_id <- unique(data$p_id)
     loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
@@ -49,7 +53,6 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       ok <- FALSE
     } else {
       mess_3 <- "     OK\n"
-      ok <- FALSE
     }
   } else {
     mess_3 <- "     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n"
@@ -59,12 +62,11 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   # (4) Number of stations.
   if(has_p_id) {
     pid <- unique(data$p_id)
-    if(length(pid) < 250) {
+    if(length(pid) < 200) {
       mess_4 <- paste0("     ! Low number of stations (",length(pid),").\n     --> Usage of 'fun=qt' in filter M2 is recommended.\n")
       ok <- FALSE
     } else {
       mess_4 <- "     OK\n"
-      ok <- FALSE
     }
   } else {
     mess_4 <- "     ! Column needed for this check: 'p_id'.\n"
@@ -77,7 +79,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     cat("+ CrowdQC+ input data check +\n")
     cat("+++++++++++++++++++++++++++++\n")
     # (1)
-    cat("(Check 1a) Required columns:\n")
+    cat("Check 1a - Required columns:\n")
     if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
       miss <- c()
       if(!has_p_id) miss <- c(miss, "p_id")
@@ -88,19 +90,19 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
       ok <- FALSE
     } else cat("     OK\n")
-    cat("(Check 1b) Optional columns:\n")
+    cat("Check 1b - Optional columns:\n")
     if(!has_z) {
       cat("     ! Missing: z\n")
       cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
     } else cat("     OK\n")
     # (2)
-    cat("(Check 2) Regularity:\n")
+    cat("Check 2 - Regularity:\n")
     cat(mess_2)
     # (3)
-    cat("(Check 3) Geographical extend:\n")
+    cat("Check 3 - Geographical extent:\n")
     cat(mess_3)
     # (4)
-    cat("(Check 4) Number of stations:\n")
+    cat("Check 4 - Number of stations:\n")
     cat(mess_4)
   }
   
@@ -109,16 +111,17 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     
     sink(file)
     
-    cat("+++++++++++++++++++++++++++++\n")
-    cat("+ CrowdQC+ input data check +\n")
-    cat("+++++++++++++++++++++++++++++\n")
+    cat("+++++++++++++++++++++++++++++++++++++\n")
+    cat("++++  CrowdQC+ input data check  ++++\n")
+    cat("+++++++++++++++++++++++++++++++++++++\n")
     
     cat(paste0("File created: ",now("UTC")," UTC\n"))
-    cat("+++++++++++++++++++++++++++++\n")
+    cat("+++++++++++++++++++++++++++++++++++++\n")
     cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
+    cat("+++++++++++++++++++++++++++++++++++++\n")
     
     # (1)
-    cat("(Check 1a) Required columns:\n")
+    cat("Check 1a - Required columns:\n")
     if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
       miss <- c()
       if(!has_p_id) miss <- c(miss, "p_id")
@@ -129,19 +132,19 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
       ok <- FALSE
     } else cat("     OK\n")
-    cat("(Check 1b) Optional columns:\n")
+    cat("Check 1b - Optional columns:\n")
     if(!has_z) {
       cat("     ! Missing: z\n")
       cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
     } else cat("     OK\n")
     # (2)
-    cat("(Check 2) Regularity:\n")
+    cat("Check 2 - Regularity:\n")
     cat(mess_2)
     # (3)
-    cat("(Check 3) Geographical extend:\n")
+    cat("Check 3 - Geographical extent:\n")
     cat(mess_3)
     # (4)
-    cat("(Check 4) Number of stations:\n")
+    cat("Check 4 - Number of stations:\n")
     cat(mess_4)
     
     sink()

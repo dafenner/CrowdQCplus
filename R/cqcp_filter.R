@@ -295,7 +295,35 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
   return(data)
 }
 
-cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 2, 
+#' Main QC step m5
+#'
+#' Spatial buddy check. Flags all values as FALSE if values are too different
+#' than those from spatially neighbouring stations.
+#' Check is based on the mean value plus/minus multiples of the standard deviation 
+#' (default is three standard deviations) of all stations within a specified radius 
+#' (default is 3000 m). A minimum number of stations within a radius have to be 
+#' present for the calculations (default is five neighbours), thus this filter 
+#' also flags isolated stations.
+#'
+#' @param data data.table as returned by m4
+#' @param radius A radius in m around each station to check for neighbours.
+#' @param n_station Minimum number of neighbouring stations with a valid value 
+#'   within radius.
+#' @param multiple_sd Multiples of the spatial standard deviation within radius to 
+#'   be applied in the filter.
+#' @param heightCorrection if set to true (default) and the column "z" exists in
+#'   the input data, the temperatures used in calculating the z-score are
+#'   corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
+#'   where mz is the spatial mean of z at each time step.
+#' @param lapse_rate Lapse rate to use in 'heightCorrection'. Default is the 
+#'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
+#'   lapse_rate = 0.01 to set a dry adiabatic lapse rate. For consistency, this
+#'   lapse rate should be the same as in ?m2.
+#'
+#' @return data.table
+#' @export
+#'
+cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3, 
                     heightCorrection = T, lapse_rate = 0.0065) {
   
   # transform data with lapse rate to make it comparable, as in m2
@@ -444,29 +472,58 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 
 #' Optional QC step o3
 #'
-#' Optional QC for temporal data availability. Flags all values in a month
-#' as FALSE if less than 'cutOff' percent of valid values are available for that
-#' month.
+#' Optional QC for temporal data availability. Flags all values in a specified 
+#' duration (if nothing specified on a monthly basis) as FALSE if less than '
+#' cutOff' percent of valid values are available for that duration.
 #'
 #' @param data data.table as returned from o2
-#' @param cutOff percentage of values that must be present for each month before
-#'   all values of that month are flagged with FALSE, expressed in fraction: 0 <
+#' @param cutOff percentage of values that must be present for each duration before
+#'   all values of that duration are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
+#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
+#' @param duration A fixed duration to be used (cf. lubridate duration documentation).
+#'   This can be, e.g., '10 days'.
+#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#'   A 'duration' has to be specified too.
 #'
 #' @return data.table
 #' @export
 #'
 #' @examples
 #' o_3 <- cqcp_o3(o_2)
-cqcp_o3 <- function(data, cutOff = 0.8){
-  has_m <- cqcp_has_column(data, column = "month")
-  if(!has_m){
-    data[, month := lubridate::floor_date(time,"month")]
+cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL, 
+                    rolling = FALSE){
+
+  # case 1: nothing specified (rolling ignored, because duration has to be set).
+  # as in original CrowdQC: per month
+  if(is.null(duration) & !complete) {
+    has_m <- cqcp_has_column(data, column = "month")
+    if(!has_m){
+      data[,month := lubridate::floor_date(time,"month")]
+    }
+    data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(month, p_id)]
+    if(!has_m){
+      data$month <- NULL
+    }
+  } else if(complete) { # complete time series, 'duration' and 'rolling' ignored
+    data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(p_id)]
+  } else { # per duration
+    if(rolling) { # rolling application
+      if(!is.null(duration)) {
+        print("Rolling application not yet possible.") # not yet implemented
+      }
+    } else { # per duration, not rolling
+      has_e <- cqcp_has_column(data, column = "episode")
+      if(!has_e){
+        data <- cqcp_add_episode(data, duration)
+      }
+      data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(episode, p_id)]
+      if(!has_e){
+        data$episode <- NULL
+      }
+    }
   }
-  data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(month, p_id)]
-  if(!has_m){
-    data$month <- NULL
-  }
+
   return(data)
 }
 
@@ -504,17 +561,21 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m2_low see low in ?m2
 #' @param m2_high see high in ?m2
 #' @param m2_lapse_rate see lapse_rate in ?m2
-#' @param t_distribution see t_distribution in ?m2
+#' @param m2_t_distribution see t_distribution in ?m2
 #' @param m3_cutOff see cutOff in ?m3
 #' @param m4_cutOff see cutOff in ?m4
+#' @param m5_radius see radius in ?m5
+#' @param m5_n_station see n_station in ?m5
+#' @param m5_multiple_sd see multiple_sd in ?m5
+#' @param m5_lapse_rate see lapse_rate in ?m5
 #' @param o1_fun see fun in ?o1
 #' @param o2_cutOff see cutOff in ?o2
 #' @param o3_cutOff see cutOff in ?o3
 #' @param includeOptional set to TRUE if QC steps o1 to o3 shall be
 #'   performed, default: TRUE
-#' @param complete see complete in ?m3 or ?m4
-#' @param duration see duration in ?m3 or ?m4
-#' @param rolling see rolling in ?m3 or ?m4
+#' @param complete see complete in ?m3, ?m4, or ?o3
+#' @param duration see duration in ?m3, ?m4, or ?o3
+#' @param rolling see rolling in ?m3, ?m4, or ?o3
 #' @param ... additional parameters used in o1. For details see ?o1
 #'
 #' @return data.table
@@ -526,9 +587,11 @@ cqcp_has_column <- function(data, column = "month"){
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.1, m2_high = 0.95, 
-                       m2_lapse_rate = 0.0065, t_distribution = FALSE, 
+                       m2_lapse_rate = 0.0065, m2_t_distribution = FALSE, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
+                       m5_radius = 3000, m5_n_station = 5, m5_multiple_sd = 3, 
+                       m5_lapse_rate = 0.0065,
                        o1_fun = cqcp_interpol,
                        o2_cutOff = 0.8,
                        o3_cutOff = 0.8,
@@ -545,17 +608,18 @@ cqcp_qcCWS <- function(data,
   }
   data <- cqcp_m1(data, cutOff = m1_cutOff)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
-                  t_distribution = t_distribution)
+                  t_distribution = m2_t_distribution)
   data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
-  data <- cqcp_m5(data, radius = 2000, n_station = 5, multiple_sd = 2, 
-                  lapse_rate = m2_lapse_rate)
+  data <- cqcp_m5(data, radius = m5_radius, n_station = m5_n_station, 
+                  multiple_sd = m5_multiple_sd, lapse_rate = m5_lapse_rate)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
     data <- cqcp_o2(data, cutOff = o2_cutOff)
-    data <- cqcp_o3(data, cutOff = o3_cutOff)
+    data <- cqcp_o3(data, cutOff = o3_cutOff, complete = complete, duration = duration,
+                    rolling = rolling)
   }
   if(cqcp_has_column(data, "month")) {
     data$month <- NULL
