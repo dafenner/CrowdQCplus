@@ -21,7 +21,7 @@ consecutive NaNs to be interpolated and replaced, is smaller or equal
 maxLength. Internally called by o1.
 }
 \examples{
-x <- x(1, NaN, 3, NaN NaN, 6, NaN, 8)
+x <- c(1, NaN, 3, NaN, NaN, 6, NaN, 8)
 cqcp_interpol(x)
 cqcp_interpol(x, 2)
 }

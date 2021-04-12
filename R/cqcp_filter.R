@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' data(netatmoBer)
-#' x <- cqcp_m1(netatmoBer)
+#' m_1 <- cqcp_m1(netatmoBer)
 cqcp_m1 <- function(data, cutOff = 1){
   val  <- data[!is.na(ta),.(a = 1), by = .(p_id,lon,lat)]
   bad_s  <- val[,.(anz = sum(lon == val$lon & lat == val$lat)), by = p_id]
@@ -74,9 +74,8 @@ cqcp_getZ <- function(x){
 #'
 #' @examples
 #' data(netatmoBer)
-#' x <- cqcp_m1(netatmoBer)
-#' y <- cqcp_m2(x)
-#'
+#' m_1 <- cqcp_m1(netatmoBer)
+#' m_2 <- cqcp_m2(m_1)
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = T, debug = F,
                     lapse_rate = 0.0065, t_distribution = F){
   data[, rem_ta := ta]
@@ -180,8 +179,10 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' @export
 #'
 #' @examples
-#' y <- cqcp_m2(x)
-#' z <- cqcp_m3(y)
+#' data(netatmoBer)
+#' m_1 <- cqcp_m1(netatmoBer)
+#' m_2 <- cqcp_m2(m_1)
+#' m_3 <- cqcp_m3(m_2)
 cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL, 
                     rolling = FALSE){
   
@@ -238,8 +239,11 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' @export
 #'
 #' @examples
-#' y <- cqcp_m3(x)
-#' z <- cqcp_m4(y)
+#' data(netatmoBer)
+#' m_1 <- cqcp_m1(netatmoBer)
+#' m_2 <- cqcp_m2(m_1)
+#' m_3 <- cqcp_m3(m_2)
+#' m_4 <- cqcp_m4(m_3)
 cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL, 
                     rolling = FALSE){
   
@@ -323,6 +327,13 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' @return data.table
 #' @export
 #'
+#' @examples
+#' data(netatmoBer)
+#' m_1 <- cqcp_m1(netatmoBer)
+#' m_2 <- cqcp_m2(m_1)
+#' m_3 <- cqcp_m3(m_2)
+#' m_4 <- cqcp_m4(m_3)
+#' m_5 <- cqcp_m5(m_4)
 cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3, 
                     heightCorrection = T, lapse_rate = 0.0065) {
   
@@ -395,7 +406,7 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3,
 #' @export
 #'
 #' @examples
-#' x <- x(1, NaN, 3, NaN NaN, 6, NaN, 8)
+#' x <- c(1, NaN, 3, NaN, NaN, 6, NaN, 8)
 #' cqcp_interpol(x)
 #' cqcp_interpol(x, 2)
 cqcp_interpol <- function(x, maxLength = 1){

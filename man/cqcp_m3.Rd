@@ -32,6 +32,8 @@ set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
 rolling, in combination with 'duration' (not yet implemented.)
 }
 \examples{
-y <- cqcp_m2(x)
-z <- cqcp_m3(y)
+data(netatmoBer)
+m_1 <- cqcp_m1(netatmoBer)
+m_2 <- cqcp_m2(m_1)
+m_3 <- cqcp_m3(m_2)
 }

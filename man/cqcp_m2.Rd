@@ -46,7 +46,6 @@ better to use the Student-t distribution (t_distribution = TRUE)!
 }
 \examples{
 data(netatmoBer)
-x <- cqcp_m1(netatmoBer)
-y <- cqcp_m2(x)
-
+m_1 <- cqcp_m1(netatmoBer)
+m_2 <- cqcp_m2(m_1)
 }
