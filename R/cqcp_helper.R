@@ -14,6 +14,7 @@
 #' @param file Provide a file path to store the information in a file.
 #'
 #' @return logical, TRUE if data passed all checks.
+#' @export
 cqcp_check_input <- function(data, print = TRUE, file = NULL){
   
   ok <- TRUE
@@ -200,6 +201,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
 #' @param ... additional parameters supported by raster::getData
 #'
 #' @return RasterLayer object with SRTM data
+#' @export
 cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL, 
                                overwrite = TRUE, crop = FALSE, ...){
   
@@ -259,6 +261,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param ... additional parameters supported by raster::getData
 #'
 #' @return data table with new column 'z' with DEM information
+#' @export
 cqcp_add_dem_height <- function(data, file = NULL, raster = NULL, 
                                 directory = NULL, outfile = NULL, 
                                 overwrite = TRUE, crop = FALSE, 
@@ -302,6 +305,7 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
 #'   defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.
 #'
 #' @return data.table with regular time series for all stations.
+#' @export
 cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest") {
   
   # parameters & input
