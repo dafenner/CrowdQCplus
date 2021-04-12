@@ -173,7 +173,7 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
 #' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
-#'   A 'duration' has to be specified too.
+#'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
 #' @export
@@ -233,7 +233,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
 #' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
-#'   A 'duration' has to be specified too.
+#'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
 #' @export
@@ -322,7 +322,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' @param lapse_rate Lapse rate to use in 'heightCorrection'. Default is the 
 #'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 #'   lapse_rate = 0.01 to set a dry adiabatic lapse rate. For consistency, this
-#'   lapse rate should be the same as in ?m2.
+#'   lapse rate should be the same as in ?cqcp_m2.
 #'
 #' @return data.table
 #' @export
@@ -495,7 +495,7 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
 #' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
-#'   A 'duration' has to be specified too.
+#'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
 #' @export
@@ -568,26 +568,26 @@ cqcp_has_column <- function(data, column = "month"){
 #' 'complete' currently does not work with the example data set (netatmoBer).
 #'
 #' @param data input data in the format as the example data (netatmoBer)
-#' @param m1_cutOff see cutOff in ?m1
-#' @param m2_low see low in ?m2
-#' @param m2_high see high in ?m2
-#' @param m2_lapse_rate see lapse_rate in ?m2
-#' @param m2_t_distribution see t_distribution in ?m2
-#' @param m3_cutOff see cutOff in ?m3
-#' @param m4_cutOff see cutOff in ?m4
-#' @param m5_radius see radius in ?m5
-#' @param m5_n_station see n_station in ?m5
-#' @param m5_multiple_sd see multiple_sd in ?m5
-#' @param m5_lapse_rate see lapse_rate in ?m5
-#' @param o1_fun see fun in ?o1
-#' @param o2_cutOff see cutOff in ?o2
-#' @param o3_cutOff see cutOff in ?o3
-#' @param includeOptional set to TRUE if QC steps o1 to o3 shall be
+#' @param m1_cutOff see cutOff in ?cqcp_m1
+#' @param m2_low see low in ?cqcp_m2
+#' @param m2_high see high in ?cqcp_m2
+#' @param m2_lapse_rate see lapse_rate in ?cqcp_m2
+#' @param m2_t_distribution see t_distribution in ?cqcp_m2
+#' @param m3_cutOff see cutOff in ?cqcp_m3
+#' @param m4_cutOff see cutOff in ?cqcp_m4
+#' @param m5_radius see radius in ?cqcp_m5
+#' @param m5_n_station see n_station in ?cqcp_m5
+#' @param m5_multiple_sd see multiple_sd in ?cqcp_m5
+#' @param m5_lapse_rate see lapse_rate in ?cqcp_m5
+#' @param o1_fun see fun in ?cqcp_o1
+#' @param o2_cutOff see cutOff in ?cqcp_o2
+#' @param o3_cutOff see cutOff in ?cqcp_o3
+#' @param includeOptional set to TRUE if QC steps cqcp_o1 to cqcp_o3 shall be
 #'   performed, default: TRUE
-#' @param complete see complete in ?m3, ?m4, or ?o3
-#' @param duration see duration in ?m3, ?m4, or ?o3
-#' @param rolling see rolling in ?m3, ?m4, or ?o3
-#' @param ... additional parameters used in o1. For details see ?o1
+#' @param complete see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
+#' @param duration see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
+#' @param rolling see rolling in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3. Not yet implemented.
+#' @param ... additional parameters used in cqcp_o1. For details see ?cqcp_o1
 #'
 #' @return data.table
 #' @export
