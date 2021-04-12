@@ -173,10 +173,10 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
   
   # Convert lon/lat to "SpatialPoints"
   coords <- data.frame(lon=lon, lat=lat)
-  coords <- sp::SpatialPoints(coords, proj4string = CRS("+init=epsg:4326")) # WGS-84
+  coords <- sp::SpatialPoints(coords, proj4string = raster::crs("+init=epsg:4326")) # WGS-84
   
   # Transform to CRS of raster
-  coords <- spTransform(coords, crs(gtiff))
+  coords <- sp::spTransform(coords, raster::crs(gtiff))
   
   # Extract data for each location
   value <- raster::extract(gtiff, coords)

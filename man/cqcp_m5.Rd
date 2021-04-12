@@ -46,3 +46,11 @@ Check is based on the mean value plus/minus multiples of the standard deviation
 present for the calculations (default is five neighbours), thus this filter 
 also flags isolated stations.
 }
+\examples{
+data(netatmoBer)
+m_1 <- cqcp_m1(netatmoBer)
+m_2 <- cqcp_m2(m_1)
+m_3 <- cqcp_m3(m_2)
+m_4 <- cqcp_m4(m_3)
+m_5 <- cqcp_m5(m_4)
+}
