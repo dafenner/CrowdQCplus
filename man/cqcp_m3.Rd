@@ -18,7 +18,7 @@ Default is 0.2, i.e., 20 percent of data.}
 This can be, e.g., '10 days'.}
 
 \item{rolling}{logical. Set to TRUE to carry out the filter on a rolling basis. 
-A 'duration' has to be specified too.}
+A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{
 data.table

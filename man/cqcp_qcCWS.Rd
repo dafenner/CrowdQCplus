@@ -30,44 +30,44 @@ cqcp_qcCWS(
 \arguments{
 \item{data}{input data in the format as the example data (netatmoBer)}
 
-\item{m1_cutOff}{see cutOff in ?m1}
+\item{m1_cutOff}{see cutOff in ?cqcp_m1}
 
-\item{m2_low}{see low in ?m2}
+\item{m2_low}{see low in ?cqcp_m2}
 
-\item{m2_high}{see high in ?m2}
+\item{m2_high}{see high in ?cqcp_m2}
 
-\item{m2_lapse_rate}{see lapse_rate in ?m2}
+\item{m2_lapse_rate}{see lapse_rate in ?cqcp_m2}
 
-\item{m2_t_distribution}{see t_distribution in ?m2}
+\item{m2_t_distribution}{see t_distribution in ?cqcp_m2}
 
-\item{m3_cutOff}{see cutOff in ?m3}
+\item{m3_cutOff}{see cutOff in ?cqcp_m3}
 
-\item{m4_cutOff}{see cutOff in ?m4}
+\item{m4_cutOff}{see cutOff in ?cqcp_m4}
 
-\item{m5_radius}{see radius in ?m5}
+\item{m5_radius}{see radius in ?cqcp_m5}
 
-\item{m5_n_station}{see n_station in ?m5}
+\item{m5_n_station}{see n_station in ?cqcp_m5}
 
-\item{m5_multiple_sd}{see multiple_sd in ?m5}
+\item{m5_multiple_sd}{see multiple_sd in ?cqcp_m5}
 
-\item{m5_lapse_rate}{see lapse_rate in ?m5}
+\item{m5_lapse_rate}{see lapse_rate in ?cqcp_m5}
 
-\item{o1_fun}{see fun in ?o1}
+\item{o1_fun}{see fun in ?cqcp_o1}
 
-\item{o2_cutOff}{see cutOff in ?o2}
+\item{o2_cutOff}{see cutOff in ?cqcp_o2}
 
-\item{o3_cutOff}{see cutOff in ?o3}
+\item{o3_cutOff}{see cutOff in ?cqcp_o3}
 
-\item{includeOptional}{set to TRUE if QC steps o1 to o3 shall be
+\item{includeOptional}{set to TRUE if QC steps cqcp_o1 to cqcp_o3 shall be
 performed, default: TRUE}
 
-\item{complete}{see complete in ?m3, ?m4, or ?o3}
+\item{complete}{see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3}
 
-\item{duration}{see duration in ?m3, ?m4, or ?o3}
+\item{duration}{see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3}
 
-\item{rolling}{see rolling in ?m3, ?m4, or ?o3}
+\item{rolling}{see rolling in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3. Not yet implemented.}
 
-\item{...}{additional parameters used in o1. For details see ?o1}
+\item{...}{additional parameters used in cqcp_o1. For details see ?cqcp_o1}
 }
 \value{
 data.table

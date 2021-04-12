@@ -32,7 +32,7 @@ where mz is the spatial mean of z at each time step.}
 \item{lapse_rate}{Lapse rate to use in 'heightCorrection'. Default is the 
 environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 lapse_rate = 0.01 to set a dry adiabatic lapse rate. For consistency, this
-lapse rate should be the same as in ?m2.}
+lapse rate should be the same as in ?cqcp_m2.}
 }
 \value{
 data.table
