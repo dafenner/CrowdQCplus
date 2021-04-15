@@ -22,7 +22,8 @@ regarding the application of the package.
 }
 \details{
 1. Check for column names.
-2. Check for data regularity.
-3. Geographical extent of data.
-4. Number of stations.
+2. Check for same temporal coverage.
+3. Check for data regularity.
+4. Geographical extent of data.
+5. Number of stations.
 }
