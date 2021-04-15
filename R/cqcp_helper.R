@@ -5,9 +5,10 @@
 #' regarding the application of the package.
 #' 
 #' 1. Check for column names.
-#' 2. Check for data regularity.
-#' 3. Geographical extent of data.
-#' 4. Number of stations. 
+#' 2. Check for same temporal coverage.
+#' 3. Check for data regularity.
+#' 4. Geographical extent of data.
+#' 5. Number of stations. 
 #'
 #' @param data data.table to be checked.
 #' @param print Set to TRUE to print information in the console. Default: TRUE
@@ -29,48 +30,65 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   # optional
   has_z <- cqcp_has_column(data, column = "z")
   
-  # (2) Check for data regularity.
+  # (2) Check for same temporal coverage.
   if(has_time & has_p_id) {
     setkey(data, p_id, time)
-    dt <- data[, length(unique(diff(time))) == 1, keyby=p_id] # data regular
-    if(all(dt)) {
+    p1 <- data[1]$p_id
+    t1 <- data[p_id == p1]$time
+    test2 <- all(data[, identical(time, t1), by = p_id][, V1])
+    if(test2) {
       mess_2 <- "     OK\n"
     } else {
-      mess_2 <- "     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
+      mess_2 <- "     ! Temporal coverage not the same for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
       ok <- FALSE
     }
   } else {
     mess_2 <- "     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n"
     ok <- FALSE
   }
+  
+  # (3) Check for data regularity.
+  if(has_time & has_p_id) {
+    setkey(data, p_id, time)
+    dt <- data[, length(unique(diff(time))) == 1, keyby = p_id][, V1] # data regular
+    if(all(dt)) {
+      mess_3 <- "     OK\n"
+    } else {
+      mess_3 <- "     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
+      ok <- FALSE
+    }
+  } else {
+    mess_3 <- "     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n"
+    ok <- FALSE
+  }
     
-  # (3) Geographical extent
+  # (4) Geographical extent
   if(has_p_id & has_lon & has_lon) {
     p_id <- unique(data$p_id)
     loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
     dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
     if(max(dist, na.rm = T) > 141421.4) {
-      mess_3 <- "     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n"
-      ok <- FALSE
-    } else {
-      mess_3 <- "     OK\n"
-    }
-  } else {
-    mess_3 <- "     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n"
-    ok <- FALSE
-  }
-  
-  # (4) Number of stations.
-  if(has_p_id) {
-    pid <- unique(data$p_id)
-    if(length(pid) < 200) {
-      mess_4 <- paste0("     ! Low number of stations (",length(pid),").\n     --> Usage of 'fun=qt' in filter M2 is recommended.\n")
+      mess_4 <- "     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n"
       ok <- FALSE
     } else {
       mess_4 <- "     OK\n"
     }
   } else {
-    mess_4 <- "     ! Column needed for this check: 'p_id'.\n"
+    mess_4 <- "     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n"
+    ok <- FALSE
+  }
+  
+  # (5) Number of stations.
+  if(has_p_id) {
+    pid <- unique(data$p_id)
+    if(length(pid) < 200) {
+      mess_5 <- paste0("     ! Low number of stations (",length(pid),").\n     --> Usage of 'fun=qt' in filter M2 is recommended.\n")
+      ok <- FALSE
+    } else {
+      mess_5 <- "     OK\n"
+    }
+  } else {
+    mess_5 <- "     ! Column needed for this check: 'p_id'.\n"
     ok <- FALSE
   }
   
@@ -97,14 +115,17 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
     } else cat("     OK\n")
     # (2)
-    cat("Check 2 - Regularity:\n")
+    cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
     # (3)
-    cat("Check 3 - Geographical extent:\n")
+    cat("Check 3 - Regularity:\n")
     cat(mess_3)
     # (4)
-    cat("Check 4 - Number of stations:\n")
+    cat("Check 4 - Geographical extent:\n")
     cat(mess_4)
+    # (5)
+    cat("Check 5 - Number of stations:\n")
+    cat(mess_5)
   }
   
   # File?
@@ -116,7 +137,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     cat("++++  CrowdQC+ input data check  ++++\n")
     cat("+++++++++++++++++++++++++++++++++++++\n")
     
-    cat(paste0("File created: ",now("UTC")," UTC\n"))
+    cat(paste0("File created: ",lubridate::now("UTC")," UTC\n"))
     cat("+++++++++++++++++++++++++++++++++++++\n")
     cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
     cat("+++++++++++++++++++++++++++++++++++++\n")
@@ -139,14 +160,17 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
     } else cat("     OK\n")
     # (2)
-    cat("Check 2 - Regularity:\n")
+    cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
     # (3)
-    cat("Check 3 - Geographical extent:\n")
+    cat("Check 3 - Regularity:\n")
     cat(mess_3)
     # (4)
-    cat("Check 4 - Number of stations:\n")
+    cat("Check 4 - Geographical extent:\n")
     cat(mess_4)
+    # (5)
+    cat("Check 5 - Number of stations:\n")
+    cat(mess_5)
     
     sink()
   }
