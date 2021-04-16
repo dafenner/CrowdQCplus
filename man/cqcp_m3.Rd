@@ -28,8 +28,9 @@ Flag values with FALSE if more than cutOff percent values are removed during
 m2. This is done since it is assumed that if too many individual
 values are flagged FALSE in m2, the station is too suspicious to be kept.
 Default is to apply m3 per month, but can be changed to use the complete data
-set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
-rolling, in combination with 'duration' (not yet implemented.)
+set (e.g. for short data sets, 'complete = T'), some other fixed duration 
+(e.g. 'duration = "10 days"'), or rolling, in combination with 'duration' 
+(not yet implemented.).
 }
 \examples{
 data(netatmoBer)
