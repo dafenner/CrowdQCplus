@@ -163,8 +163,9 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' m2. This is done since it is assumed that if too many individual
 #' values are flagged FALSE in m2, the station is too suspicious to be kept.
 #' Default is to apply m3 per month, but can be changed to use the complete data
-#' set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
-#' rolling, in combination with 'duration' (not yet implemented.)
+#' set (e.g. for short data sets, 'complete = T'), some other fixed duration 
+#' (e.g. 'duration = "10 days"'), or rolling, in combination with 'duration' 
+#' (not yet implemented.).
 #'
 #' @param data data.table object obtained from m2
 #' @param cutOff value above which data are flagged with FALSE, 0 < cutOff < 1.
@@ -200,6 +201,12 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
   } else if(complete) { # complete time series, 'duration' and 'rolling' ignored
     data[, m3 := m2 & sum(m2)/.N > cutOff, by = .(p_id)]
   } else { # per duration
+    # check for a meaningful duration considering cutOff and temporal resolution
+    # minimum would be so that cutOff refers to at least one value
+    times <- data_cws[data_cws[, .I[1:2], p_id]$V1][1:2,time]
+    if(lubridate::duration(duration)/(times[2]-times[1])*cutOff < 1) {
+      print("[CrowdQC+] Specified duration in 'cqcp_m3' is short considering cutOff and temporal resolution.")
+    }
     if(rolling) { # rolling application
       if(!is.null(duration)) {
         print("Rolling application not yet possible.") # not yet implemented
@@ -223,8 +230,9 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' Flag values with FALSE if the correlation with the median of all stations is 
 #' lower than cutOff.
 #' Default is to apply m4 per month, but can be changed to use the complete data
-#' set (e.g. for short data sets), some other fixed duration (e.g. '10 days'), or
-#' rolling, in combination with 'duration' (not yet implemented.)
+#' set (e.g. for short data sets, 'complete = T'), some other fixed duration 
+#' (e.g. 'duration = "10 days"'), or rolling, in combination with 'duration' 
+#' (not yet implemented.). 
 #'
 #' @param data data.table as returned by m3
 #' @param cutOff value of correlation coefficient below which data are flagged
@@ -274,6 +282,13 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
     data <- merge(data, cor_station, all.x = T, by = c("episode", "p_id"))
     data$episode <- NULL
   } else { # per duration
+    # check for a meaningful sample size in correlation.
+    # minimum would be so that cutOff refers to at least one value
+    times <- data_cws[data_cws[, .I[1:2], p_id]$V1][1:2,time]
+    sample <- lubridate::duration(duration)/(times[2]-times[1])
+    if(sample < 100) {
+      print(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with the specified duration."))
+    }
     if(rolling) { # rolling application
       if(!is.null(duration)) {
         print("Rolling application not yet possible.") # not yet implemented
@@ -371,7 +386,7 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3,
     if(length(uni_p) < n_station) next # not enough stations in surroundings
 
     mean_v <- data[.(uni_p), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
-                                      val = length(!is.na(rem_ta)) >= n_station), keyby = .(time)]
+                                      val = length(!is.na(rem_ta)) >= n_station), by = .(time)]
     data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
   }
   
