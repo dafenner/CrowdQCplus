@@ -378,8 +378,9 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3,
   end_time <- Sys.time()
   print(end_time - start_time)
   
-  data[, m5 := m4 & val_rad & rem_ta < (mean_rad + multiple_sd*sd_rad) & 
-         rem_ta > (mean_rad - multiple_sd*sd_rad)]
+  data[, m5 := m4 & val_rad & between(rem_ta, (mean_rad - multiple_sd*sd_rad), 
+                                      (mean_rad + multiple_sd*sd_rad), 
+                                      incbounds = T, NAbounds = NA)]
   data[is.na(m5), m5 := FALSE]
   
   data$rem_ta <- NULL
