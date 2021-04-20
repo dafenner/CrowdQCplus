@@ -20,6 +20,7 @@ cqcp_qcCWS(
   o1_fun = cqcp_interpol,
   o2_cutOff = 0.8,
   o3_cutOff = 0.8,
+  o4_time_constant = NULL,
   includeOptional = T,
   complete = FALSE,
   duration = NULL,
@@ -57,6 +58,8 @@ cqcp_qcCWS(
 \item{o2_cutOff}{see cutOff in ?cqcp_o2}
 
 \item{o3_cutOff}{see cutOff in ?cqcp_o3}
+
+\item{o4_time_constant}{see time_constant in ?cqcp_o4}
 
 \item{includeOptional}{set to TRUE if QC steps cqcp_o1 to cqcp_o3 shall be
 performed, default: TRUE}

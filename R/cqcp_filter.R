@@ -554,6 +554,48 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
   return(data)
 }
 
+#' Optional QC step o4
+#'
+#' Optional QC for data correction. Corrects all values for a known time constant 
+#' (tau) of the sensor. This value must be the same for all stations/p_id and it is 
+#' assumed that tau is constant, regardless of weather conditions. In the 
+#' correction it is assumed that a step change in the values happens at each time 
+#' step to the next.
+#'
+#' @param data data.table as returned from o1, o2, or o3 (column ta_int must be present)
+#' @param time_constant time constant value for the sensor in seconds (must be 
+#' the same for all p_id). Time constant/tau is defined as the time for a 
+#' system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
+#' step change) (https://en.wikipedia.org/wiki/Time_constant).
+#'
+#' @return data.table
+#' @export
+#'
+#' @examples
+#' o_4 <- cqcp_o4(o_3, 1480.5)
+cqcp_o4 <- function(data, time_constant) {
+  
+  if(is.null(time_constant) | missing(time_constant)) return(data)
+  
+  # add shifted values and time diff
+  cols = c("time","ta_int")
+  lag_cols = paste("lag", cols, sep="_")
+  data <- data[, (lag_cols) := shift(.SD, 1, fill=NA, type = "lag"), .SDcols=cols, by = p_id]
+  data <- data[, dt := as.numeric(time-lag_time, units = "secs"), by = p_id]
+  
+  # correction
+  data <- data[, ta_corr := ta_int]
+  # ta_corr = (ta_int - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))
+  data <- data[, ta_corr := (ta_int - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
+  
+  # remove shifted values and time diff
+  data$lag_time <- NULL
+  data$lag_ta_int <- NULL
+  data$dt <- NULL
+  
+  return(data)
+}
+
 #' has_column
 #' 
 #' This function was formerly has_month but is now more flexible.
@@ -598,6 +640,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param o1_fun see fun in ?cqcp_o1
 #' @param o2_cutOff see cutOff in ?cqcp_o2
 #' @param o3_cutOff see cutOff in ?cqcp_o3
+#' @param o4_time_constant see time_constant in ?cqcp_o4
 #' @param includeOptional set to TRUE if QC steps cqcp_o1 to cqcp_o3 shall be
 #'   performed, default: TRUE
 #' @param complete see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
@@ -622,6 +665,7 @@ cqcp_qcCWS <- function(data,
                        o1_fun = cqcp_interpol,
                        o2_cutOff = 0.8,
                        o3_cutOff = 0.8,
+                       o4_time_constant = NULL, 
                        includeOptional = T,
                        complete = FALSE, 
                        duration = NULL,
@@ -647,6 +691,7 @@ cqcp_qcCWS <- function(data,
     data <- cqcp_o2(data, cutOff = o2_cutOff)
     data <- cqcp_o3(data, cutOff = o3_cutOff, complete = complete, duration = duration,
                     rolling = rolling)
+    data <- cqcp_o4(data, o4_time_constant)
   }
   if(cqcp_has_column(data, "month")) {
     data$month <- NULL
