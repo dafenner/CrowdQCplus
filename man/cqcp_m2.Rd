@@ -21,12 +21,12 @@ cqcp_m2(
 
 \item{high}{0 < low < high < 1}
 
-\item{heightCorrection}{if set to true (default) and the column "z" exists in
+\item{heightCorrection}{If set to true (default) and the column "z" exists in
 the input data, the temperatures used in calculating the z-score are
 corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
 where mz is the spatial mean of z at each time step.}
 
-\item{debug}{set to true to keep intermediate results}
+\item{debug}{Set to true to keep intermediate results}
 
 \item{lapse_rate}{Lapse rate to use in 'heightCorrection'. Default is the 
 environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.

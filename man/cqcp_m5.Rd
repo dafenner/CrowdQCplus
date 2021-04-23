@@ -9,14 +9,16 @@ cqcp_m5(
   radius = 2000,
   n_station = 5,
   multiple_sd = 2,
-  heightCorrection = T,
-  lapse_rate = 0.0065
+  heightCorrection = TRUE,
+  lapse_rate = 0.0065,
+  check_elevation = TRUE,
+  max_elev_diff = 100
 )
 }
 \arguments{
 \item{data}{data.table as returned by m4}
 
-\item{radius}{A radius in m around each station to check for neighbours.}
+\item{radius}{A radius in meter around each station to check for neighbours.}
 
 \item{n_station}{Minimum number of neighbouring stations with a valid value 
 within radius.}
@@ -24,7 +26,7 @@ within radius.}
 \item{multiple_sd}{Multiples of the spatial standard deviation within radius to 
 be applied in the filter.}
 
-\item{heightCorrection}{if set to true (default) and the column "z" exists in
+\item{heightCorrection}{If set to TRUE (default) and the column "z" exists in
 the input data, the temperatures used in calculating the z-score are
 corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
 where mz is the spatial mean of z at each time step.}
@@ -33,6 +35,16 @@ where mz is the spatial mean of z at each time step.}
 environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 lapse_rate = 0.01 to set a dry adiabatic lapse rate. For consistency, this
 lapse rate should be the same as in ?cqcp_m2.}
+
+\item{check_elevation}{Set to TRUE to check whether the elevation in column "z" 
+of the neighbouring stations within 'radius' should be compared to the 
+elevation of the station that is checked. If the absolute elevation difference 
+between each neighbour and the station is larger than 'max_elev_diff', this 
+neighbour is left out of the calculations.}
+
+\item{max_elev_diff}{Maximum allowed elevation difference in meters between 
+the station that is checked and each neighbour within 'radius'. Default is
+100 m.}
 }
 \value{
 data.table
@@ -41,8 +53,8 @@ data.table
 Spatial buddy check. Flags all values as FALSE if values are too different
 than those from spatially neighbouring stations.
 Check is based on the mean value plus/minus multiples of the standard deviation 
-(default is three standard deviations) of all stations within a specified radius 
-(default is 3000 m). A minimum number of stations within a radius have to be 
+(default is two standard deviations) of all stations within a specified radius 
+(default is 2000 m). A minimum number of stations within a radius have to be 
 present for the calculations (default is five neighbours), thus this filter 
 also flags isolated stations.
 }

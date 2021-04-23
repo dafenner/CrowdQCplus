@@ -7,9 +7,9 @@
 cqcp_interpol(x, maxLength = 1)
 }
 \arguments{
-\item{x}{a numeric vector}
+\item{x}{A numeric vector}
 
-\item{maxLength}{allowed length of the gap to interpolate, default is 1.}
+\item{maxLength}{Allowed length of the gap to interpolate, default is 1.}
 }
 \value{
 vector

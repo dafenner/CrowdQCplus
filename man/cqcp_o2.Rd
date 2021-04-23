@@ -9,7 +9,7 @@ cqcp_o2(data, cutOff = 0.8)
 \arguments{
 \item{data}{data.table as returned from o1}
 
-\item{cutOff}{percentage of values that must be present for each day before
+\item{cutOff}{Percentage of values that must be present for each day before
 all values of that day are flagged with FALSE, expressed in fraction: 0 <
 cutOff < 1. Default is 0.8, i.e, 80 percent of data.}
 }

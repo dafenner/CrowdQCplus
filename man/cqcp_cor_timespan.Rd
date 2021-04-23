@@ -7,16 +7,16 @@
 cqcp_cor_timespan(x, y, t, cutOff, timespan = "month")
 }
 \arguments{
-\item{x}{values of unaggregated time series}
+\item{x}{Values of unaggregated time series}
 
 \item{y}{data.table containing column 'med' holding aggregated values and
 column specified via 'timespan', holding the group the time series belongs to}
 
-\item{t}{timespan (month, or episode number) to base the calculation on}
+\item{t}{Timespan (month, or episode number) to base the calculation on}
 
-\item{cutOff}{value below which FALSE is returned.}
+\item{cutOff}{Value below which FALSE is returned.}
 
-\item{timespan}{column name to base the calculations on. Default: 'month'}
+\item{timespan}{Column name to base the calculations on. Default: 'month'}
 }
 \value{
 TRUE if correlation for the given month is higher than cutOff, FALSE

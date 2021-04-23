@@ -9,15 +9,16 @@ cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, rolling = FALSE)
 \arguments{
 \item{data}{data.table as returned by m3}
 
-\item{cutOff}{value of correlation coefficient below which data are flagged
+\item{cutOff}{Value of correlation coefficient below which data are flagged
 with FALSE, 0 < cutOff < 1. Default is 0.9.}
 
-\item{complete}{logical. Use the complete data set for the filter (priority over 'duration')?}
+\item{complete}{Set to TRUE to use the complete data set for the filter 
+(priority over 'duration').}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
 
-\item{rolling}{logical. Set to TRUE to carry out the filter on a rolling basis. 
+\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. 
 A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{
