@@ -7,7 +7,7 @@
 cqcp_o4(data, time_constant)
 }
 \arguments{
-\item{data}{data.table as returned from o1, o2, or o3 (column ta_int must be present)}
+\item{data}{data.table in CrowdQC+ format (columns "time" and "ta" must be present)}
 
 \item{time_constant}{time constant value for the sensor in seconds (must be 
 the same for all p_id). Time constant/tau is defined as the time for a 
@@ -23,6 +23,11 @@ Optional QC for data correction. Corrects all values for a known time constant
 assumed that tau is constant, regardless of weather conditions. In the 
 correction it is assumed that a step change in the values happens at each time 
 step to the next.
+In the correction the original data "ta" is used instead of the interpolated
+values "ta_int". Hence, this function can be applied at/after any QC level. 
+Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
+is added to the data.table for cqcp_o4. Data after the correction thus can be 
+selected at any other QC level.
 }
 \examples{
 o_4 <- cqcp_o4(o_3, 1480.5)

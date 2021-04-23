@@ -349,7 +349,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' m_3 <- cqcp_m3(m_2)
 #' m_4 <- cqcp_m4(m_3)
 #' m_5 <- cqcp_m5(m_4)
-cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3, 
+cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2, 
                     heightCorrection = T, lapse_rate = 0.0065) {
   
   # transform data with lapse rate to make it comparable, as in m2
@@ -375,8 +375,6 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3,
   # ensure the right keys are set to make subsetting fast
   setkey(data, p_id, time)
 
-  start_time <- Sys.time()
-  
   # loop over stations, more efficient solution?
   for(i in p_id) {
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
@@ -389,10 +387,7 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, multiple_sd = 3,
                                       val = length(!is.na(rem_ta)) >= n_station), by = .(time)]
     data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
   }
-  
-  end_time <- Sys.time()
-  print(end_time - start_time)
-  
+
   data[, m5 := m4 & val_rad & between(rem_ta, (mean_rad - multiple_sd*sd_rad), 
                                       (mean_rad + multiple_sd*sd_rad), 
                                       incbounds = T, NAbounds = NA)]
@@ -561,8 +556,13 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' assumed that tau is constant, regardless of weather conditions. In the 
 #' correction it is assumed that a step change in the values happens at each time 
 #' step to the next.
+#' In the correction the original data "ta" is used instead of the interpolated
+#' values "ta_int". Hence, this function can be applied at/after any QC level. 
+#' Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
+#' is added to the data.table for cqcp_o4. Data after the correction thus can be 
+#' selected at any other QC level.
 #'
-#' @param data data.table as returned from o1, o2, or o3 (column ta_int must be present)
+#' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
 #' @param time_constant time constant value for the sensor in seconds (must be 
 #' the same for all p_id). Time constant/tau is defined as the time for a 
 #' system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
@@ -578,17 +578,14 @@ cqcp_o4 <- function(data, time_constant) {
   if(is.null(time_constant) | missing(time_constant)) return(data)
   
   # add shifted values and time diff
-  cols = c("time","ta_int")
+  cols = c("time","ta")
   lag_cols = paste("lag", cols, sep="_")
   data <- data[, (lag_cols) := shift(.SD, 1, fill=NA, type = "lag"), .SDcols=cols, by = p_id]
   data <- data[, dt := as.numeric(time-lag_time, units = "secs"), by = p_id]
   
   # correction
-  data <- data[, ta_corr := ta_int]
-  # ta_corr = (ta_int - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))
-  data <- data[, ta_corr := (ta_int - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
+  data <- data[, ta_corr := (ta - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
   
-  # remove shifted values and time diff
   data$lag_time <- NULL
   data$lag_ta_int <- NULL
   data$dt <- NULL
