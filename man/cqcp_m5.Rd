@@ -6,9 +6,9 @@
 \usage{
 cqcp_m5(
   data,
-  radius = 3000,
+  radius = 2000,
   n_station = 5,
-  multiple_sd = 3,
+  multiple_sd = 2,
   heightCorrection = T,
   lapse_rate = 0.0065
 )
