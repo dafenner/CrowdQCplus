@@ -7,9 +7,9 @@
 cqcp_m1(data, cutOff = 1)
 }
 \arguments{
-\item{data}{data set (a data.table object) formated the same way as the sample data (netatmoBer)}
+\item{data}{A data set (a data.table object) formated the same way as the sample data (netatmoBer)}
 
-\item{cutOff}{how much stations are allowed to have the same coordinates,
+\item{cutOff}{How much stations are allowed to have the same coordinates,
 default is 1. This means that if two p_ids share the same lon & lat values,
 data at these stations are set to FALSE.}
 }

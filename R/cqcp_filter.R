@@ -3,8 +3,8 @@
 #' Flag values with FALSE that are missing or belong to a p_id having lon & lat
 #' values which occur more often than the 'cutOff' value.
 #'
-#' @param data data set (a data.table object) formated the same way as the sample data (netatmoBer)
-#' @param cutOff how much stations are allowed to have the same coordinates,
+#' @param data A data set (a data.table object) formated the same way as the sample data (netatmoBer)
+#' @param cutOff How much stations are allowed to have the same coordinates,
 #'   default is 1. This means that if two p_ids share the same lon & lat values,
 #'   data at these stations are set to FALSE.
 #'
@@ -58,14 +58,14 @@ cqcp_getZ <- function(x){
 #' @param data data.table object obtained from m1
 #' @param low 0 < low < high < 1
 #' @param high 0 < low < high < 1
-#' @param heightCorrection if set to true (default) and the column "z" exists in
+#' @param heightCorrection If set to true (default) and the column "z" exists in
 #'   the input data, the temperatures used in calculating the z-score are
 #'   corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
 #'   where mz is the spatial mean of z at each time step.
 #' @param lapse_rate Lapse rate to use in 'heightCorrection'. Default is the 
 #'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 #'   lapse_rate = 0.01 to set a dry adiabatic lapse rate.
-#' @param debug set to true to keep intermediate results
+#' @param debug Set to true to keep intermediate results
 #' @param t_distribution Set to TRUE to assume a Student-t distribution of the 
 #'   data instead of the normal distribution. Default: FALSE
 #'
@@ -134,12 +134,12 @@ cqcp_add_episode <- function(data, duration){
 #' to the same position in time. Function is called internally by QC m4.
 #' This function was formerly cor_month but is now compatible with 'duration' parameter.
 #'
-#' @param x values of unaggregated time series
+#' @param x Values of unaggregated time series
 #' @param y data.table containing column 'med' holding aggregated values and
 #'   column specified via 'timespan', holding the group the time series belongs to
-#' @param t timespan (month, or episode number) to base the calculation on
-#' @param cutOff value below which FALSE is returned.
-#' @param timespan column name to base the calculations on. Default: 'month'
+#' @param t Timespan (month, or episode number) to base the calculation on
+#' @param cutOff Value below which FALSE is returned.
+#' @param timespan Column name to base the calculations on. Default: 'month'
 #'
 #' @return TRUE if correlation for the given month is higher than cutOff, FALSE
 #'   otherwise
@@ -168,12 +168,13 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' (not yet implemented.).
 #'
 #' @param data data.table object obtained from m2
-#' @param cutOff value above which data are flagged with FALSE, 0 < cutOff < 1.
+#' @param cutOff Value above which data are flagged with FALSE, 0 < cutOff < 1.
 #'   Default is 0.2, i.e., 20 percent of data.
-#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
+#' @param complete Set to TRUE to use the complete data set for the filter 
+#'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
-#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#' @param rolling Set to TRUE to carry out the filter on a rolling basis. 
 #'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
@@ -235,12 +236,13 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' (not yet implemented.). 
 #'
 #' @param data data.table as returned by m3
-#' @param cutOff value of correlation coefficient below which data are flagged
+#' @param cutOff Value of correlation coefficient below which data are flagged
 #'   with FALSE, 0 < cutOff < 1. Default is 0.9.
-#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
+#' @param complete Set to TRUE to use the complete data set for the filter 
+#'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
-#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#' @param rolling Set to TRUE to carry out the filter on a rolling basis. 
 #'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
@@ -319,18 +321,18 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' Spatial buddy check. Flags all values as FALSE if values are too different
 #' than those from spatially neighbouring stations.
 #' Check is based on the mean value plus/minus multiples of the standard deviation 
-#' (default is three standard deviations) of all stations within a specified radius 
-#' (default is 3000 m). A minimum number of stations within a radius have to be 
+#' (default is two standard deviations) of all stations within a specified radius 
+#' (default is 2000 m). A minimum number of stations within a radius have to be 
 #' present for the calculations (default is five neighbours), thus this filter 
 #' also flags isolated stations.
 #'
 #' @param data data.table as returned by m4
-#' @param radius A radius in m around each station to check for neighbours.
+#' @param radius A radius in meter around each station to check for neighbours.
 #' @param n_station Minimum number of neighbouring stations with a valid value 
 #'   within radius.
 #' @param multiple_sd Multiples of the spatial standard deviation within radius to 
 #'   be applied in the filter.
-#' @param heightCorrection if set to true (default) and the column "z" exists in
+#' @param heightCorrection If set to TRUE (default) and the column "z" exists in
 #'   the input data, the temperatures used in calculating the z-score are
 #'   corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
 #'   where mz is the spatial mean of z at each time step.
@@ -338,6 +340,14 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #'   environmental lapse rate of -0.0065 K/m. Set as a positive value: e.g.
 #'   lapse_rate = 0.01 to set a dry adiabatic lapse rate. For consistency, this
 #'   lapse rate should be the same as in ?cqcp_m2.
+#' @param check_elevation Set to TRUE to check whether the elevation in column "z" 
+#'   of the neighbouring stations within 'radius' should be compared to the 
+#'   elevation of the station that is checked. If the absolute elevation difference 
+#'   between each neighbour and the station is larger than 'max_elev_diff', this 
+#'   neighbour is left out of the calculations.
+#' @param max_elev_diff Maximum allowed elevation difference in meters between 
+#'   the station that is checked and each neighbour within 'radius'. Default is
+#'   100 m.
 #'
 #' @return data.table
 #' @export
@@ -350,23 +360,28 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' m_4 <- cqcp_m4(m_3)
 #' m_5 <- cqcp_m5(m_4)
 cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2, 
-                    heightCorrection = T, lapse_rate = 0.0065) {
+                    heightCorrection = TRUE, lapse_rate = 0.0065,
+                    check_elevation = TRUE, max_elev_diff = 100) {
+  
+  has_z <- cqcp_has_column(data, column = "z")
   
   # transform data with lapse rate to make it comparable, as in m2
   data[, rem_ta := ta]
   data[!m4, "rem_ta"] <- NaN
-  if(heightCorrection & cqcp_has_column(data, column = "z")){
+  if(heightCorrection & has_z){
     agg <- data[,.(mz = mean(z, na.rm = T)), by = .(time)]
     data <- merge(data,agg, by = "time")
     data[, rem_ta := rem_ta + (lapse_rate * (z - mz))]
   }
   
+  if(has_z) get_cols <- c("lon", "lat", "z") else get_cols <- c("lon", "lat")
+  
   # calculate distances between stations and get relevant stations
-  p_id <- unique(data$p_id)
-  loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
-  dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
-  colnames(dist) <- p_id
-  rownames(dist) <- p_id
+  loc <- data[, .SD[1], by = p_id, .SDcols = get_cols]
+  setkey(loc, p_id)
+  dist <- raster::pointDistance(loc[,c("lon", "lat")], lonlat=TRUE) # calculate distances between points
+  colnames(dist) <- loc$p_id
+  rownames(dist) <- loc$p_id
   dist <- as.data.table(as.table(dist))
   setnames(dist, new = c("p_x", "p_y", "distance"))
   dist <- dist[(p_x != p_y) & (!is.na(distance))] # reduce table size
@@ -376,15 +391,20 @@ cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2,
   setkey(data, p_id, time)
 
   # loop over stations, more efficient solution?
-  for(i in p_id) {
+  for(i in loc$p_id) {
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
     uni_p <- unique(c(rel_stat$p_x, rel_stat$p_y)) # retrieve unique
     uni_p <- as.integer(uni_p[which(uni_p != i)]) # remove station itself
+    
+    if(check_elevation) {
+      valid_loc <- loc[.(uni_p)][, z_diff := abs(z - loc[.(i)]$z)]
+      uni_p <- valid_loc[z_diff <= max_elev_diff]$p_id
+    }
 
     if(length(uni_p) < n_station) next # not enough stations in surroundings
 
     mean_v <- data[.(uni_p), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
-                                      val = length(!is.na(rem_ta)) >= n_station), by = .(time)]
+                                      val = sum(!is.na(rem_ta)) >= n_station), by = .(time)]
     data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
   }
 
@@ -410,8 +430,8 @@ cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2,
 #' consecutive NaNs to be interpolated and replaced, is smaller or equal
 #' maxLength. Internally called by o1.
 #'
-#' @param x a numeric vector
-#' @param maxLength allowed length of the gap to interpolate, default is 1.
+#' @param x A numeric vector
+#' @param maxLength Allowed length of the gap to interpolate, default is 1.
 #'
 #' @return vector
 #' @export
@@ -439,8 +459,8 @@ cqcp_interpol <- function(x, maxLength = 1){
 #' filtered data at level m4 with the interpolated data.
 #'
 #' @param data data.table as returned from m4
-#' @param fun  function to use for interpolation, default is interpol
-#' @param ...  additional parameters for interpolation function
+#' @param fun  Function to use for interpolation, default is interpol
+#' @param ...  Additional parameters for interpolation function
 #'
 #' @return data.table
 #' @export
@@ -471,7 +491,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
 #' available for that day.
 #'
 #' @param data data.table as returned from o1
-#' @param cutOff percentage of values that must be present for each day before
+#' @param cutOff Percentage of values that must be present for each day before
 #'   all values of that day are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
 #'
@@ -499,13 +519,14 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 #' cutOff' percent of valid values are available for that duration.
 #'
 #' @param data data.table as returned from o2
-#' @param cutOff percentage of values that must be present for each duration before
+#' @param cutOff Percentage of values that must be present for each duration before
 #'   all values of that duration are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
-#' @param complete logical. Use the complete data set for the filter (priority over 'duration')?
+#' @param complete Set to TRUE to use the complete data set for the filter 
+#'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
-#' @param rolling logical. Set to TRUE to carry out the filter on a rolling basis. 
+#' @param rolling Set to TRUE to carry out the filter on a rolling basis. 
 #'   A 'duration' has to be specified too. Not yet implemented.
 #'
 #' @return data.table
@@ -563,7 +584,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' selected at any other QC level.
 #'
 #' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
-#' @param time_constant time constant value for the sensor in seconds (must be 
+#' @param time_constant Time constant value for the sensor in seconds (must be 
 #' the same for all p_id). Time constant/tau is defined as the time for a 
 #' system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
 #' step change) (https://en.wikipedia.org/wiki/Time_constant).
@@ -622,7 +643,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' QC.
 #' 'complete' currently does not work with the example data set (netatmoBer).
 #'
-#' @param data input data in the format as the example data (netatmoBer)
+#' @param data Input data in the format as the example data (netatmoBer)
 #' @param m1_cutOff see cutOff in ?cqcp_m1
 #' @param m2_low see low in ?cqcp_m2
 #' @param m2_high see high in ?cqcp_m2
@@ -634,6 +655,8 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m5_n_station see n_station in ?cqcp_m5
 #' @param m5_multiple_sd see multiple_sd in ?cqcp_m5
 #' @param m5_lapse_rate see lapse_rate in ?cqcp_m5
+#' @param m5_check_elevation see check_elevation in ?cqcp_m5
+#' @param m5_max_elev_diff see max_elev_diff in ?cqcp_m5
 #' @param o1_fun see fun in ?cqcp_o1
 #' @param o2_cutOff see cutOff in ?cqcp_o2
 #' @param o3_cutOff see cutOff in ?cqcp_o3
@@ -643,7 +666,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param complete see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
 #' @param duration see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
 #' @param rolling see rolling in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3. Not yet implemented.
-#' @param ... additional parameters used in cqcp_o1. For details see ?cqcp_o1
+#' @param ... Additional parameters used in cqcp_o1. For details see ?cqcp_o1
 #'
 #' @return data.table
 #' @export
@@ -658,7 +681,8 @@ cqcp_qcCWS <- function(data,
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
                        m5_radius = 3000, m5_n_station = 5, m5_multiple_sd = 3, 
-                       m5_lapse_rate = 0.0065,
+                       m5_lapse_rate = 0.0065, m5_check_elevation = TRUE,
+                       m5_max_elev_diff = 100,
                        o1_fun = cqcp_interpol,
                        o2_cutOff = 0.8,
                        o3_cutOff = 0.8,
@@ -682,7 +706,8 @@ cqcp_qcCWS <- function(data,
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
   data <- cqcp_m5(data, radius = m5_radius, n_station = m5_n_station, 
-                  multiple_sd = m5_multiple_sd, lapse_rate = m5_lapse_rate)
+                  multiple_sd = m5_multiple_sd, lapse_rate = m5_lapse_rate,
+                  check_elevation = m5_check_elevation, max_elev_diff = m5_max_elev_diff)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
     data <- cqcp_o2(data, cutOff = o2_cutOff)

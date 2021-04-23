@@ -17,6 +17,8 @@ cqcp_qcCWS(
   m5_n_station = 5,
   m5_multiple_sd = 3,
   m5_lapse_rate = 0.0065,
+  m5_check_elevation = TRUE,
+  m5_max_elev_diff = 100,
   o1_fun = cqcp_interpol,
   o2_cutOff = 0.8,
   o3_cutOff = 0.8,
@@ -29,7 +31,7 @@ cqcp_qcCWS(
 )
 }
 \arguments{
-\item{data}{input data in the format as the example data (netatmoBer)}
+\item{data}{Input data in the format as the example data (netatmoBer)}
 
 \item{m1_cutOff}{see cutOff in ?cqcp_m1}
 
@@ -53,6 +55,10 @@ cqcp_qcCWS(
 
 \item{m5_lapse_rate}{see lapse_rate in ?cqcp_m5}
 
+\item{m5_check_elevation}{see check_elevation in ?cqcp_m5}
+
+\item{m5_max_elev_diff}{see max_elev_diff in ?cqcp_m5}
+
 \item{o1_fun}{see fun in ?cqcp_o1}
 
 \item{o2_cutOff}{see cutOff in ?cqcp_o2}
@@ -70,7 +76,7 @@ performed, default: TRUE}
 
 \item{rolling}{see rolling in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3. Not yet implemented.}
 
-\item{...}{additional parameters used in cqcp_o1. For details see ?cqcp_o1}
+\item{...}{Additional parameters used in cqcp_o1. For details see ?cqcp_o1}
 }
 \value{
 data.table

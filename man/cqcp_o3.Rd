@@ -9,16 +9,17 @@ cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL, rolling = FALSE)
 \arguments{
 \item{data}{data.table as returned from o2}
 
-\item{cutOff}{percentage of values that must be present for each duration before
+\item{cutOff}{Percentage of values that must be present for each duration before
 all values of that duration are flagged with FALSE, expressed in fraction: 0 <
 cutOff < 1. Default is 0.8, i.e, 80 percent of data.}
 
-\item{complete}{logical. Use the complete data set for the filter (priority over 'duration')?}
+\item{complete}{Set to TRUE to use the complete data set for the filter 
+(priority over 'duration').}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
 
-\item{rolling}{logical. Set to TRUE to carry out the filter on a rolling basis. 
+\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. 
 A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{

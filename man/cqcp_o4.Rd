@@ -9,7 +9,7 @@ cqcp_o4(data, time_constant)
 \arguments{
 \item{data}{data.table in CrowdQC+ format (columns "time" and "ta" must be present)}
 
-\item{time_constant}{time constant value for the sensor in seconds (must be 
+\item{time_constant}{Time constant value for the sensor in seconds (must be 
 the same for all p_id). Time constant/tau is defined as the time for a 
 system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
 step change) (https://en.wikipedia.org/wiki/Time_constant).}

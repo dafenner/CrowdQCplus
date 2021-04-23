@@ -9,9 +9,9 @@ cqcp_o1(data, fun = cqcp_interpol, ...)
 \arguments{
 \item{data}{data.table as returned from m4}
 
-\item{fun}{function to use for interpolation, default is interpol}
+\item{fun}{Function to use for interpolation, default is interpol}
 
-\item{...}{additional parameters for interpolation function}
+\item{...}{Additional parameters for interpolation function}
 }
 \value{
 data.table
