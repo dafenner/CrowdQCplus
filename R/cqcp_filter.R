@@ -605,10 +605,10 @@ cqcp_o4 <- function(data, time_constant) {
   data <- data[, dt := as.numeric(time-lag_time, units = "secs"), by = p_id]
   
   # correction
-  data <- data[, ta_corr := (ta - (lag_ta_int*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
+  data <- data[, ta_corr := (ta - (lag_ta*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
   
   data$lag_time <- NULL
-  data$lag_ta_int <- NULL
+  data$lag_ta <- NULL
   data$dt <- NULL
   
   return(data)
