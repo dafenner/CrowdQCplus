@@ -407,3 +407,57 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
   
   return(data_pp)
 }
+
+#' Simple statistics on data availability after CrowdQC+
+#' 
+#' Calculate how many valid values remain after each QC step and print the
+#' information.
+#'
+#' @param data data.table after CrowdQC+
+#' @param print Set to TRUE to print information in the console. Default: TRUE
+#' @param file Provide a file path to store the information in a file.
+#'
+#' @return data.table with output statistics
+#' @export
+cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
+  
+  levels <- c("m1", "m2", "m3", "m4", "m5", "o1", "o2", "o3")
+  
+  n_data <- data.table()
+  n_data <- n_data[, n_raw := data[, sum(!is.na(ta))]]
+  
+  for(i in levels) {
+    if(cqcp_has_column(data, column = i)) {
+      n_data <- n_data[, (i) := data[, sum(get(i))]]
+    }
+  }
+  
+  if(print) {
+    columns <- colnames(n_data)
+    cat("++++++++++++++++++++++++++++++\n")
+    cat("+ CrowdQC+ output statistics +\n")
+    cat("++++++++++++++++++++++++++++++\n")
+    cat(paste0("Raw data: ",n_data$n_raw," values\n"))
+    for(j in 2:length(columns)) {
+      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))]," values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100)," % of raw data)\n"))
+    }
+  }
+  # File?
+  if (!is.null(file)) {
+    columns <- colnames(n_data)
+    sink(file)
+    cat("++++++++++++++++++++++++++++++\n")
+    cat("+ CrowdQC+ output statistics +\n")
+    cat("++++++++++++++++++++++++++++++\n")
+    cat(paste0("File created: ",lubridate::now("UTC")," UTC\n"))
+    cat("+++++++++++++++++++++++++++++++++++++\n")
+    cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
+    cat("+++++++++++++++++++++++++++++++++++++\n")
+    cat(paste0("Raw data: ",n_data$n_raw," values\n"))
+    for(j in 2:length(columns)) {
+      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))]," values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100)," % of raw data)\n"))
+    }
+    sink()
+  }
+  return(n_data)
+}
