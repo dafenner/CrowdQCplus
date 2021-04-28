@@ -16,15 +16,16 @@ cqcp_download_srtm(
 \arguments{
 \item{data}{data.table/data.frame with at least columns 'lon' and 'lat'}
 
-\item{directory}{directory path to optionally store the SRTM data}
+\item{directory}{Directory path to optionally store the SRTM data. If NULL,
+downloaded data is stored in the current working directory.}
 
-\item{outfile}{file path to save the SRTM raster as geotiff}
+\item{outfile}{File path to save the SRTM raster as geotiff}
 
-\item{overwrite}{overwrite existing geotiff? Default is TRUE.}
+\item{overwrite}{Overwrite existing geotiff? Default is TRUE.}
 
-\item{crop}{crop raster/geotiff to data extent? Default is FALSE.}
+\item{crop}{Crop raster/geotiff to data extent? Default is FALSE.}
 
-\item{...}{additional parameters supported by raster::getData}
+\item{...}{Additional parameters supported by raster::getData}
 }
 \value{
 RasterLayer object with SRTM data

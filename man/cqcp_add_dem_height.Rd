@@ -17,23 +17,24 @@ cqcp_add_dem_height(
 )
 }
 \arguments{
-\item{data}{data table/frame with at least columns 'lon' and 'lat'}
+\item{data}{data.table/frame with at least columns 'lon' and 'lat'}
 
-\item{file}{path to a DEM geotiff}
+\item{file}{Path to a DEM geotiff}
 
 \item{raster}{RasterLayer object with DEM data}
 
-\item{directory}{directory path to optionally store downloaded SRTM data}
+\item{directory}{Directory path to store the downloaded SRTM data. If NULL,
+downloaded data is stored in the current working directory.}
 
-\item{outfile}{file path to save the created SRTM raster as geotiff}
+\item{outfile}{File path to save the created SRTM raster as geotiff}
 
 \item{overwrite}{overwrite existing geotiff?}
 
-\item{crop}{crop SRTM raster/geotiff to data extent}
+\item{crop}{Crop SRTM raster/geotiff to data extent}
 
-\item{na_vals}{set NA values in DEM to this value to avoid missing value in m2. Default: 0}
+\item{na_vals}{Set NA values in DEM to this value to avoid missing value in m2. Default: 0}
 
-\item{...}{additional parameters supported by raster::getData}
+\item{...}{Additional parameters supported by raster::getData}
 }
 \value{
 data table with new column 'z' with DEM information

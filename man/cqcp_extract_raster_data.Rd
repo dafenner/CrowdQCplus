@@ -8,13 +8,13 @@ file.}
 cqcp_extract_raster_data(lon, lat, raster = NULL, file = NULL)
 }
 \arguments{
-\item{lon}{longitude values(s)}
+\item{lon}{Longitude values(s)}
 
-\item{lat}{latitude values(s)}
+\item{lat}{Latitude values(s)}
 
 \item{raster}{RasterLayer object (cf. raster package)}
 
-\item{file}{path to a geotiff file}
+\item{file}{Path to a geotiff file}
 }
 \value{
 extracted value(s) for given lon/lat
