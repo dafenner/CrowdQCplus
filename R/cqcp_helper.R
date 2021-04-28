@@ -1,3 +1,22 @@
+#' cqcp_colourise
+#' 
+#' Colours a string with ANSI escapes.
+#'
+#' @param str A string.
+#' @param colour "red", "green", or "yellow"
+#'   This can be, e.g., '10 days'.
+#'
+#' @return coloured string
+cqcp_colourise <- function(str, colour) {
+  # ANSI escapes
+  escape_sequences <- list(
+    red = "\u001b[31m",
+    green = "\u001b[32m",
+    yellow = "\u001b[33m")
+  reset = '\u001b[0m'
+  str_col <- paste0(escape_sequences[[colour]], str, reset, sep='')
+  return(str_col)
+}
 
 #' Input check of data for CrowdQC+
 #' 
@@ -37,13 +56,13 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     t1 <- data[p_id == p1]$time
     test2 <- all(data[, identical(time, t1), by = p_id][, V1])
     if(test2) {
-      mess_2 <- "     OK\n"
+      mess_2 <- cqcp_colourise("     OK\n", "green")
     } else {
-      mess_2 <- "     ! Temporal coverage not the same for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
+      mess_2 <- cqcp_colourise("     ! Temporal coverage not the same for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n", "red")
       ok <- FALSE
     }
   } else {
-    mess_2 <- "     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n"
+    mess_2 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n", "red")
     ok <- FALSE
   }
   
@@ -52,13 +71,13 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     setkey(data, p_id, time)
     dt <- data[, length(unique(diff(time))) == 1, keyby = p_id][, V1] # data regular
     if(all(dt)) {
-      mess_3 <- "     OK\n"
+      mess_3 <- cqcp_colourise("     OK\n", "green")
     } else {
-      mess_3 <- "     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n"
+      mess_3 <- cqcp_colourise("     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n", "red")
       ok <- FALSE
     }
   } else {
-    mess_3 <- "     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n"
+    mess_3 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n", "red")
     ok <- FALSE
   }
     
@@ -68,27 +87,27 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
     dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
     if(max(dist, na.rm = T) > 141421.4) {
-      mess_4 <- "     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n"
+      mess_4 <- cqcp_colourise("     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n", "yellow")
       ok <- FALSE
     } else {
-      mess_4 <- "     OK\n"
+      mess_4 <- cqcp_colourise("     OK\n", "green")
     }
   } else {
-    mess_4 <- "     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n"
+    mess_4 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n", "red")
     ok <- FALSE
   }
   
   # (5) Number of stations.
   if(has_p_id) {
-    pid <- unique(data$p_id)
-    if(length(pid) < 200) {
-      mess_5 <- paste0("     ! Low number of stations (",length(pid),").\n     --> Usage of 'fun=qt' in filter M2 is recommended.\n")
+    n_pid <- length(unique(data$p_id))
+    if(n_pid < 200) {
+      mess_5 <- cqcp_colourise(paste0("     ! Low number of stations (",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
       ok <- FALSE
     } else {
-      mess_5 <- "     OK\n"
+      mess_5 <- cqcp_colourise("     OK\n", "green")
     }
   } else {
-    mess_5 <- "     ! Column needed for this check: 'p_id'.\n"
+    mess_5 <- cqcp_colourise("     ! Column needed for this check: 'p_id'.\n", "red")
     ok <- FALSE
   }
   
@@ -106,14 +125,14 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       if(!has_ta) miss <- c(miss, "ta")
       if(!has_lon) miss <- c(miss, "lon")
       if(!has_lat) miss <- c(miss, "lat")
-      cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
+      cat(cqcp_colourise(paste0("     ! Missing: ",miss,"\n     --> CrowdQC+ will not work with this data.\n"), "red"))
       ok <- FALSE
-    } else cat("     OK\n")
+    } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat("     ! Missing: z\n")
-      cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
-    } else cat("     OK\n")
+      cat(cqcp_colourise("     ! Missing: z\n"), "red")
+      cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
+    } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
     cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
@@ -151,14 +170,14 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       if(!has_ta) miss <- c(miss, "ta")
       if(!has_lon) miss <- c(miss, "lon")
       if(!has_lat) miss <- c(miss, "lat")
-      cat("     ! Missing: ", miss, "\n     --> CrowdQC+ will not work with this data.\n")
+      cat(cqcp_colourise(paste0("     ! Missing: ",miss,"\n     --> CrowdQC+ will not work with this data.\n"), "red"))
       ok <- FALSE
-    } else cat("     OK\n")
+    } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat("     ! Missing: z\n")
-      cat("     --> Filters M2 and M5 will not work with 'heightCorrection'. You can run 'cqcp_add_dem_height' to add DEM information.\n")
-    } else cat("     OK\n")
+      cat(cqcp_colourise("     ! Missing: z\n"), "red")
+      cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
+    } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
     cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
@@ -181,10 +200,10 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
 #' Extract raster value at given position(s) for a RasterLayer Object or geotiff
 #' file.
 #'
-#' @param lon longitude values(s)
-#' @param lat latitude values(s) 
+#' @param lon Longitude values(s)
+#' @param lat Latitude values(s) 
 #' @param raster RasterLayer object (cf. raster package) 
-#' @param file path to a geotiff file
+#' @param file Path to a geotiff file
 #'
 #' @return extracted value(s) for given lon/lat
 cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
@@ -218,11 +237,12 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
 #' SRTM source: https://srtm.csi.cgiar.org/
 #'
 #' @param data data.table/data.frame with at least columns 'lon' and 'lat' 
-#' @param directory directory path to optionally store the SRTM data 
-#' @param outfile file path to save the SRTM raster as geotiff 
-#' @param overwrite overwrite existing geotiff? Default is TRUE. 
-#' @param crop crop raster/geotiff to data extent? Default is FALSE. 
-#' @param ... additional parameters supported by raster::getData
+#' @param directory Directory path to optionally store the SRTM data. If NULL,
+#'   downloaded data is stored in the current working directory. 
+#' @param outfile File path to save the SRTM raster as geotiff 
+#' @param overwrite Overwrite existing geotiff? Default is TRUE. 
+#' @param crop Crop raster/geotiff to data extent? Default is FALSE. 
+#' @param ... Additional parameters supported by raster::getData
 #'
 #' @return RasterLayer object with SRTM data
 #' @export
@@ -274,15 +294,16 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' of the stations.
 #' A new column 'z' is added to the data.table to be used in filter level M2.
 #'
-#' @param data data table/frame with at least columns 'lon' and 'lat' 
-#' @param file path to a DEM geotiff 
+#' @param data data.table/frame with at least columns 'lon' and 'lat' 
+#' @param file Path to a DEM geotiff 
 #' @param raster RasterLayer object with DEM data 
-#' @param directory directory path to optionally store downloaded SRTM data 
-#' @param outfile file path to save the created SRTM raster as geotiff 
+#' @param directory Directory path to store the downloaded SRTM data. If NULL,
+#'   downloaded data is stored in the current working directory. 
+#' @param outfile File path to save the created SRTM raster as geotiff 
 #' @param overwrite overwrite existing geotiff? 
-#' @param crop crop SRTM raster/geotiff to data extent
-#' @param na_vals set NA values in DEM to this value to avoid missing value in m2. Default: 0
-#' @param ... additional parameters supported by raster::getData
+#' @param crop Crop SRTM raster/geotiff to data extent
+#' @param na_vals Set NA values in DEM to this value to avoid missing value in m2. Default: 0
+#' @param ... Additional parameters supported by raster::getData
 #'
 #' @return data table with new column 'z' with DEM information
 #' @export
@@ -323,7 +344,7 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
 #' no interpolation is carried out to the data itself.
 #'
 #' @param data data.table with at least columns 'p_id', 'time, 'ta' 
-#' @param resolution temporal resolution as supported by lubridate. Default: '1 hour'
+#' @param resolution Temporal resolution as supported by lubridate. Default: '1 hour'
 #' @param rounding_method Method to apply to round the time values to (cf. lubridate). 
 #'   Default is 'nearest', to assign the values to the nearest full time value, 
 #'   defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.
