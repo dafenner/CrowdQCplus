@@ -6,9 +6,9 @@
 \usage{
 cqcp_m5(
   data,
-  radius = 2000,
+  radius = 3000,
   n_station = 5,
-  multiple_sd = 2,
+  cutoff = 2,
   heightCorrection = TRUE,
   lapse_rate = 0.0065,
   check_elevation = TRUE,
@@ -18,13 +18,14 @@ cqcp_m5(
 \arguments{
 \item{data}{data.table as returned by m4}
 
-\item{radius}{A radius in meter around each station to check for neighbours.}
+\item{radius}{A radius in meter around each station to check for neighbours.
+Default: 3000}
 
-\item{n_station}{Minimum number of neighbouring stations with a valid value 
-within radius.}
+\item{n_station}{Minimum number of neighbouring stations with a valid 
+value within 'radius' Default: 5}
 
-\item{multiple_sd}{Multiples of the spatial standard deviation within radius to 
-be applied in the filter.}
+\item{cutoff}{Cutoff value for the outlier detection within 'radius' to be 
+applied. Default: 2}
 
 \item{heightCorrection}{If set to TRUE (default) and the column "z" exists in
 the input data, the temperatures used in calculating the z-score are
@@ -39,24 +40,23 @@ lapse rate should be the same as in ?cqcp_m2.}
 \item{check_elevation}{Set to TRUE to check whether the elevation in column "z" 
 of the neighbouring stations within 'radius' should be compared to the 
 elevation of the station that is checked. If the absolute elevation difference 
-between each neighbour and the station is larger than 'max_elev_diff', this 
-neighbour is left out of the calculations.}
+between each buddy and the station itself is larger than 'max_elev_diff', this 
+neighbour is left out of the calculations. Default: TRUE}
 
 \item{max_elev_diff}{Maximum allowed elevation difference in meters between 
-the station that is checked and each neighbour within 'radius'. Default is
-100 m.}
+the station that is checked and each neighbour within 'radius'. Default: 100 m.}
 }
 \value{
 data.table
 }
 \description{
 Spatial buddy check. Flags all values as FALSE if values are too different
-than those from spatially neighbouring stations.
-Check is based on the mean value plus/minus multiples of the standard deviation 
-(default is two standard deviations) of all stations within a specified radius 
-(default is 2000 m). A minimum number of stations within a radius have to be 
-present for the calculations (default is five neighbours), thus this filter 
-also flags isolated stations.
+than those from spatially neighbouring stations (spatial outlier filter).
+Check is based on the median value and the Qn estimator, as in cqcp_m2, of 
+the buddies within a specified radius. The station that is checked is not
+considered when calculating these values.
+A minimum number of buddies within the radius has to be present for the 
+calculations, thus this filter also flags isolated stations.
 }
 \examples{
 data(netatmoBer)

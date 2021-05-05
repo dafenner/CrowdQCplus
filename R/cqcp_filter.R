@@ -31,6 +31,7 @@ cqcp_m1 <- function(data, cutOff = 1){
 #' @return NaN for no valid values, otherwise robust scale estimator 'Qn' without NaN
 cqcp_Qnr <- function(x){
   x <- x[!is.na(x)]
+  if(length(x) == 0) return(NaN)
   return(robustbase::Qn(x))
 }
 
@@ -52,8 +53,8 @@ cqcp_getZ <- function(x){
 #'
 #' Flags all values as FALSE if robust z-score is not within the critical values
 #' obtained from low and high. This approach is based on the distribution
-#' function of all values. !Careful: if number of stations is < 200, it would be
-#' better to use the Student-t distribution (t_distribution = TRUE)!
+#' function of all values. If number of stations is < 200 it would be
+#' better to use the Student-t distribution (t_distribution = TRUE).
 #'
 #' @param data data.table object obtained from m1
 #' @param low 0 < low < high < 1
@@ -319,19 +320,20 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' Main QC step m5
 #'
 #' Spatial buddy check. Flags all values as FALSE if values are too different
-#' than those from spatially neighbouring stations.
-#' Check is based on the mean value plus/minus multiples of the standard deviation 
-#' (default is two standard deviations) of all stations within a specified radius 
-#' (default is 2000 m). A minimum number of stations within a radius have to be 
-#' present for the calculations (default is five neighbours), thus this filter 
-#' also flags isolated stations.
+#' than those from spatially neighbouring stations (spatial outlier filter).
+#' Check is based on the median value and the Qn estimator, as in cqcp_m2, of 
+#' the buddies within a specified radius. The station that is checked is not
+#' considered when calculating these values.
+#' A minimum number of buddies within the radius has to be present for the 
+#' calculations, thus this filter also flags isolated stations.
 #'
 #' @param data data.table as returned by m4
 #' @param radius A radius in meter around each station to check for neighbours.
-#' @param n_station Minimum number of neighbouring stations with a valid value 
-#'   within radius.
-#' @param multiple_sd Multiples of the spatial standard deviation within radius to 
-#'   be applied in the filter.
+#'   Default: 3000
+#' @param n_station Minimum number of neighbouring stations with a valid 
+#'   value within 'radius' Default: 5
+#' @param cutoff Cutoff value for the outlier detection within 'radius' to be 
+#'   applied. Default: 2
 #' @param heightCorrection If set to TRUE (default) and the column "z" exists in
 #'   the input data, the temperatures used in calculating the z-score are
 #'   corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
@@ -343,11 +345,10 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' @param check_elevation Set to TRUE to check whether the elevation in column "z" 
 #'   of the neighbouring stations within 'radius' should be compared to the 
 #'   elevation of the station that is checked. If the absolute elevation difference 
-#'   between each neighbour and the station is larger than 'max_elev_diff', this 
-#'   neighbour is left out of the calculations.
+#'   between each buddy and the station itself is larger than 'max_elev_diff', this 
+#'   neighbour is left out of the calculations. Default: TRUE
 #' @param max_elev_diff Maximum allowed elevation difference in meters between 
-#'   the station that is checked and each neighbour within 'radius'. Default is
-#'   100 m.
+#'   the station that is checked and each neighbour within 'radius'. Default: 100 m.
 #'
 #' @return data.table
 #' @export
@@ -359,7 +360,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' m_3 <- cqcp_m3(m_2)
 #' m_4 <- cqcp_m4(m_3)
 #' m_5 <- cqcp_m5(m_4)
-cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2, 
+cqcp_m5 <- function(data, radius = 3000, n_station = 5, cutoff = 2, 
                     heightCorrection = TRUE, lapse_rate = 0.0065,
                     check_elevation = TRUE, max_elev_diff = 100) {
   
@@ -393,30 +394,46 @@ cqcp_m5 <- function(data, radius = 2000, n_station = 5, multiple_sd = 2,
   # loop over stations, more efficient solution?
   for(i in loc$p_id) {
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
-    uni_p <- unique(c(rel_stat$p_x, rel_stat$p_y)) # retrieve unique
-    uni_p <- as.integer(uni_p[which(uni_p != i)]) # remove station itself
+    uni_p <- as.integer(unique(c(rel_stat$p_x, rel_stat$p_y))) # retrieve unique
+    buddies <- uni_p[which(uni_p != i)] # remove station itself
     
     if(check_elevation) {
-      valid_loc <- loc[.(uni_p)][, z_diff := abs(z - loc[.(i)]$z)]
-      uni_p <- valid_loc[z_diff <= max_elev_diff]$p_id
+      valid_loc <- loc[.(buddies)][, z_diff := abs(z - loc[.(i)]$z)]
+      buddies <- valid_loc[z_diff <= max_elev_diff]$p_id
     }
 
-    if(length(uni_p) < n_station) next # not enough stations in surroundings
-
-    mean_v <- data[.(uni_p), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
-                                      val = sum(!is.na(rem_ta)) >= n_station), by = .(time)]
-    data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
+    if(length(buddies) < n_station) next # not enough stations in surroundings
+    
+    # version 1: with mean and standard deviation 
+    # mean_v <- data[.(buddies), .(mean = mean(rem_ta, na.rm = T), sd = sd(rem_ta, na.rm = T),
+    #                            val = sum(!is.na(rem_ta)) >= n_station), by = .(time)]
+    # data <- data[.(i), c("mean_rad", "sd_rad", "val_rad") := as.list(mean_v[, c("mean", "sd", "val")])]
+    
+    # version 2: with median and Qn, similar to cqcp_m2
+    rad_v <- data[.(buddies), .(median = median(rem_ta, na.rm = T), qn = cqcp_Qnr(rem_ta),
+                                val = sum(!is.na(rem_ta)) >= n_station), by = time]
+    data <- data[.(i), c("median", "qn", "val_rad") := as.list(rad_v[, c("median", "qn", "val")])]
+  
   }
-
-  data[, m5 := m4 & val_rad & between(rem_ta, (mean_rad - multiple_sd*sd_rad), 
-                                      (mean_rad + multiple_sd*sd_rad), 
-                                      incbounds = T, NAbounds = NA)]
+  
+  # version 1
+  # data[, m5 := m4 & val_rad & between(rem_ta, (mean_rad - cutoff*sd_rad),
+  #                                     (mean_rad + cutoff*sd_rad),
+  #                                     incbounds = T, NAbounds = NA)]
+  
+  # version 2
+  data[, z_rad := abs((rem_ta - median)/qn)]
+  data[, m5 := m4 & val_rad & z_rad < cutoff]
+  
   data[is.na(m5), m5 := FALSE]
   
   data$rem_ta <- NULL
   data$val_rad <- NULL
-  data$mean_rad <- NULL
-  data$sd_rad <- NULL
+  # data$mean_rad <- NULL
+  # data$sd_rad <- NULL
+  data$median <- NULL
+  data$qn <- NULL
+  data$z_rad <- NULL
   if(heightCorrection & cqcp_has_column(data, column = "z")){
     data$mz <- NULL
   }
@@ -653,7 +670,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m4_cutOff see cutOff in ?cqcp_m4
 #' @param m5_radius see radius in ?cqcp_m5
 #' @param m5_n_station see n_station in ?cqcp_m5
-#' @param m5_multiple_sd see multiple_sd in ?cqcp_m5
+#' @param m5_cutoff see cutoff in ?cqcp_m5
 #' @param m5_lapse_rate see lapse_rate in ?cqcp_m5
 #' @param m5_check_elevation see check_elevation in ?cqcp_m5
 #' @param m5_max_elev_diff see max_elev_diff in ?cqcp_m5
@@ -680,7 +697,7 @@ cqcp_qcCWS <- function(data,
                        m2_lapse_rate = 0.0065, m2_t_distribution = FALSE, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
-                       m5_radius = 3000, m5_n_station = 5, m5_multiple_sd = 3, 
+                       m5_radius = 3000, m5_n_station = 5, m5_cutoff = 2, 
                        m5_lapse_rate = 0.0065, m5_check_elevation = TRUE,
                        m5_max_elev_diff = 100,
                        o1_fun = cqcp_interpol,
@@ -706,7 +723,7 @@ cqcp_qcCWS <- function(data,
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
                   rolling = rolling)
   data <- cqcp_m5(data, radius = m5_radius, n_station = m5_n_station, 
-                  multiple_sd = m5_multiple_sd, lapse_rate = m5_lapse_rate,
+                  cutoff = m5_cutoff, lapse_rate = m5_lapse_rate,
                   check_elevation = m5_check_elevation, max_elev_diff = m5_max_elev_diff)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)

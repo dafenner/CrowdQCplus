@@ -32,7 +32,8 @@ downloaded data is stored in the current working directory.}
 
 \item{crop}{Crop SRTM raster/geotiff to data extent}
 
-\item{na_vals}{Set NA values in DEM to this value to avoid missing value in m2. Default: 0}
+\item{na_vals}{Set NA values in DEM to this value to avoid missing value in 
+cqcp_m2. Default: 0}
 
 \item{...}{Additional parameters supported by raster::getData}
 }

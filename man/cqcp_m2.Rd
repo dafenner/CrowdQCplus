@@ -41,8 +41,8 @@ data.table
 \description{
 Flags all values as FALSE if robust z-score is not within the critical values
 obtained from low and high. This approach is based on the distribution
-function of all values. !Careful: if number of stations is < 200, it would be
-better to use the Student-t distribution (t_distribution = TRUE)!
+function of all values. If number of stations is < 200 it would be
+better to use the Student-t distribution (t_distribution = TRUE).
 }
 \examples{
 data(netatmoBer)

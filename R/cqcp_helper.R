@@ -302,7 +302,8 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param outfile File path to save the created SRTM raster as geotiff 
 #' @param overwrite overwrite existing geotiff? 
 #' @param crop Crop SRTM raster/geotiff to data extent
-#' @param na_vals Set NA values in DEM to this value to avoid missing value in m2. Default: 0
+#' @param na_vals Set NA values in DEM to this value to avoid missing value in 
+#'   cqcp_m2. Default: 0
 #' @param ... Additional parameters supported by raster::getData
 #'
 #' @return data table with new column 'z' with DEM information
