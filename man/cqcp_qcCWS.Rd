@@ -15,7 +15,7 @@ cqcp_qcCWS(
   m4_cutOff = 0.9,
   m5_radius = 3000,
   m5_n_station = 5,
-  m5_multiple_sd = 3,
+  m5_cutoff = 2,
   m5_lapse_rate = 0.0065,
   m5_check_elevation = TRUE,
   m5_max_elev_diff = 100,
@@ -51,7 +51,7 @@ cqcp_qcCWS(
 
 \item{m5_n_station}{see n_station in ?cqcp_m5}
 
-\item{m5_multiple_sd}{see multiple_sd in ?cqcp_m5}
+\item{m5_cutoff}{see cutoff in ?cqcp_m5}
 
 \item{m5_lapse_rate}{see lapse_rate in ?cqcp_m5}
 
