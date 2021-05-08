@@ -409,10 +409,10 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
   return(data_pp)
 }
 
-#' Simple statistics on data availability after CrowdQC+
+#' Simple statistics on data availability and number of stations after CrowdQC+.
 #' 
-#' Calculate how many valid values remain after each QC step and print the
-#' information.
+#' Calculate how many valid values and unique stations with valid data remain 
+#' after each QC step and print the information.
 #'
 #' @param data data.table after CrowdQC+
 #' @param print Set to TRUE to print information in the console. Default: TRUE
@@ -426,10 +426,13 @@ cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
   
   n_data <- data.table()
   n_data <- n_data[, n_raw := data[, sum(!is.na(ta))]]
+  n_stat <- data.table()
+  n_stat <- n_stat[, n_raw := data[, !(sum(is.na(ta)) == .N), by = .(p_id)][, sum(V1)]]
   
   for(i in levels) {
     if(cqcp_has_column(data, column = i)) {
       n_data <- n_data[, (i) := data[, sum(get(i))]]
+      n_stat <- n_stat[, (i) := data[, !(sum(get(i) == F) == .N), by = .(p_id)][, sum(V1)]]
     }
   }
   
@@ -438,9 +441,11 @@ cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
     cat("++++++++++++++++++++++++++++++\n")
     cat("+ CrowdQC+ output statistics +\n")
     cat("++++++++++++++++++++++++++++++\n")
-    cat(paste0("Raw data: ",n_data$n_raw," values\n"))
+    cat(paste0("Raw data: ",n_data$n_raw," values, ",n_stat$n_raw," stations\n"))
     for(j in 2:length(columns)) {
-      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))]," values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100)," % of raw data)\n"))
+      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))],
+                 " values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100),
+                 " % of raw data), ",n_stat[,as.character(get(columns[j]))]," stations\n"))
     }
   }
   # File?
@@ -454,9 +459,11 @@ cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
     cat("+++++++++++++++++++++++++++++++++++++\n")
     cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
     cat("+++++++++++++++++++++++++++++++++++++\n")
-    cat(paste0("Raw data: ",n_data$n_raw," values\n"))
+    cat(paste0("Raw data: ",n_data$n_raw," values, ",n_stat$n_raw," stations\n"))
     for(j in 2:length(columns)) {
-      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))]," values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100)," % of raw data)\n"))
+      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))],
+                 " values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100),
+                 " % of raw data), ",n_stat[,as.character(get(columns[j]))]," stations\n"))
     }
     sink()
   }
