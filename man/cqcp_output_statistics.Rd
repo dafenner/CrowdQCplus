@@ -2,7 +2,7 @@
 % Please edit documentation in R/cqcp_helper.R
 \name{cqcp_output_statistics}
 \alias{cqcp_output_statistics}
-\title{Simple statistics on data availability after CrowdQC+}
+\title{Simple statistics on data availability and number of stations after CrowdQC+.}
 \usage{
 cqcp_output_statistics(data, print = TRUE, file = NULL)
 }
@@ -17,6 +17,6 @@ cqcp_output_statistics(data, print = TRUE, file = NULL)
 data.table with output statistics
 }
 \description{
-Calculate how many valid values remain after each QC step and print the
-information.
+Calculate how many valid values and unique stations with valid data remain 
+after each QC step and print the information.
 }
