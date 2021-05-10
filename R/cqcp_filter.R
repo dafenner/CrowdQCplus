@@ -393,6 +393,10 @@ cqcp_m5 <- function(data, radius = 3000, n_station = 5, cutoff = 2,
 
   # loop over stations, more efficient solution?
   for(i in loc$p_id) {
+    
+    # check data availability of station
+    if(data[.(i), sum(m4 == FALSE) == .N]) next # only FALSE at QC level m4
+    
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
     uni_p <- as.integer(unique(c(rel_stat$p_x, rel_stat$p_y))) # retrieve unique
     buddies <- uni_p[which(uni_p != i)] # remove station itself
