@@ -20,3 +20,8 @@ data.table with output statistics
 Calculate how many valid values and unique stations with valid data remain 
 after each QC step and print the information.
 }
+\examples{
+data(CWSBer)
+y <- cqcp_qcCWS(CWSBer)
+z <- cqcp_output_statistics(y)
+}

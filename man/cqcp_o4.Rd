@@ -27,8 +27,9 @@ In the correction the original data "ta" is used instead of the interpolated
 values "ta_int". Hence, this function can be applied at/after any QC level. 
 Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
 is added to the data.table for cqcp_o4. Data after the correction thus can be 
-selected at any other QC level.
+selected at any QC level.
 }
 \examples{
-o_4 <- cqcp_o4(o_3, 1480.5)
+data(CWSBer)
+o_4 <- cqcp_o4(CWSBer, 1480.5)
 }

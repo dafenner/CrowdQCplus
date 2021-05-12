@@ -4,7 +4,7 @@
 \alias{cqcp_o3}
 \title{Optional QC step o3}
 \usage{
-cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL, rolling = FALSE)
+cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL)
 }
 \arguments{
 \item{data}{data.table as returned from o2}
@@ -18,9 +18,6 @@ cutOff < 1. Default is 0.8, i.e, 80 percent of data.}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
-
-\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. 
-A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{
 data.table
@@ -31,5 +28,13 @@ duration (if nothing specified on a monthly basis) as FALSE if less than '
 cutOff' percent of valid values are available for that duration.
 }
 \examples{
+data(CWSBer)
+m_1 <- cqcp_m1(CWSBer)
+m_2 <- cqcp_m2(m_1)
+m_3 <- cqcp_m3(m_2)
+m_4 <- cqcp_m4(m_3)
+m_5 <- cqcp_m5(m_4)
+o_1 <- cqcp_o1(m_5)
+o_2 <- cqcp_o2(o_1)
 o_3 <- cqcp_o3(o_2)
 }

@@ -27,3 +27,7 @@ regarding the application of the package.
 4. Geographical extent of data.
 5. Number of stations.
 }
+\examples{
+data(CWSBer)
+cqcp_check_input(CWSBer)
+}

@@ -4,7 +4,7 @@
 \alias{cqcp_m4}
 \title{Main QC step m4}
 \usage{
-cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, rolling = FALSE)
+cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL)
 }
 \arguments{
 \item{data}{data.table as returned by m3}
@@ -17,9 +17,6 @@ with FALSE, 0 < cutOff < 1. Default is 0.9.}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
-
-\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. 
-A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{
 data.table
@@ -28,13 +25,12 @@ data.table
 Flag values with FALSE if the correlation with the median of all stations is 
 lower than cutOff.
 Default is to apply m4 per month, but can be changed to use the complete data
-set (e.g. for short data sets, 'complete = T'), some other fixed duration 
-(e.g. 'duration = "10 days"'), or rolling, in combination with 'duration' 
-(not yet implemented.).
+set (e.g. for short data sets, 'complete = T'), or some other fixed duration 
+(e.g. 'duration = "10 days"').
 }
 \examples{
-data(netatmoBer)
-m_1 <- cqcp_m1(netatmoBer)
+data(CWSBer)
+m_1 <- cqcp_m1(CWSBer)
 m_2 <- cqcp_m2(m_1)
 m_3 <- cqcp_m3(m_2)
 m_4 <- cqcp_m4(m_3)
