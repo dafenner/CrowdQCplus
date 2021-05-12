@@ -7,12 +7,13 @@
 cqcp_m5(
   data,
   radius = 3000,
-  n_station = 5,
+  n_buddies = 5,
   cutoff = 2,
   heightCorrection = TRUE,
   lapse_rate = 0.0065,
   check_elevation = TRUE,
-  max_elev_diff = 100
+  max_elev_diff = 100,
+  keep_isolated = FALSE
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ cqcp_m5(
 \item{radius}{A radius in meter around each station to check for neighbours.
 Default: 3000}
 
-\item{n_station}{Minimum number of neighbouring stations with a valid 
+\item{n_buddies}{Minimum number of neighbouring stations with a valid 
 value within 'radius' Default: 5}
 
 \item{cutoff}{Cutoff value for the outlier detection within 'radius' to be 
@@ -45,24 +46,34 @@ neighbour is left out of the calculations. Default: TRUE}
 
 \item{max_elev_diff}{Maximum allowed elevation difference in meters between 
 the station that is checked and each neighbour within 'radius'. Default: 100 m.}
+
+\item{keep_isolated}{Set to TRUE if isolated stations (with less buddies than 
+'n_buddies') should be kept (m5 = TRUE) or removed (m5 = FALSE). Default: FALSE.}
 }
 \value{
 data.table
 }
 \description{
 Spatial buddy check. Flags all values as FALSE if values are too different
-than those from spatially neighbouring stations (spatial outlier filter).
+than those from spatially neighbouring stations/buddies (spatial outlier filter).
 Check is based on the median value and the Qn estimator, as in cqcp_m2, of 
 the buddies within a specified radius. The station that is checked is not
 considered when calculating these values.
 A minimum number of buddies within the radius has to be present for the 
-calculations, thus this filter also flags isolated stations.
+calculations, thus this filter also flags isolated stations. Set 
+'keep_isolated' = TRUE if you want to keep the isolated stations.
+In addition to flag variable 'm5' another variable 'isolated' is added to the
+data.table with FALSE/TRUE, if stations have >='n_buddies' within 'radius' or
+not.
 }
 \examples{
-data(netatmoBer)
-m_1 <- cqcp_m1(netatmoBer)
+data(CWSBer)
+m_1 <- cqcp_m1(CWSBer)
 m_2 <- cqcp_m2(m_1)
 m_3 <- cqcp_m3(m_2)
 m_4 <- cqcp_m4(m_3)
+# default
 m_5 <- cqcp_m5(m_4)
+# keep isolated stations, do not check for elevation differences, use more buddies
+m_5 <- cqcp_m5(m_4, keep_isolated = TRUE, check_elevation = FALSE, n_buddies = 10)
 }

@@ -4,7 +4,7 @@
 \alias{cqcp_m3}
 \title{Main QC step m3}
 \usage{
-cqcp_m3(data, cutOff = 0.2, complete = FALSE, duration = NULL, rolling = FALSE)
+cqcp_m3(data, cutOff = 0.2, complete = FALSE, duration = NULL)
 }
 \arguments{
 \item{data}{data.table object obtained from m2}
@@ -17,9 +17,6 @@ Default is 0.2, i.e., 20 percent of data.}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
-
-\item{rolling}{Set to TRUE to carry out the filter on a rolling basis. 
-A 'duration' has to be specified too. Not yet implemented.}
 }
 \value{
 data.table
@@ -29,13 +26,12 @@ Flag values with FALSE if more than cutOff percent values are removed during
 m2. This is done since it is assumed that if too many individual
 values are flagged FALSE in m2, the station is too suspicious to be kept.
 Default is to apply m3 per month, but can be changed to use the complete data
-set (e.g. for short data sets, 'complete = T'), some other fixed duration 
-(e.g. 'duration = "10 days"'), or rolling, in combination with 'duration' 
-(not yet implemented.).
+set (e.g. for short data sets, 'complete = T'), or some other fixed duration 
+(e.g. 'duration = "10 days"').
 }
 \examples{
-data(netatmoBer)
-m_1 <- cqcp_m1(netatmoBer)
+data(CWSBer)
+m_1 <- cqcp_m1(CWSBer)
 m_2 <- cqcp_m2(m_1)
 m_3 <- cqcp_m3(m_2)
 }

@@ -14,24 +14,24 @@ cqcp_qcCWS(
   m3_cutOff = 0.2,
   m4_cutOff = 0.9,
   m5_radius = 3000,
-  m5_n_station = 5,
+  m5_n_buddies = 5,
   m5_cutoff = 2,
   m5_lapse_rate = 0.0065,
   m5_check_elevation = TRUE,
   m5_max_elev_diff = 100,
+  m5_keep_isolated = FALSE,
   o1_fun = cqcp_interpol,
   o2_cutOff = 0.8,
   o3_cutOff = 0.8,
   o4_time_constant = NULL,
-  includeOptional = T,
+  includeOptional = TRUE,
   complete = FALSE,
   duration = NULL,
-  rolling = FALSE,
   ...
 )
 }
 \arguments{
-\item{data}{Input data in the format as the example data (netatmoBer)}
+\item{data}{Input data in the format as the example data (CWSBer)}
 
 \item{m1_cutOff}{see cutOff in ?cqcp_m1}
 
@@ -49,7 +49,7 @@ cqcp_qcCWS(
 
 \item{m5_radius}{see radius in ?cqcp_m5}
 
-\item{m5_n_station}{see n_station in ?cqcp_m5}
+\item{m5_n_buddies}{see n_buddies in ?cqcp_m5}
 
 \item{m5_cutoff}{see cutoff in ?cqcp_m5}
 
@@ -58,6 +58,8 @@ cqcp_qcCWS(
 \item{m5_check_elevation}{see check_elevation in ?cqcp_m5}
 
 \item{m5_max_elev_diff}{see max_elev_diff in ?cqcp_m5}
+
+\item{m5_keep_isolated}{see keep_isolated in ?cqcp_m5}
 
 \item{o1_fun}{see fun in ?cqcp_o1}
 
@@ -73,8 +75,6 @@ performed, default: TRUE}
 \item{complete}{see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3}
 
 \item{duration}{see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3}
-
-\item{rolling}{see rolling in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3. Not yet implemented.}
 
 \item{...}{Additional parameters used in cqcp_o1. For details see ?cqcp_o1}
 }
@@ -94,9 +94,9 @@ levels are carried along, i.e., if a value failed in step m2, this FALSE is
 kept throughout the remaining QC steps. In the end, only those data
 values containing TRUE after the all QC steps are valid according to this
 QC.
-'complete' currently does not work with the example data set (netatmoBer).
+'complete' currently does not work with the example data set (CWSBer).
 }
 \examples{
-data(netatmoBer)
-y <- cqcp_qcCWS(netatmoBer)
+data(CWSBer)
+y <- cqcp_qcCWS(CWSBer)
 }

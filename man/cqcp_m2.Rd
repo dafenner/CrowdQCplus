@@ -8,10 +8,10 @@ cqcp_m2(
   data,
   low = 0.01,
   high = 0.95,
-  heightCorrection = T,
-  debug = F,
+  heightCorrection = TRUE,
+  debug = FALSE,
   lapse_rate = 0.0065,
-  t_distribution = F
+  t_distribution = FALSE
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ function of all values. If number of stations is < 200 it would be
 better to use the Student-t distribution (t_distribution = TRUE).
 }
 \examples{
-data(netatmoBer)
-m_1 <- cqcp_m1(netatmoBer)
+data(CWSBer)
+m_1 <- cqcp_m1(CWSBer)
 m_2 <- cqcp_m2(m_1)
 }
