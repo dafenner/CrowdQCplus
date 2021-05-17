@@ -7,7 +7,7 @@
 cqcp_qcCWS(
   data,
   m1_cutOff = 1,
-  m2_low = 0.1,
+  m2_low = 0.01,
   m2_high = 0.95,
   m2_lapse_rate = 0.0065,
   m2_t_distribution = FALSE,
@@ -15,7 +15,7 @@ cqcp_qcCWS(
   m4_cutOff = 0.9,
   m5_radius = 3000,
   m5_n_buddies = 5,
-  m5_cutoff = 2,
+  m5_alpha = 0.1,
   m5_lapse_rate = 0.0065,
   m5_check_elevation = TRUE,
   m5_max_elev_diff = 100,
@@ -51,7 +51,7 @@ cqcp_qcCWS(
 
 \item{m5_n_buddies}{see n_buddies in ?cqcp_m5}
 
-\item{m5_cutoff}{see cutoff in ?cqcp_m5}
+\item{m5_alpha}{see alpha in ?cqcp_m5}
 
 \item{m5_lapse_rate}{see lapse_rate in ?cqcp_m5}
 

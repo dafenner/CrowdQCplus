@@ -8,7 +8,7 @@ cqcp_m5(
   data,
   radius = 3000,
   n_buddies = 5,
-  cutoff = 2,
+  alpha = 0.1,
   heightCorrection = TRUE,
   lapse_rate = 0.0065,
   check_elevation = TRUE,
@@ -25,8 +25,8 @@ Default: 3000}
 \item{n_buddies}{Minimum number of neighbouring stations with a valid 
 value within 'radius' Default: 5}
 
-\item{cutoff}{Cutoff value for the outlier detection within 'radius' to be 
-applied. Default: 2}
+\item{alpha}{Significance level (two-tailed approach) for the outlier detection 
+within 'radius'. 0 < alpha < 1. Default: 0.1.}
 
 \item{heightCorrection}{If set to TRUE (default) and the column "z" exists in
 the input data, the temperatures used in calculating the z-score are
