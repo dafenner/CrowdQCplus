@@ -96,10 +96,10 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE,
     data[z_ta < qnorm(low) | z_ta > qnorm(high) | is.nan(z_ta), m2 := F]
   }
   if(!debug){
-    data$rem_ta <- NULL
-    data$z_ta <- NULL
+    data[, rem_ta := NULL]
+    data[, z_ta := NULL]
     if(heightCorrection & cqcp_has_column(data, column = "z")){
-      data$mz <- NULL
+      data[, mz := NULL]
     }
   }
   return(data)
@@ -194,7 +194,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
     }
     data[, m3 := m2 & sum(m2)/.N > cutOff, by = .(month, p_id)]
     if(!has_m){
-      data$month <- NULL
+      data[, month := NULL]
     }
   } else if(complete) { # complete time series, 'duration' ignored
     data[, m3 := m2 & sum(m2)/.N > cutOff, by = .(p_id)]
@@ -208,7 +208,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
     has_e <- cqcp_has_column(data, column = "episode")
     if(!has_e) data <- cqcp_add_episode(data, duration)
     data[, m3 := m2 & sum(m2)/.N > cutOff, by = .(episode, p_id)]
-    if(!has_e) data$episode <- NULL
+    if(!has_e) data[, episode := NULL]
   }
   return(data)
 }
@@ -256,7 +256,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
                         by = .(month, p_id)]
     data <- merge(data, cor_station, all.x = T, by = c("month", "p_id"))
     if(!has_m){
-      data$month <- NULL
+      data[, month := NULL]
     }
   } else if(complete) { # complete time series, 'duration' ignored
     data <- data[, episode := 1] # only one episode, the whole data set
@@ -265,7 +265,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
                                                  cutOff, timespan = "episode")), 
                         by = .(episode, p_id)]
     data <- merge(data, cor_station, all.x = T, by = c("episode", "p_id"))
-    data$episode <- NULL
+    data[, episode := NULL]
   } else { # per duration
     # check for a meaningful sample size in correlation.
     # minimum would be so that cutOff refers to at least one value
@@ -281,11 +281,11 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
                                                  cutOff, timespan = "episode")), 
                         by = .(episode, p_id)]
     data <- merge(data, cor_station, all.x = T, by = c("episode", "p_id"))
-    if(!has_e) data$episode <- NULL
+    if(!has_e) data[, episode := NULL]
   }
   data[, m4 := c & m3]
-  data$c <- NULL
-  data$rem_ta <- NULL
+  data[, c := NULL]
+  data[, rem_ta := NULL]
   return(data)
 }
 
@@ -308,8 +308,8 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
 #'   Default: 3000
 #' @param n_buddies Minimum number of neighbouring stations with a valid 
 #'   value within 'radius' Default: 5
-#' @param cutoff Cutoff value for the outlier detection within 'radius' to be 
-#'   applied. Default: 2
+#' @param alpha Significance level (two-tailed approach) for the outlier detection 
+#'   within 'radius'. 0 < alpha < 1. Default: 0.1.
 #' @param heightCorrection If set to TRUE (default) and the column "z" exists in
 #'   the input data, the temperatures used in calculating the z-score are
 #'   corrected. The applied formula is ta_cor = ta + ((lapse_rate * (z - mz)) 
@@ -341,7 +341,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
 #' m_5 <- cqcp_m5(m_4)
 #' # keep isolated stations, do not check for elevation differences, use more buddies
 #' m_5 <- cqcp_m5(m_4, keep_isolated = TRUE, check_elevation = FALSE, n_buddies = 10)
-cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, cutoff = 2, 
+cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1, 
                     heightCorrection = TRUE, lapse_rate = 0.0065,
                     check_elevation = TRUE, max_elev_diff = 100,
                     keep_isolated = FALSE) {
@@ -397,27 +397,29 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, cutoff = 2,
     
     # computation of statistics for buddies
     rad_v <- data[.(buddies), .(median = median(rem_ta, na.rm = T), qn = cqcp_Qnr(rem_ta),
-                                val = sum(!is.na(rem_ta)) >= n_buddies), by = time]
-    data <- data[.(i), c("median", "qn", "val_rad") := as.list(rad_v[, c("median", "qn", "val")])]
+                                val = sum(!is.na(rem_ta)) >= n_buddies, 
+                                df = sum(!is.nan(rem_ta))-2), by = time]
+    data <- data[.(i), c("median", "qn", "val_rad", "df") := as.list(rad_v[, c("median", "qn", "val", "df")])]
   
   }
 
   # set flag values
   data[, z_rad := abs((rem_ta - median)/qn)]
   if(keep_isolated) {
-    data[isolated == FALSE, m5 := m4 & val_rad & z_rad < cutoff]
+    data[isolated == FALSE, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
   } else {
-    data[, m5 := m4 & val_rad & z_rad < cutoff]
+    data[, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
   }
   data[is.na(m5), m5 := FALSE]
   
-  data$rem_ta <- NULL
-  data$val_rad <- NULL
-  data$median <- NULL
-  data$qn <- NULL
-  data$z_rad <- NULL
+  data[, rem_ta := NULL]
+  data[, val_rad := NULL]
+  data[, median := NULL]
+  data[, qn := NULL]
+  data[, df := NULL]
+  data[, z_rad := NULL]
   if(heightCorrection & cqcp_has_column(data, column = "z")){
-    data$mz <- NULL
+    data[, mz := NULL]
   }
   return(data)
 }
@@ -519,7 +521,7 @@ cqcp_o2 <- function(data, cutOff = 0.8){
   }
   data[, o2 := o1 & sum(o1)/.N > cutOff, by = .(day, p_id)]
   if(!has_d){
-    data$day <- NULL
+    data[, day := NULL]
   }
   return(data)
 }
@@ -563,7 +565,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
     }
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(month, p_id)]
     if(!has_m){
-      data$month <- NULL
+      data[, month := NULL]
     }
   } else if(complete) { # complete time series, 'duration'  ignored
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(p_id)]
@@ -571,7 +573,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
     has_e <- cqcp_has_column(data, column = "episode")
     if(!has_e) data <- cqcp_add_episode(data, duration)
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(episode, p_id)]
-    if(!has_e) data$episode <- NULL
+    if(!has_e) data[, episode := NULL]
   }
 
   return(data)
@@ -615,9 +617,9 @@ cqcp_o4 <- function(data, time_constant) {
   # correction
   data <- data[, ta_corr := (ta - (lag_ta*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
   
-  data$lag_time <- NULL
-  data$lag_ta <- NULL
-  data$dt <- NULL
+  data[, lag_time := NULL]
+  data[, lag_ta := NULL]
+  data[, dt := NULL]
   
   return(data)
 }
@@ -661,7 +663,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m4_cutOff see cutOff in ?cqcp_m4
 #' @param m5_radius see radius in ?cqcp_m5
 #' @param m5_n_buddies see n_buddies in ?cqcp_m5
-#' @param m5_cutoff see cutoff in ?cqcp_m5
+#' @param m5_alpha see alpha in ?cqcp_m5
 #' @param m5_lapse_rate see lapse_rate in ?cqcp_m5
 #' @param m5_check_elevation see check_elevation in ?cqcp_m5
 #' @param m5_max_elev_diff see max_elev_diff in ?cqcp_m5
@@ -684,11 +686,11 @@ cqcp_has_column <- function(data, column = "month"){
 #' y <- cqcp_qcCWS(CWSBer)
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
-                       m2_low = 0.1, m2_high = 0.95, 
+                       m2_low = 0.01, m2_high = 0.95, 
                        m2_lapse_rate = 0.0065, m2_t_distribution = FALSE, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
-                       m5_radius = 3000, m5_n_buddies = 5, m5_cutoff = 2, 
+                       m5_radius = 3000, m5_n_buddies = 5, m5_alpha = 0.1, 
                        m5_lapse_rate = 0.0065, m5_check_elevation = TRUE,
                        m5_max_elev_diff = 100,
                        m5_keep_isolated = FALSE, 
@@ -712,7 +714,7 @@ cqcp_qcCWS <- function(data,
   data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration)
   data <- cqcp_m5(data, radius = m5_radius, n_buddies = m5_n_buddies, 
-                  cutoff = m5_cutoff, lapse_rate = m5_lapse_rate,
+                  alpha = m5_alpha, lapse_rate = m5_lapse_rate,
                   check_elevation = m5_check_elevation, max_elev_diff = m5_max_elev_diff, 
                   keep_isolated = m5_keep_isolated)
   if(includeOptional){
@@ -722,9 +724,9 @@ cqcp_qcCWS <- function(data,
     data <- cqcp_o4(data, o4_time_constant)
   }
   if(cqcp_has_column(data, "month")) {
-    data$month <- NULL
+    data[, month := NULL]
   } else if(cqcp_has_column(data, "episode")) {
-    data$episode <- NULL
+    data[, episode := NULL]
   }
   return(data)
 }
