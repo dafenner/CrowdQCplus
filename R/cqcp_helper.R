@@ -293,10 +293,20 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' 
 #' Adds Digital Elevation Model (DEM) information from a RasterLayer Object or 
 #' geotiff to the data.table.
-#' If no RasterLayer Object or file are given as parameters, SRTM data is 
-#' automatically downloaded and used to extract DEM information at the positions
-#' of the stations.
+#' If no RasterLayer Object or file are given as parameters, SRTM data 
+#' (Jarvis et al. 2008) is automatically downloaded and used to extract DEM 
+#' information at the positions of the stations. Keep in mind that SRTM data is 
+#' only available for regions between 60° N and 56° S. For regions outside that 
+#' range, or if the user wants to use another DEM, that DEM can be used as input 
+#' via the 'file' parameter (path to geotiff) or via the 'raster' parameter 
+#' (RasterLayer Object).
+#' 
 #' A new column 'z' is added to the data.table to be used in filter level M2.
+#' 
+#' Reference: 
+#' Jarvis A., Reuter, H. I., Nelson, A. and Guevara, E. (2008): Hole-filled 
+#' seamless SRTM data V4, International Centre for Tropical Agriculture (CIAT), 
+#' available from https://srtm.csi.cgiar.org
 #'
 #' @param data data.table/frame with at least columns 'lon' and 'lat' 
 #' @param file Path to a DEM geotiff 
