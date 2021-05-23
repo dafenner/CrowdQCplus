@@ -91,7 +91,7 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE,
   data[, m2 := T]
   if(t_distribution){
     data[, n := sum(!is.nan(rem_ta))-1, by = time]
-    data[z_ta < qt(low, n) | z_ta > qt(high, n) | is.nan(z_ta), m2 := F, by = time]
+    data[z_ta < suppressWarnings(qt(low, n)) | z_ta > suppressWarnings(qt(high, n)) | is.nan(z_ta), m2 := F, by = time]
   } else {
     data[z_ta < qnorm(low) | z_ta > qnorm(high) | is.nan(z_ta), m2 := F]
   }
