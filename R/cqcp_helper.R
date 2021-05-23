@@ -104,7 +104,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   # (5) Number of stations.
   if(has_p_id) {
     n_pid <- length(unique(data$p_id))
-    if(n_pid < 200) {
+    if(n_pid < 50) {
       mess_5 <- cqcp_colourise(paste0("     ! Low number of stations (",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
       ok <- FALSE
     } else {
@@ -332,6 +332,9 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
   
   # Download SRTM data in case no file or raster is given
   if(is.null(raster) & is.null(file)){
+    if(min(locations$lat) < -56 | max(locations$lat) > 60) {
+      print("[CrowdQC+] Some stations are outside SRTM data coverage. Recommend to use another DEM of your choice via parameters 'file' or 'raster'.")
+    }
     raster <- cqcp_download_srtm(locations, directory = directory, 
                                  outfile = outfile, overwrite = overwrite, 
                                  crop = crop, ...)
