@@ -201,7 +201,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
   } else { # per duration
     # check for a meaningful duration considering cutOff and temporal resolution
     # minimum would be so that cutOff refers to at least one value
-    times <- data_cws[data_cws[, .I[1:2], p_id]$V1][1:2,time]
+    times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
     if(lubridate::duration(duration)/(times[2]-times[1])*cutOff < 1) {
       print("[CrowdQC+] Specified duration in 'cqcp_m3' is short considering cutOff and temporal resolution.")
     }
@@ -259,6 +259,11 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
       data[, month := NULL]
     }
   } else if(complete) { # complete time series, 'duration' ignored
+    # check for a meaningful sample size in correlation.
+    sample <- data[, .N, p_id][1,N]
+    if(sample < 100) {
+      print(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with this data set."))
+    }
     data <- data[, episode := 1] # only one episode, the whole data set
     data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(episode, time)]
     cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(episode), 
@@ -268,8 +273,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
     data[, episode := NULL]
   } else { # per duration
     # check for a meaningful sample size in correlation.
-    # minimum would be so that cutOff refers to at least one value
-    times <- data_cws[data_cws[, .I[1:2], p_id]$V1][1:2,time]
+    times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
     sample <- lubridate::duration(duration)/(times[2]-times[1])
     if(sample < 100) {
       print(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with the specified duration."))
