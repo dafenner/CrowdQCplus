@@ -27,6 +27,7 @@ It also requires the following packages:
 - sp
 - raster
 - rgdal
+
 Make sure to have these installed before running CrowdQC+.
 
 When installing "rgdal" package on a Linux system, you might run into issues. Run `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then try again to install rgdal from R with `install.packages("rgdal")`.
