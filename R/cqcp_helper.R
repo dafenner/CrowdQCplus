@@ -92,7 +92,6 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
     if(max(dist, na.rm = T) > 141421.4) {
       mess_4 <- cqcp_colourise("     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n", "yellow")
-      ok <- FALSE
     } else {
       mess_4 <- cqcp_colourise("     OK\n", "green")
     }
@@ -104,9 +103,8 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   # (5) Number of stations.
   if(has_p_id) {
     n_pid <- length(unique(data$p_id))
-    if(n_pid < 50) {
+    if(n_pid < 100) {
       mess_5 <- cqcp_colourise(paste0("     ! Low number of stations (",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
-      ok <- FALSE
     } else {
       mess_5 <- cqcp_colourise("     OK\n", "green")
     }
@@ -134,7 +132,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n"), "red")
+      cat(cqcp_colourise("     ! Missing: z\n"), "yellow")
       cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
@@ -179,7 +177,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n"), "red")
+      cat(cqcp_colourise("     ! Missing: z\n"), "yellow")
       cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
