@@ -22,11 +22,7 @@ CrowdQC+ requires an R version >= 3.5.0 to work.
 
 It also requires the following packages:
 
-For core functionality of the QC itself:
-data.table, robustbase, lubridate
-
-For the helper functions the following packages are also required:
-sp, raster, rgdal
+data.table, robustbase, lubridate, sp, raster, rgdal
 
 Make sure to have these installed before running CrowdQC+.
 
