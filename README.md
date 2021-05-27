@@ -20,11 +20,16 @@ Beside the actual QC filters, several helper functions are available to, e.g., a
 ## Dependencies
 CrowdQC+ requires an R version >= 3.5.0 to work.
 
-It also requires the following packages:
-
-data.table, robustbase, lubridate, sp, raster, rgdal
-
+It also requires the following packages: 
+- data.table
+- robustbase
+- lubridate
+- sp
+- raster
+- rgdal
 Make sure to have these installed before running CrowdQC+.
+
+When installing "rgdal" package on a Linux system, you might run into issues. Run `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then try again to install rgdal from R with `install.packages("rgdal")`.
 
 ## Reference
 Please reference the following paper when using CrowdQC+:
