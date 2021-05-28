@@ -132,7 +132,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n"), "yellow")
+      cat(cqcp_colourise("     ! Missing: z\n", "yellow"))
       cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
@@ -177,7 +177,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     } else cat(cqcp_colourise("     OK\n", "green"))
     cat("Check 1b - Optional columns:\n")
     if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n"), "yellow")
+      cat(cqcp_colourise("     ! Missing: z\n", "yellow"))
       cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     } else cat(cqcp_colourise("     OK\n", "green"))
     # (2)
