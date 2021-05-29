@@ -30,7 +30,7 @@ It also requires the following packages:
 
 Make sure to have these installed before running CrowdQC+.
 
-When installing "rgdal" package on a Linux system, you might run into issues. Run `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then try again to install rgdal from R with `install.packages("rgdal")`.
+When installing "rgdal" package on a Linux system, you might run into issues. Try running `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then again installing rgdal from R with `install.packages("rgdal")`. For 'older' Linux versions this could also work: `install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
 
 ## Reference
 Please reference the following paper when using CrowdQC+:
