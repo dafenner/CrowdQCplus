@@ -28,9 +28,9 @@ It also requires the following packages:
 - raster
 - rgdal
 
-Make sure to have these installed before running CrowdQC+.
+Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
-When installing "rgdal" package on a Linux system, you might run into issues. Try running `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then again installing rgdal from R with `install.packages("rgdal")`. For 'older' Linux versions this could also work: `install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
+When installing 'rgdal' package on a Linux system, you might run into issues. Try running `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then again installing rgdal from R with `install.packages("rgdal")`. For 'older' Linux versions this could also work: `install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
 
 ## Reference
 Please reference the following paper when using CrowdQC+:
