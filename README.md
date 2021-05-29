@@ -35,5 +35,5 @@ When installing 'rgdal' package on a Linux system, you might run into issues. Tr
 ## Reference
 Please reference the following paper when using CrowdQC+:
 
-Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications.
+Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science (submitted).
 
