@@ -121,7 +121,7 @@ cqcp_add_episode <- function(data, duration){
   n <- data[p_id == data[1]$p_id, .N]
   episode <- rep(1:ceiling(n/steps), each = steps)
   if(length(episode) != n) {
-    print("[CrowdQC+] Last episode in data shorter than specified duration.")
+    cat(cqcp_colourise("[CrowdQC+] Last episode in data shorter than specified duration.", "yellow"))
   }
   data <- data[, episode := episode[1:n], by = .(p_id)]
   return(data)
@@ -203,7 +203,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
     # minimum would be so that cutOff refers to at least one value
     times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
     if(lubridate::duration(duration)/(times[2]-times[1])*cutOff < 1) {
-      print("[CrowdQC+] Specified duration in 'cqcp_m3' is short considering cutOff and temporal resolution.")
+      cat(cqcp_colourise("[CrowdQC+] Specified duration in 'cqcp_m3' is short considering cutOff and temporal resolution.", "yellow"))
     }
     has_e <- cqcp_has_column(data, column = "episode")
     if(!has_e) data <- cqcp_add_episode(data, duration)
@@ -262,7 +262,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
     # check for a meaningful sample size in correlation.
     sample <- data[, .N, p_id][1,N]
     if(sample < 100) {
-      print(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with this data set."))
+      cat(cqcp_colourise(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with this data set.", "yellow")))
     }
     data <- data[, episode := 1] # only one episode, the whole data set
     data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(episode, time)]
@@ -276,7 +276,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
     times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
     sample <- lubridate::duration(duration)/(times[2]-times[1])
     if(sample < 100) {
-      print(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with the specified duration."))
+      cat(cqcp_colourise(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with the specified duration.", "yellow")))
     }
     has_e <- cqcp_has_column(data, column = "episode")
     if(!has_e) data <- cqcp_add_episode(data, duration)
@@ -408,20 +408,27 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
   }
 
   # set flag values
-  data[, z_rad := abs((rem_ta - median)/qn)]
-  if(keep_isolated) {
-    data[isolated == FALSE, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
+  if(cqcp_has_column(data, column = "median")) {
+    data[, z_rad := abs((rem_ta - median)/qn)]
+    if(keep_isolated) {
+      data[isolated == FALSE, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
+    } else {
+      data[, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
+    }
+    data[is.na(m5), m5 := FALSE]
   } else {
-    data[, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
+    cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (too few buddies for all stations). Consider increasing the radius or decreasing the number of buddies.", "yellow"))
+    data[, m5 := FALSE]
   }
-  data[is.na(m5), m5 := FALSE]
   
   data[, rem_ta := NULL]
-  data[, val_rad := NULL]
-  data[, median := NULL]
-  data[, qn := NULL]
-  data[, df := NULL]
-  data[, z_rad := NULL]
+  if(cqcp_has_column(data, column = "median")) {
+    data[, median := NULL]
+    data[, qn := NULL]
+    data[, val_rad := NULL]
+    data[, df := NULL]
+    data[, z_rad := NULL]
+  }
   if(heightCorrection & cqcp_has_column(data, column = "z")){
     data[, mz := NULL]
   }
