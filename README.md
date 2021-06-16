@@ -1,21 +1,11 @@
 # CrowdQC+
 
-This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package 'CrowdQC' (http://dx.doi.org/10.14279/depositonce-6740.3) but offers several additions and improvements. Both packages are originally designed for air-temperature data but should also work with other near-normally distributed data.
+This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions and improvements. Both packages are originally designed for air-temperature data but should also work with other near-normally distributed data.
 
-## Data and functionality
-Data should be represented as a data.table (https://CRAN.R-project.org/package=data.table) with the following required columns:
+## Installation of the package
+Download the <a href="https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip">zip-file</a> from this repository and install it in your programming environment, or directly pull the code from this repository in your programming environment.
 
-p_id: unique ID of each station<br>
-time: time as POSIX.ct. Keep in mind time zones!<br>
-ta: air-temperature values (or other near-normally distributed variable)<br>
-lon: longitude of the station<br>
-lat: latitude of the station<br>
-
-Optionally, the user can provide elevation information per station (column 'z'), as to perform a height correction in some of the filter levels.
-Any other column can be present, but is quietly ignored by CrowdQC+.
-
-The QC consists of five main filter levels (m1-m5) and four optional levels (o1-o4).<br>
-Beside the actual QC filters, several helper functions are available to, e.g., add elevation information to each station, check the data.table for compliance with CrowdQC+, and output simple statistics an data availability after application of the QC.
+Once installed, load the library via `library(CrowdQCplus)`. Make sure to also load `library(data.table)`.
 
 ## Dependencies
 CrowdQC+ requires an R version >= 3.5.0 to work.
@@ -31,6 +21,26 @@ It also requires the following packages:
 Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
 When installing 'rgdal' package on a Linux system, you might run into issues. Try running `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` first and then again installing rgdal from R with `install.packages("rgdal")`. For 'older' Linux versions this could also work: `install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
+
+## Using CrowdQC+
+### Data
+Data should be represented as a <a href="https://CRAN.R-project.org/package=data.table">data.table</a>  with the following required columns:
+
+p_id: unique ID of each station<br>
+time: time as POSIX.ct. Keep in mind time zones!<br>
+ta: air-temperature values (or other near-normally distributed variable)<br>
+lon: longitude of the station<br>
+lat: latitude of the station<br>
+
+Optionally, the user can provide elevation information per station (column 'z'), as to perform a height correction in some of the filter levels.
+Any other column can be present, but is quietly ignored by CrowdQC+.
+
+### Functionalities
+The QC consists of five main filter levels (m1-m5) and four optional levels (o1-o4).<br>
+Beside the actual QC filters, several helper functions are available to, e.g., add elevation information to each station, check the data.table for compliance with CrowdQC+, and output simple statistics an data availability after application of the QC.
+
+## How to contribute?
+If you are using CrowdQC+ and have ideas how to make it better, improve its performance, resolve errors, please create <a href="https://github.com/dafenner/CrowdQCplus/issues">issues</a>.
 
 ## Reference
 Please reference the following paper when using CrowdQC+:
