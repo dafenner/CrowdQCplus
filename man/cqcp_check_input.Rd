@@ -4,7 +4,7 @@
 \alias{cqcp_check_input}
 \title{Input check of data for CrowdQC+}
 \usage{
-cqcp_check_input(data, print = TRUE, file = NULL)
+cqcp_check_input(data, print = TRUE, file = NULL, as_list = FALSE)
 }
 \arguments{
 \item{data}{data.table to be checked.}
@@ -12,9 +12,12 @@ cqcp_check_input(data, print = TRUE, file = NULL)
 \item{print}{Set to TRUE to print information in the console. Default: TRUE}
 
 \item{file}{Provide a file path to store the information in a file.}
+
+\item{as_list}{Return information from the checks as a list, instead of simple 
+overall TRUE/FALSE. This can be helpful in automatic work flows.}
 }
 \value{
-logical, TRUE if data passed all checks.
+logical (or list), TRUE if data passed all checks.
 }
 \description{
 Checks if a data.table has the required format for CrowdQC+ and gives hints

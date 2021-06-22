@@ -32,16 +32,20 @@ cqcp_colourise <- function(str, colour) {
 #' @param data data.table to be checked.
 #' @param print Set to TRUE to print information in the console. Default: TRUE
 #' @param file Provide a file path to store the information in a file.
+#' @param as_list Return information from the checks as a list, instead of simple 
+#'   overall TRUE/FALSE. This can be helpful in automatic work flows.
 #'
-#' @return logical, TRUE if data passed all checks.
+#' @return logical (or list), TRUE if data passed all checks.
 #' @export
 #' 
 #' @examples
 #' data(CWSBer)
 #' cqcp_check_input(CWSBer)
-cqcp_check_input <- function(data, print = TRUE, file = NULL){
+cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   ok <- TRUE
+  ch_1a <- ch_1b <- ch_2 <- ch_3 <- ch_4 <- ch_5 <- TRUE
+  mess_2_l <- mess_3_l <- mess_4_l <- mess_5_l <- "OK"
  
   # (1) Check for column names
   # required
@@ -50,8 +54,26 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   has_ta <- cqcp_has_column(data, column = "ta")
   has_lon <- cqcp_has_column(data, column = "lon")
   has_lat <- cqcp_has_column(data, column = "lat")
+  miss_1a <- c()
+  if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
+    if(!has_p_id) miss_1a <- c(miss_1a, "p_id")
+    if(!has_time) miss_1a <- c(miss_1a, "time")
+    if(!has_ta) miss_1a <- c(miss_1a, "ta")
+    if(!has_lon) miss_1a <- c(miss_1a, "lon")
+    if(!has_lat) miss_1a <- c(miss_1a, "lat")
+    mess_1a <- cqcp_colourise(paste0("     ! Missing: ",paste(test, collapse = ", "),"\n     --> CrowdQC+ will not work with this data.\n"), "red")
+    ch_1a <- FALSE
+    ok <- FALSE
+  } else mess_1a <- cqcp_colourise("     OK\n", "green")
   # optional
   has_z <- cqcp_has_column(data, column = "z")
+  miss_1b <- c()
+  if(!has_z) {
+    miss_1b <- c(miss_1b, "z")
+    mess_1b <- cqcp_colourise("     ! Missing: z\n", "yellow")
+    mess_1b <- cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow")
+    ch_1b <- FALSE
+  } else mess_1b <- cqcp_colourise("     OK\n", "green")
   
   # (2) Check for same temporal coverage.
   if(has_time & has_p_id) {
@@ -63,10 +85,14 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       mess_2 <- cqcp_colourise("     OK\n", "green")
     } else {
       mess_2 <- cqcp_colourise("     ! Temporal coverage not the same for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n", "red")
+      mess_2_l <- "temporal coverage not identical"
+      ch_2 <- FALSE
       ok <- FALSE
     }
   } else {
     mess_2 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n", "red")
+    mess_2_l <- "columns missing (cf. 'check_1a_missing')"
+    ch_2 <- FALSE
     ok <- FALSE
   }
   
@@ -78,10 +104,14 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
       mess_3 <- cqcp_colourise("     OK\n", "green")
     } else {
       mess_3 <- cqcp_colourise("     ! Data not regular for all p_id.\n     --> You can run 'cqcp_padding' to make your data regular.\n", "red")
+      mess_3_l <- "data irregular"
+      ch_3 <- FALSE
       ok <- FALSE
     }
   } else {
     mess_3 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'time'. See Check 1a what is missing.\n", "red")
+    mess_3_l <- "columns missing (cf. 'check_1a_missing')"
+    ch_3 <- FALSE
     ok <- FALSE
   }
     
@@ -90,26 +120,36 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     p_id <- unique(data$p_id)
     loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
     dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points
-    if(max(dist, na.rm = T) > 141421.4) {
-      mess_4 <- cqcp_colourise("     ! Geographic extend is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n", "yellow")
+    max_dist <- max(dist, na.rm = T)
+    if(max_dist > 141421.4) {
+      mess_4 <- cqcp_colourise("     ! Geographic extent is large (> 100 km x 100 km).\n     --> You might want to split your data into smaller regions.\n", "yellow")
+      mess_4_l <- "large geographical extent"
     } else {
       mess_4 <- cqcp_colourise("     OK\n", "green")
     }
   } else {
     mess_4 <- cqcp_colourise("     ! Columns needed for this check: 'p_id', 'lon', 'lat'.\n     --> See Check 1a what is missing.\n", "red")
+    mess_4_l <- "columns missing (cf. 'check_1a_missing')"
+    max_dist <- NA
+    ch_4 <- FALSE
     ok <- FALSE
   }
   
-  # (5) Number of stations.
-  if(has_p_id) {
-    n_pid <- length(unique(data$p_id))
+  # (5) Number of stations/values.
+  if(has_p_id & has_time & has_ta) {
+    n_pid <- data[, sum(!is.na(ta)), by = time][, median(V1, na.rm = T)]
+    #n_pid <- length(unique(data$p_id)) # this is a rough estimate and not meaningful for long data sets
     if(n_pid < 100) {
-      mess_5 <- cqcp_colourise(paste0("     ! Low number of stations (",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
+      mess_5 <- cqcp_colourise(paste0("     ! Low number of stations with non-NA values per time step (median = ",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
+      mess_5_l <- "low number of stations"
     } else {
       mess_5 <- cqcp_colourise("     OK\n", "green")
     }
   } else {
-    mess_5 <- cqcp_colourise("     ! Column needed for this check: 'p_id'.\n", "red")
+    mess_5 <- cqcp_colourise("     ! Columns needed for this check: 'time', 'ta'.\n     --> See Check 1a what is missing.\n", "red")
+    mess_5_l <- "columns missing (cf. 'check_1a_missing')"
+    n_pid <- NA
+    ch_5 <- FALSE
     ok <- FALSE
   }
   
@@ -120,21 +160,9 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     cat("+++++++++++++++++++++++++++++\n")
     # (1)
     cat("Check 1a - Required columns:\n")
-    if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
-      miss <- c()
-      if(!has_p_id) miss <- c(miss, "p_id")
-      if(!has_time) miss <- c(miss, "time")
-      if(!has_ta) miss <- c(miss, "ta")
-      if(!has_lon) miss <- c(miss, "lon")
-      if(!has_lat) miss <- c(miss, "lat")
-      cat(cqcp_colourise(paste0("     ! Missing: ",miss,"\n     --> CrowdQC+ will not work with this data.\n"), "red"))
-      ok <- FALSE
-    } else cat(cqcp_colourise("     OK\n", "green"))
+    cat(mess_1a)
     cat("Check 1b - Optional columns:\n")
-    if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n", "yellow"))
-      cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
-    } else cat(cqcp_colourise("     OK\n", "green"))
+    cat(mess_1b)
     # (2)
     cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
@@ -151,35 +179,19 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
   
   # File?
   if (!is.null(file)) {
-    
     sink(file)
-    
     cat("+++++++++++++++++++++++++++++++++++++\n")
     cat("++++  CrowdQC+ input data check  ++++\n")
     cat("+++++++++++++++++++++++++++++++++++++\n")
-    
     cat(paste0("File created: ",lubridate::now("UTC")," UTC\n"))
     cat("+++++++++++++++++++++++++++++++++++++\n")
     cat(paste0("R variable name: ",deparse(substitute(data)),"\n"))
     cat("+++++++++++++++++++++++++++++++++++++\n")
-    
     # (1)
     cat("Check 1a - Required columns:\n")
-    if(!has_p_id | !has_time | !has_ta | !has_lon | !has_lat) {
-      miss <- c()
-      if(!has_p_id) miss <- c(miss, "p_id")
-      if(!has_time) miss <- c(miss, "time")
-      if(!has_ta) miss <- c(miss, "ta")
-      if(!has_lon) miss <- c(miss, "lon")
-      if(!has_lat) miss <- c(miss, "lat")
-      cat(cqcp_colourise(paste0("     ! Missing: ",miss,"\n     --> CrowdQC+ will not work with this data.\n"), "red"))
-      ok <- FALSE
-    } else cat(cqcp_colourise("     OK\n", "green"))
+    cat(mess_1a)
     cat("Check 1b - Optional columns:\n")
-    if(!has_z) {
-      cat(cqcp_colourise("     ! Missing: z\n", "yellow"))
-      cat(cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
-    } else cat(cqcp_colourise("     OK\n", "green"))
+    cat(mess_1b)
     # (2)
     cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
@@ -192,11 +204,20 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL){
     # (5)
     cat("Check 5 - Number of stations:\n")
     cat(mess_5)
-    
     sink()
   }
   
-  return(ok)
+  if(as_list) {
+    out_list <- list("check" = ok, "check_1a_flag" = ch_1a, "check_1a_missing" = miss_1a,
+                     "check_1b_flag" = ch_1b, "check_1b_missing" = miss_1b,
+                     "check_2_flag" = ch_2, "check_2_message" = mess_2_l,
+                     "check_3_flag" = ch_3, "check_3_message" = mess_3_l,
+                     "check_4_flag" = ch_4, "check_4_message" = mess_4_l, 
+                     "check_4_max_distance_m" = max_dist,
+                     "check_5_flag" = ch_5, "check_5_message" = mess_5_l,
+                     "check_5_median_stations" = n_pid)
+    return(out_list)
+  } else return(ok)
 }
 
 #' Extract raster value at given position(s) for a RasterLayer Object or geotiff
