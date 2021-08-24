@@ -45,5 +45,5 @@ If you are using CrowdQC+ and have ideas how to make it better, improve its perf
 ## Reference
 Please reference the following paper when using CrowdQC+:
 
-Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science (submitted).
+Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science (in revision).
 
