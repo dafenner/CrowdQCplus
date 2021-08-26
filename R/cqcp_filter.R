@@ -98,6 +98,7 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE,
   if(!debug){
     data[, rem_ta := NULL]
     data[, z_ta := NULL]
+    if(t_distribution) data[, n := NULL]
     if(heightCorrection & cqcp_has_column(data, column = "z")){
       data[, mz := NULL]
     }
@@ -668,6 +669,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m1_cutOff see cutOff in ?cqcp_m1
 #' @param m2_low see low in ?cqcp_m2
 #' @param m2_high see high in ?cqcp_m2
+#' @param m2_heightCorrection see heightCorrection in ?cqcp_m2
 #' @param m2_lapse_rate see lapse_rate in ?cqcp_m2
 #' @param m2_t_distribution see t_distribution in ?cqcp_m2
 #' @param m3_cutOff see cutOff in ?cqcp_m3
@@ -698,6 +700,7 @@ cqcp_has_column <- function(data, column = "month"){
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.01, m2_high = 0.95, 
+                       m2_heightCorrection = TRUE,
                        m2_lapse_rate = 0.0065, m2_t_distribution = FALSE, 
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
@@ -721,7 +724,7 @@ cqcp_qcCWS <- function(data,
   }
   data <- cqcp_m1(data, cutOff = m1_cutOff)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
-                  t_distribution = m2_t_distribution)
+                  t_distribution = m2_t_distribution, heightCorrection = m2_heightCorrection)
   data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration)
   data <- cqcp_m5(data, radius = m5_radius, n_buddies = m5_n_buddies, 

@@ -9,6 +9,7 @@ cqcp_qcCWS(
   m1_cutOff = 1,
   m2_low = 0.01,
   m2_high = 0.95,
+  m2_heightCorrection = TRUE,
   m2_lapse_rate = 0.0065,
   m2_t_distribution = FALSE,
   m3_cutOff = 0.2,
@@ -38,6 +39,8 @@ cqcp_qcCWS(
 \item{m2_low}{see low in ?cqcp_m2}
 
 \item{m2_high}{see high in ?cqcp_m2}
+
+\item{m2_heightCorrection}{see heightCorrection in ?cqcp_m2}
 
 \item{m2_lapse_rate}{see lapse_rate in ?cqcp_m2}
 
