@@ -10,6 +10,7 @@ cqcp_qcCWS(
   m2_low = 0.01,
   m2_high = 0.95,
   m2_heightCorrection = TRUE,
+  m2_debug = FALSE,
   m2_lapse_rate = 0.0065,
   m2_t_distribution = FALSE,
   m3_cutOff = 0.2,
@@ -17,6 +18,7 @@ cqcp_qcCWS(
   m5_radius = 3000,
   m5_n_buddies = 5,
   m5_alpha = 0.1,
+  m5_heightCorrection = TRUE,
   m5_lapse_rate = 0.0065,
   m5_check_elevation = TRUE,
   m5_max_elev_diff = 100,
@@ -42,6 +44,8 @@ cqcp_qcCWS(
 
 \item{m2_heightCorrection}{see heightCorrection in ?cqcp_m2}
 
+\item{m2_debug}{see debug in ?cqcp_m2}
+
 \item{m2_lapse_rate}{see lapse_rate in ?cqcp_m2}
 
 \item{m2_t_distribution}{see t_distribution in ?cqcp_m2}
@@ -55,6 +59,8 @@ cqcp_qcCWS(
 \item{m5_n_buddies}{see n_buddies in ?cqcp_m5}
 
 \item{m5_alpha}{see alpha in ?cqcp_m5}
+
+\item{m5_heightCorrection}{see heightCorrection in ?cqcp_m5}
 
 \item{m5_lapse_rate}{see lapse_rate in ?cqcp_m5}
 

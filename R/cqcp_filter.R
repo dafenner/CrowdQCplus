@@ -672,11 +672,13 @@ cqcp_has_column <- function(data, column = "month"){
 #' @param m2_heightCorrection see heightCorrection in ?cqcp_m2
 #' @param m2_lapse_rate see lapse_rate in ?cqcp_m2
 #' @param m2_t_distribution see t_distribution in ?cqcp_m2
+#' @param m2_debug see debug in ?cqcp_m2
 #' @param m3_cutOff see cutOff in ?cqcp_m3
 #' @param m4_cutOff see cutOff in ?cqcp_m4
 #' @param m5_radius see radius in ?cqcp_m5
 #' @param m5_n_buddies see n_buddies in ?cqcp_m5
 #' @param m5_alpha see alpha in ?cqcp_m5
+#' @param m5_heightCorrection see heightCorrection in ?cqcp_m5
 #' @param m5_lapse_rate see lapse_rate in ?cqcp_m5
 #' @param m5_check_elevation see check_elevation in ?cqcp_m5
 #' @param m5_max_elev_diff see max_elev_diff in ?cqcp_m5
@@ -700,11 +702,12 @@ cqcp_has_column <- function(data, column = "month"){
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.01, m2_high = 0.95, 
-                       m2_heightCorrection = TRUE,
-                       m2_lapse_rate = 0.0065, m2_t_distribution = FALSE, 
+                       m2_heightCorrection = TRUE, m2_debug = FALSE,
+                       m2_lapse_rate = 0.0065, m2_t_distribution = FALSE,
                        m3_cutOff = 0.2,
                        m4_cutOff = 0.9,
-                       m5_radius = 3000, m5_n_buddies = 5, m5_alpha = 0.1, 
+                       m5_radius = 3000, m5_n_buddies = 5, m5_alpha = 0.1,
+                       m5_heightCorrection = TRUE,
                        m5_lapse_rate = 0.0065, m5_check_elevation = TRUE,
                        m5_max_elev_diff = 100,
                        m5_keep_isolated = FALSE, 
@@ -724,13 +727,14 @@ cqcp_qcCWS <- function(data,
   }
   data <- cqcp_m1(data, cutOff = m1_cutOff)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
-                  t_distribution = m2_t_distribution, heightCorrection = m2_heightCorrection)
+                  debug = m2_debug, t_distribution = m2_t_distribution, 
+                  heightCorrection = m2_heightCorrection)
   data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration)
   data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration)
   data <- cqcp_m5(data, radius = m5_radius, n_buddies = m5_n_buddies, 
                   alpha = m5_alpha, lapse_rate = m5_lapse_rate,
                   check_elevation = m5_check_elevation, max_elev_diff = m5_max_elev_diff, 
-                  keep_isolated = m5_keep_isolated)
+                  keep_isolated = m5_keep_isolated, heightCorrection = m5_heightCorrection)
   if(includeOptional){
     data <- cqcp_o1(data, fun = o1_fun, ...)
     data <- cqcp_o2(data, cutOff = o2_cutOff)
