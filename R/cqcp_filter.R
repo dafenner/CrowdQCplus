@@ -418,8 +418,12 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     }
     data[is.na(m5), m5 := FALSE]
   } else {
-    cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (too few buddies for all stations). Consider increasing the radius or decreasing the number of buddies.\n", "yellow"))
-    data[, m5 := FALSE]
+    if(keep_isolated) {
+      cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). Parameter 'keep_isolated' was set to TRUE, thus all flags m5 = m4. \n", "yellow"))
+    } else {
+      cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). All flags m5 = FALSE. Consider increasing the radius, decreasing the number of buddies, or setting 'keep_isolated = TRUE'.\n", "yellow"))
+      data[, m5 := FALSE]
+    }
   }
   
   data[, rem_ta := NULL]
