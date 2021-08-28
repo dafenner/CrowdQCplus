@@ -1,6 +1,8 @@
 # CrowdQC+
 
-This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions and improvements. Both packages are originally designed for air-temperature data but should also work with other near-normally distributed data.
+This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions, improvements, and bug fixes. Both packages are originally designed for air-temperature data but should also work with other near-normally distributed data.
+
+A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications.
 
 ## Dependencies
 CrowdQC+ requires an R version >= 3.5.0 to work.
@@ -19,7 +21,7 @@ When installing 'rgdal' package on a Linux system, you might run into issues. Tr
 
 `sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` 
 
-first and then again installing rgdal from R with 
+first and then again installing rgdal in R with 
 
 `install.packages("rgdal")`. 
 
@@ -28,19 +30,34 @@ For 'older' Linux versions this could also work:
 `install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
 
 ## Installation of the package
-Download the <a href="https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip">zip-file</a> from this repository and install it in your programming environment, or directly pull the code from this repository in your programming environment.
 
-Once installed, load the library via 
+**Option 1:**
 
-`library(CrowdQCplus)`.
+Download the <a href="https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip">zip-file</a> from this repository, save it locally, and install it in your programming environment using the <a href="https://devtools.r-lib.org/">devtools</a> package:
+```R
+install.packages("devtools")
+devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
+```
 
-Make sure to also load 
+**Option 2:**
 
-`library(data.table)`.
+Directly pull the code from this repository into your programming environment, also using the <a href="https://devtools.r-lib.org/">devtools</a> package:
+
+```R
+install.packages("devtools")
+devtools::install_github("dafenner/CrowdQCplus")
+```
+
+Once installed, load CrowdQC+ (and data.table) via
+
+```R
+library(data.table)
+library(CrowdQCplus)
+```
 
 ## Using CrowdQC+
 ### Data
-Data should be represented as a <a href="https://CRAN.R-project.org/package=data.table">data.table</a>  with the following required columns:
+Data should be represented as a <a href="https://CRAN.R-project.org/package=data.table">data.table</a> with the following required columns:
 
 `p_id`: unique ID of each station<br>
 `time`: time as POSIX.ct. Keep in mind time zones!<br>
@@ -48,12 +65,16 @@ Data should be represented as a <a href="https://CRAN.R-project.org/package=data
 `lon`: longitude of the station<br>
 `lat`: latitude of the station<br>
 
-Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the filter levels.
+Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.
 
 ### Functionalities
 The QC consists of five main filter levels (m1-m5) and four optional levels (o1-o4).<br>
 Beside the actual QC filters, several helper functions are available to, e.g., add elevation information to each station, check the data.table for compliance with CrowdQC+, and output simple statistics an data availability after application of the QC.
+
+A detailed description of each QC level can be found in the R help and in the corresponding journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications.
+
+There is a sample data set (`CWSBer`) in the package, which includes one month of CWS data for Berlin, Germany (June 2017), for testing.
 
 ## How to contribute?
 If you are using CrowdQC+ and have ideas how to make it better, improve its performance, resolve errors, please create <a href="https://github.com/dafenner/CrowdQCplus/issues">issues</a>.
