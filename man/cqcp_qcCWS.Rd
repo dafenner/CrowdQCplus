@@ -30,6 +30,7 @@ cqcp_qcCWS(
   includeOptional = TRUE,
   complete = FALSE,
   duration = NULL,
+  quiet = FALSE,
   ...
 )
 }
@@ -85,6 +86,8 @@ performed, default: TRUE}
 
 \item{duration}{see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3}
 
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
+
 \item{...}{Additional parameters used in cqcp_o1. For details see ?cqcp_o1}
 }
 \value{
@@ -92,7 +95,7 @@ data.table
 }
 \description{
 Performs all QC steps in consecutive order. All settings are according
-to Napoly et al. (2018). This is the default function to carry out the
+to Fenner et al. (2021). This is the default function to carry out the
 complete QC procedure. Each QC step takes the result of the previous
 QC step as input. Thus, e.g., when applying QC step m2, the column
 'm1' must be in the input data, for QC step m3 the column 'm2' must be
@@ -101,9 +104,7 @@ in the input data. After each QC step a new column of type BYTE is
 included in the output, containing TRUE or FALSE flags. Flags of the previous
 levels are carried along, i.e., if a value failed in step m2, this FALSE is
 kept throughout the remaining QC steps. In the end, only those data
-values containing TRUE after the all QC steps are valid according to this
-QC.
-'complete' currently does not work with the example data set (CWSBer).
+values containing TRUE after the all QC steps are valid according to this QC.
 }
 \examples{
 data(CWSBer)

@@ -13,7 +13,8 @@ cqcp_m5(
   lapse_rate = 0.0065,
   check_elevation = TRUE,
   max_elev_diff = 100,
-  keep_isolated = FALSE
+  keep_isolated = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ the station that is checked and each neighbour within 'radius'. Default: 100 m.}
 
 \item{keep_isolated}{Set to TRUE if isolated stations (with less buddies than 
 'n_buddies') should be kept (m5 = TRUE) or removed (m5 = FALSE). Default: FALSE.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

@@ -4,7 +4,7 @@
 \alias{cqcp_o2}
 \title{Optional QC step o2}
 \usage{
-cqcp_o2(data, cutOff = 0.8)
+cqcp_o2(data, cutOff = 0.8, quiet = FALSE)
 }
 \arguments{
 \item{data}{data.table as returned from o1}
@@ -12,6 +12,8 @@ cqcp_o2(data, cutOff = 0.8)
 \item{cutOff}{Percentage of values that must be present for each day before
 all values of that day are flagged with FALSE, expressed in fraction: 0 <
 cutOff < 1. Default is 0.8, i.e, 80 percent of data.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

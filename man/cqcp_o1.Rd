@@ -4,12 +4,14 @@
 \alias{cqcp_o1}
 \title{Optional QC step o1}
 \usage{
-cqcp_o1(data, fun = cqcp_interpol, ...)
+cqcp_o1(data, fun = cqcp_interpol, quiet = FALSE, ...)
 }
 \arguments{
 \item{data}{data.table as returned from m4}
 
 \item{fun}{Function to use for interpolation, default is interpol}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 
 \item{...}{Additional parameters for interpolation function}
 }

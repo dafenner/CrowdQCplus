@@ -4,7 +4,7 @@
 \alias{cqcp_o3}
 \title{Optional QC step o3}
 \usage{
-cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL)
+cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL, quiet = FALSE)
 }
 \arguments{
 \item{data}{data.table as returned from o2}
@@ -18,6 +18,8 @@ cutOff < 1. Default is 0.8, i.e, 80 percent of data.}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

@@ -4,7 +4,12 @@
 \alias{cqcp_padding}
 \title{Padding of data for application of CrowdQC+}
 \usage{
-cqcp_padding(data, resolution = "1 hour", rounding_method = "nearest")
+cqcp_padding(
+  data,
+  resolution = "1 hour",
+  rounding_method = "nearest",
+  quiet = FALSE
+)
 }
 \arguments{
 \item{data}{data.table with at least columns 'p_id', 'time, 'ta'}
@@ -14,6 +19,8 @@ cqcp_padding(data, resolution = "1 hour", rounding_method = "nearest")
 \item{rounding_method}{Method to apply to round the time values to (cf. lubridate). 
 Default is 'nearest', to assign the values to the nearest full time value, 
 defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table with regular time series for all stations.

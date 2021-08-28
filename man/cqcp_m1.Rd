@@ -4,7 +4,7 @@
 \alias{cqcp_m1}
 \title{Main QC step m1}
 \usage{
-cqcp_m1(data, cutOff = 1)
+cqcp_m1(data, cutOff = 1, quiet = FALSE)
 }
 \arguments{
 \item{data}{A data set (a data.table object) formated the same way as the sample data (CWSBer)}
@@ -12,6 +12,8 @@ cqcp_m1(data, cutOff = 1)
 \item{cutOff}{How much stations are allowed to have the same coordinates,
 default is 1. This means that if two p_ids share the same lon & lat values,
 data at these stations are set to FALSE.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

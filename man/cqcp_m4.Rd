@@ -4,7 +4,7 @@
 \alias{cqcp_m4}
 \title{Main QC step m4}
 \usage{
-cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL)
+cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, quiet = FALSE)
 }
 \arguments{
 \item{data}{data.table as returned by m3}
@@ -17,6 +17,8 @@ with FALSE, 0 < cutOff < 1. Default is 0.9.}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

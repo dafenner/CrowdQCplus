@@ -11,7 +11,8 @@ cqcp_m2(
   heightCorrection = TRUE,
   debug = FALSE,
   lapse_rate = 0.0065,
-  t_distribution = FALSE
+  t_distribution = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ lapse_rate = 0.01 to set a dry adiabatic lapse rate.}
 
 \item{t_distribution}{Set to TRUE to assume a Student-t distribution of the 
 data instead of the normal distribution. Default: FALSE}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

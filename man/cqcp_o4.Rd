@@ -4,7 +4,7 @@
 \alias{cqcp_o4}
 \title{Optional QC step o4}
 \usage{
-cqcp_o4(data, time_constant)
+cqcp_o4(data, time_constant, quiet = FALSE)
 }
 \arguments{
 \item{data}{data.table in CrowdQC+ format (columns "time" and "ta" must be present)}
@@ -13,6 +13,8 @@ cqcp_o4(data, time_constant)
 the same for all p_id). Time constant/tau is defined as the time for a 
 system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
 step change) (https://en.wikipedia.org/wiki/Time_constant).}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table

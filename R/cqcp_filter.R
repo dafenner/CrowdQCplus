@@ -7,6 +7,7 @@
 #' @param cutOff How much stations are allowed to have the same coordinates,
 #'   default is 1. This means that if two p_ids share the same lon & lat values,
 #'   data at these stations are set to FALSE.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -14,7 +15,7 @@
 #' @examples
 #' data(CWSBer)
 #' m_1 <- cqcp_m1(CWSBer)
-cqcp_m1 <- function(data, cutOff = 1){
+cqcp_m1 <- function(data, cutOff = 1, quiet = FALSE){
   val  <- data[!is.na(ta),.(a = 1), by = .(p_id,lon,lat)]
   bad_s  <- val[,.(anz = sum(lon == val$lon & lat == val$lat)), by = p_id]
   bad_s  <- bad_s[anz > cutOff,]$p_id
@@ -69,6 +70,7 @@ cqcp_getZ <- function(x){
 #' @param debug Set to true to keep intermediate results
 #' @param t_distribution Set to TRUE to assume a Student-t distribution of the 
 #'   data instead of the normal distribution. Default: FALSE
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE 
 #'
 #' @return data.table
 #' @export
@@ -78,7 +80,8 @@ cqcp_getZ <- function(x){
 #' m_1 <- cqcp_m1(CWSBer)
 #' m_2 <- cqcp_m2(m_1)
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE, 
-                    debug = FALSE, lapse_rate = 0.0065, t_distribution = FALSE){
+                    debug = FALSE, lapse_rate = 0.0065, t_distribution = FALSE,
+                    quiet = FALSE){
   data[, rem_ta := ta]
   # ensures that all what is wrong in m1 is wrong in m2 too
   data[!m1, "rem_ta"] <- NaN
@@ -114,14 +117,15 @@ cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE,
 #' @param data data.table with at least columns 'p_id' and 'time'
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table with additional column 'episode'
-cqcp_add_episode <- function(data, duration){
+cqcp_add_episode <- function(data, duration, quiet = FALSE){
   # works with duration from lubridate since regular time series
   steps <- lubridate::duration(duration)/(data[2]$time-data[1]$time)
   n <- data[p_id == data[1]$p_id, .N]
   episode <- rep(1:ceiling(n/steps), each = steps)
-  if(length(episode) != n) {
+  if(length(episode) != n & !quiet) {
     cat(cqcp_colourise("[CrowdQC+] Last episode in data shorter than specified duration.\n", "yellow"))
   }
   data <- data[, episode := episode[1:n], by = .(p_id)]
@@ -147,7 +151,7 @@ cqcp_add_episode <- function(data, duration){
 #'   otherwise
 cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
   if(length(x) != length(y[get(timespan) == t,]$med)){
-    stop("Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
+    stop("[CrowdQC+] Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
   }
   c <- suppressWarnings(cor(x, y[get(timespan) == t,]$med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
   if(is.na(c)){
@@ -175,6 +179,7 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -184,7 +189,8 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' m_1 <- cqcp_m1(CWSBer)
 #' m_2 <- cqcp_m2(m_1)
 #' m_3 <- cqcp_m3(m_2)
-cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
+cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
+                    quiet = FALSE){
   
   # case 1: nothing specified.
   # as in original CrowdQC: per month
@@ -203,11 +209,11 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
     # check for a meaningful duration considering cutOff and temporal resolution
     # minimum would be so that cutOff refers to at least one value
     times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
-    if(lubridate::duration(duration)/(times[2]-times[1])*cutOff < 1) {
+    if(lubridate::duration(duration)/(times[2]-times[1])*cutOff < 1 & !quiet) {
       cat(cqcp_colourise("[CrowdQC+] Specified duration in 'cqcp_m3' is short considering cutOff and temporal resolution.\n", "yellow"))
     }
     has_e <- cqcp_has_column(data, column = "episode")
-    if(!has_e) data <- cqcp_add_episode(data, duration)
+    if(!has_e) data <- cqcp_add_episode(data, duration, quiet = quiet)
     data[, m3 := m2 & sum(m2)/.N > cutOff, by = .(episode, p_id)]
     if(!has_e) data[, episode := NULL]
   }
@@ -229,6 +235,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
 #'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -239,7 +246,8 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL){
 #' m_2 <- cqcp_m2(m_1)
 #' m_3 <- cqcp_m3(m_2)
 #' m_4 <- cqcp_m4(m_3)
-cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
+cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
+                    quiet = FALSE){
   
   data[,rem_ta := ta]
   data[!m3, "rem_ta"] <- NaN
@@ -262,7 +270,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
   } else if(complete) { # complete time series, 'duration' ignored
     # check for a meaningful sample size in correlation.
     sample <- data[, .N, p_id][1,N]
-    if(sample < 100) {
+    if(sample < 100 & !quiet) {
       cat(cqcp_colourise(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with this data set.\n", "yellow")))
     }
     data <- data[, episode := 1] # only one episode, the whole data set
@@ -276,11 +284,11 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
     # check for a meaningful sample size in correlation.
     times <- data[data[, .I[1:2], p_id]$V1][1:2,time]
     sample <- lubridate::duration(duration)/(times[2]-times[1])
-    if(sample < 100) {
+    if(sample < 100 & !quiet) {
       cat(cqcp_colourise(paste0("[CrowdQC+] Small sample size (n=",sample,") for correlation in 'cqcp_m4' with the specified duration.\n", "yellow")))
     }
     has_e <- cqcp_has_column(data, column = "episode")
-    if(!has_e) data <- cqcp_add_episode(data, duration)
+    if(!has_e) data <- cqcp_add_episode(data, duration, quiet = quiet)
     data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(episode, time)]
     cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(episode), 
                                                  cutOff, timespan = "episode")), 
@@ -332,6 +340,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
 #'   the station that is checked and each neighbour within 'radius'. Default: 100 m.
 #' @param keep_isolated Set to TRUE if isolated stations (with less buddies than 
 #'  'n_buddies') should be kept (m5 = TRUE) or removed (m5 = FALSE). Default: FALSE.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -349,7 +358,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL){
 cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1, 
                     heightCorrection = TRUE, lapse_rate = 0.0065,
                     check_elevation = TRUE, max_elev_diff = 100,
-                    keep_isolated = FALSE) {
+                    keep_isolated = FALSE, quiet = FALSE) {
   
   has_z <- cqcp_has_column(data, column = "z")
   
@@ -418,11 +427,11 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     }
     data[is.na(m5), m5 := FALSE]
   } else {
-    if(keep_isolated) {
-      cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). Parameter 'keep_isolated' was set to TRUE, thus all flags m5 = m4. \n", "yellow"))
-    } else {
-      cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). All flags m5 = FALSE. Consider increasing the radius, decreasing the number of buddies, or setting 'keep_isolated = TRUE'.\n", "yellow"))
+    if(!keep_isolated) {
+      if(!quiet) cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). All flags m5 = FALSE. Consider increasing the radius, decreasing the number of buddies, or setting 'keep_isolated = TRUE'.\n", "yellow"))
       data[, m5 := FALSE]
+    } else if(!quiet){
+      cat(cqcp_colourise("[CrowdQC+] QC level m5 could not meaningfully be performed with current configuration (only isolated stations with too few buddies). Parameter 'keep_isolated' was set to TRUE, thus all flags m5 = m4. \n", "yellow"))
     }
   }
   
@@ -477,6 +486,7 @@ cqcp_interpol <- function(x, maxLength = 1){
 #'
 #' @param data data.table as returned from m4
 #' @param fun  Function to use for interpolation, default is interpol
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #' @param ...  Additional parameters for interpolation function
 #'
 #' @return data.table
@@ -493,7 +503,7 @@ cqcp_interpol <- function(x, maxLength = 1){
 #' o_1 <- cqcp_o1(m_5)
 #' #interpolate gaps up to 5 hours
 #' o_1 <- cqcp_o1(m_5, maxLength = 5)
-cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
+cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
   data[,ta_int := ta]
   data[!m5, "ta_int"] <- NA
   data[,ta_int := fun(ta_int, ...), by = .(p_id)]
@@ -517,6 +527,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
 #' @param cutOff Percentage of values that must be present for each day before
 #'   all values of that day are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -530,7 +541,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, ...){
 #' m_5 <- cqcp_m5(m_4)
 #' o_1 <- cqcp_o1(m_5)
 #' o_2 <- cqcp_o2(o_1)
-cqcp_o2 <- function(data, cutOff = 0.8){
+cqcp_o2 <- function(data, cutOff = 0.8, quiet = FALSE){
   has_d <- cqcp_has_column(data, column = "day")
   if(!has_d){
     data[, day := lubridate::floor_date(time,"day")]
@@ -556,6 +567,7 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 #'   (priority over 'duration').
 #' @param duration A fixed duration to be used (cf. lubridate duration documentation).
 #'   This can be, e.g., '10 days'.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
 #' @export
@@ -570,7 +582,8 @@ cqcp_o2 <- function(data, cutOff = 0.8){
 #' o_1 <- cqcp_o1(m_5)
 #' o_2 <- cqcp_o2(o_1)
 #' o_3 <- cqcp_o3(o_2)
-cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
+cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
+                    quiet = FALSE){
 
   # case 1: nothing specified.
   # as in original CrowdQC: per month
@@ -587,7 +600,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(p_id)]
   } else { # per duration
     has_e <- cqcp_has_column(data, column = "episode")
-    if(!has_e) data <- cqcp_add_episode(data, duration)
+    if(!has_e) data <- cqcp_add_episode(data, duration, quiet = quiet)
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(episode, p_id)]
     if(!has_e) data[, episode := NULL]
   }
@@ -613,6 +626,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
 #' the same for all p_id). Time constant/tau is defined as the time for a 
 #' system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
 #' step change) (https://en.wikipedia.org/wiki/Time_constant).
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE 
 #'
 #' @return data.table
 #' @export
@@ -620,7 +634,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL){
 #' @examples
 #' data(CWSBer)
 #' o_4 <- cqcp_o4(CWSBer, 1480.5)
-cqcp_o4 <- function(data, time_constant) {
+cqcp_o4 <- function(data, time_constant, quiet = FALSE) {
   
   if(is.null(time_constant) | missing(time_constant)) return(data)
   
@@ -656,7 +670,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' Complete quality control (QC) of CWS data
 #'
 #' Performs all QC steps in consecutive order. All settings are according
-#' to Napoly et al. (2018). This is the default function to carry out the
+#' to Fenner et al. (2021). This is the default function to carry out the
 #' complete QC procedure. Each QC step takes the result of the previous
 #' QC step as input. Thus, e.g., when applying QC step m2, the column
 #' 'm1' must be in the input data, for QC step m3 the column 'm2' must be
@@ -665,9 +679,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' included in the output, containing TRUE or FALSE flags. Flags of the previous
 #' levels are carried along, i.e., if a value failed in step m2, this FALSE is
 #' kept throughout the remaining QC steps. In the end, only those data
-#' values containing TRUE after the all QC steps are valid according to this
-#' QC.
-#' 'complete' currently does not work with the example data set (CWSBer).
+#' values containing TRUE after the all QC steps are valid according to this QC.
 #'
 #' @param data Input data in the format as the example data (CWSBer)
 #' @param m1_cutOff see cutOff in ?cqcp_m1
@@ -695,6 +707,7 @@ cqcp_has_column <- function(data, column = "month"){
 #'   performed, default: TRUE
 #' @param complete see complete in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
 #' @param duration see duration in ?cqcp_m3, ?cqcp_m4, or ?cqcp_o3
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE 
 #' @param ... Additional parameters used in cqcp_o1. For details see ?cqcp_o1
 #'
 #' @return data.table
@@ -722,28 +735,32 @@ cqcp_qcCWS <- function(data,
                        includeOptional = TRUE,
                        complete = FALSE, 
                        duration = NULL,
+                       quiet = FALSE,
                        ...){
   
   if(is.null(duration) & !complete) { # monthly application
     data[, month := lubridate::floor_date(time,"month")]
   } else if(!complete) { # per given duration
-    data <- cqcp_add_episode(data, duration)
+    data <- cqcp_add_episode(data, duration, quiet = quiet)
   }
-  data <- cqcp_m1(data, cutOff = m1_cutOff)
+  data <- cqcp_m1(data, cutOff = m1_cutOff, quiet = quiet)
   data <- cqcp_m2(data, low = m2_low, high = m2_high, lapse_rate = m2_lapse_rate, 
                   debug = m2_debug, t_distribution = m2_t_distribution, 
-                  heightCorrection = m2_heightCorrection)
-  data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration)
-  data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration)
+                  heightCorrection = m2_heightCorrection, quiet = quiet)
+  data <- cqcp_m3(data, cutOff = m3_cutOff, complete = complete, duration = duration,
+                  quiet = quiet)
+  data <- cqcp_m4(data, cutOff = m4_cutOff, complete = complete, duration = duration,
+                  quiet = quiet)
   data <- cqcp_m5(data, radius = m5_radius, n_buddies = m5_n_buddies, 
-                  alpha = m5_alpha, lapse_rate = m5_lapse_rate,
+                  alpha = m5_alpha, lapse_rate = m5_lapse_rate, quiet = quiet,
                   check_elevation = m5_check_elevation, max_elev_diff = m5_max_elev_diff, 
                   keep_isolated = m5_keep_isolated, heightCorrection = m5_heightCorrection)
   if(includeOptional){
-    data <- cqcp_o1(data, fun = o1_fun, ...)
-    data <- cqcp_o2(data, cutOff = o2_cutOff)
-    data <- cqcp_o3(data, cutOff = o3_cutOff, complete = complete, duration = duration)
-    data <- cqcp_o4(data, o4_time_constant)
+    data <- cqcp_o1(data, fun = o1_fun, quiet = quiet, ...)
+    data <- cqcp_o2(data, cutOff = o2_cutOff, quiet = quiet)
+    data <- cqcp_o3(data, cutOff = o3_cutOff, complete = complete, duration = duration,
+                    quiet = quiet)
+    data <- cqcp_o4(data, o4_time_constant, quiet = quiet)
   }
   if(cqcp_has_column(data, "month")) {
     data[, month := NULL]

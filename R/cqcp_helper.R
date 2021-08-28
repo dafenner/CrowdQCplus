@@ -236,7 +236,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
     gtiff <- raster
   } else if(!is.null(file)) {
     gtiff <- raster::raster(file) # Open GeoTIFF
-  } else stop("No input given as 'file' or 'raster'.")
+  } else stop("[CrowdQC+] No input given as 'file' or 'raster'.")
   
   # Convert lon/lat to "SpatialPoints"
   coords <- data.frame(lon=lon, lat=lat)
@@ -337,6 +337,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param crop Crop SRTM raster/geotiff to data extent
 #' @param na_vals Set NA values in DEM to this value to avoid missing value in 
 #'   cqcp_m2. Default: 0
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #' @param ... Additional parameters supported by raster::getData
 #'
 #' @return data table with new column 'z' with DEM information
@@ -344,15 +345,15 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 cqcp_add_dem_height <- function(data, file = NULL, raster = NULL, 
                                 directory = NULL, outfile = NULL, 
                                 overwrite = TRUE, crop = FALSE, 
-                                na_vals = 0, ...){
+                                na_vals = 0, quiet = FALSE, ...){
   
   # Extract unique locations from data
   locations <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")]
   
   # Download SRTM data in case no file or raster is given
   if(is.null(raster) & is.null(file)){
-    if(min(locations$lat) < -56 | max(locations$lat) > 60) {
-      print("[CrowdQC+] Some stations are outside SRTM data coverage. Recommend to use another DEM of your choice via parameters 'file' or 'raster'.")
+    if((min(locations$lat) < -56 | max(locations$lat) > 60) & !quiet) {
+      cat(cqcp_colourise("[CrowdQC+] Some stations are outside SRTM data coverage. Recommend to use another DEM of your choice via parameters 'file' or 'raster'.\n", "yellow"))
     }
     raster <- cqcp_download_srtm(locations, directory = directory, 
                                  outfile = outfile, overwrite = overwrite, 
@@ -385,10 +386,12 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
 #' @param rounding_method Method to apply to round the time values to (cf. lubridate). 
 #'   Default is 'nearest', to assign the values to the nearest full time value, 
 #'   defined by 'resolution'. Other options are 'ceiling'/'ceil' and 'floor'.
+#' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table with regular time series for all stations.
 #' @export
-cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest") {
+cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest",
+                         quiet = FALSE) {
   
   # parameters & input
   is_ceiling <- is_floor <- is_nearest <- FALSE
@@ -404,7 +407,7 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
   } else if (toupper(rounding_method) == "NEAREST" | toupper(rounding_method) == "NEAR") { 
     is_nearest <- TRUE # round time values to nearest full time
   } else {
-    print(paste0("Rounding method '",rounding_method,"' not supported. See documentation."))
+    if(!quiet) cat(cqcp_colourise(paste0(" [CrowdQC+] Rounding method '",rounding_method,"' not supported. See documentation.\n", "yellow")))
     return(data)
   }
 

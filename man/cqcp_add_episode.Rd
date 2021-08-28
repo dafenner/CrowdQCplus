@@ -4,13 +4,15 @@
 \alias{cqcp_add_episode}
 \title{add_episode}
 \usage{
-cqcp_add_episode(data, duration)
+cqcp_add_episode(data, duration, quiet = FALSE)
 }
 \arguments{
 \item{data}{data.table with at least columns 'p_id' and 'time'}
 
 \item{duration}{A fixed duration to be used (cf. lubridate duration documentation).
 This can be, e.g., '10 days'.}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 }
 \value{
 data.table with additional column 'episode'

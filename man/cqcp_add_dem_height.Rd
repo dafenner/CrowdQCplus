@@ -13,6 +13,7 @@ cqcp_add_dem_height(
   overwrite = TRUE,
   crop = FALSE,
   na_vals = 0,
+  quiet = FALSE,
   ...
 )
 }
@@ -34,6 +35,8 @@ downloaded data is stored in the current working directory.}
 
 \item{na_vals}{Set NA values in DEM to this value to avoid missing value in 
 cqcp_m2. Default: 0}
+
+\item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 
 \item{...}{Additional parameters supported by raster::getData}
 }
