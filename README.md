@@ -33,19 +33,19 @@ For 'older' Linux versions this could also work:
 
 **Option 1:**
 
-Download the <a href="https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip">zip-file</a> from this repository, save it locally, and install it in your programming environment using the <a href="https://devtools.r-lib.org/">devtools</a> package:
-```
-install.packages("devtools")
-devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
-```
-
-**Option 2:**
-
 Directly pull the code from this repository into your programming environment, also using the <a href="https://devtools.r-lib.org/">devtools</a> package:
 
 ```
 install.packages("devtools")
 devtools::install_github("dafenner/CrowdQCplus")
+```
+
+**Option 2:**
+
+Download the <a href="https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip">zip-file</a> from this repository, save it locally, and install it in your programming environment using the <a href="https://devtools.r-lib.org/">devtools</a> package:
+```
+install.packages("devtools")
+devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
 ```
 
 Once installed, load CrowdQC+ (and data.table) via
