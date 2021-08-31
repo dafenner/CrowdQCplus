@@ -1,8 +1,8 @@
 # CrowdQC+
 
-This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions, improvements, and bug fixes. Both packages are originally designed for air-temperature data but should also work with other near-normally distributed data.
+This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions, improvements, and bug fixes. Both packages were originally designed for air-temperature data but should also work with other near-normally distributed data.
 
-A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications.
+A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this open-access journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications.
 
 ## Dependencies
 CrowdQC+ requires an R version >= 3.5.0 to work.
@@ -80,7 +80,7 @@ There is a sample data set (`CWSBer`) in the package, which includes one month o
 If you are using CrowdQC+ and have ideas how to make it better, improve its performance, resolve errors, please create <a href="https://github.com/dafenner/CrowdQCplus/issues">issues</a>.
 
 ## Reference
-Please reference the following paper when using CrowdQC+:
+Please reference the following open-access journal article when using CrowdQC+:
 
 Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science (in revision).
 
