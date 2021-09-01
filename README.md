@@ -84,3 +84,6 @@ Please reference the following open-access journal article when using CrowdQC+:
 
 Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F.: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science (in revision).
 
+## Licence
+CrowdQC+ is distributed under the <a href="http://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3</a>.
+
