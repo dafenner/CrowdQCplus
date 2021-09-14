@@ -5,13 +5,13 @@ Version: 0.0.4
 Date: 2021-08-28
 Author: Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 Authors@R: c(
-    person("Daniel", "Fenner", email = "daniel.fenner@rub.com", role = c("aut", "cre")),
+    person("Daniel", "Fenner", email = "daniel.fenner@meteo.uni-freiburg.de", role = c("aut", "cre")),
     person("Tom", "Grassmann", role = "aut"),
     person("Benjamin", "Bechtel", role = "aut"),
     person("Matthias", "Demuzere", role = "aut"),
     person("Jonas", "Kittner", role = "aut"),
     person("Fred", "Meier", role = "aut"))
-Maintainer: Daniel Fenner <daniel.fenner@rub.de>
+Maintainer: Daniel Fenner <daniel.fenner@meteo.uni-freiburg.de>
 Description: This package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It was originally designed for hourly air-temperature data but should work with other near-normally distributed data. It is based on the package 'CrowdQC' but offers several additions and improvements.
 License: GPL-3
 Citation: Fenner et al. 2021
