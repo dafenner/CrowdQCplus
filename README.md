@@ -33,7 +33,7 @@ For 'older' Linux versions this could also work:
 
 **Option 1:**
 
-Directly pull the code from this repository into your programming environment, also using the <a href="https://devtools.r-lib.org/">devtools</a> package:
+Directly pull the code from this repository into your programming environment, using the <a href="https://devtools.r-lib.org/">devtools</a> package:
 
 ```
 install.packages("devtools")
