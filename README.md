@@ -48,6 +48,13 @@ install.packages("devtools")
 devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
 ```
 
+**Option 3:**
+
+Download the latest release of CrowdQC+ as a `.tar.gz` file <a href="https://github.com/dafenner/CrowdQCplus/releases"> (list or releases)</a>, save it locally, and install it in your programming environment:
+```
+install.packages(<PATH_TO_THE_tar.gz_FILE>, repos = NULL, type =‘‘source’’)
+```
+
 Once installed, load CrowdQC+ (and data.table) via
 
 ```
