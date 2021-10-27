@@ -55,7 +55,7 @@ via the 'file' parameter (path to geotiff) or via the 'raster' parameter
 (RasterLayer Object).
 }
 \details{
-A new column 'z' is added to the data.table to be used in filter level M2.
+A new column 'z' is added to the data.table to be used in QC level m2.
 
 Reference: 
 Jarvis A., Reuter, H. I., Nelson, A. and Guevara, E. (2008): Hole-filled 

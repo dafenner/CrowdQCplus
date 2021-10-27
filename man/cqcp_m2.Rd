@@ -16,7 +16,7 @@ cqcp_m2(
 )
 }
 \arguments{
-\item{data}{data.table object obtained from m1}
+\item{data}{data.table object as returned by cqcp_m1}
 
 \item{low}{0 < low < high < 1}
 
@@ -44,7 +44,7 @@ data.table
 \description{
 Flags all values as FALSE if robust z-score is not within the critical values
 obtained from low and high. This approach is based on the distribution
-function of all values. If number of stations is < 200 it would be
+function of all values. If number of stations is < 100 it would be
 better to use the Student-t distribution (t_distribution = TRUE).
 }
 \examples{

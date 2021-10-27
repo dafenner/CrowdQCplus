@@ -18,7 +18,7 @@ data.table with output statistics
 }
 \description{
 Calculate how many valid values and unique stations with valid data remain 
-after each QC step and print the information.
+after each QC level and print the information.
 }
 \examples{
 data(CWSBer)

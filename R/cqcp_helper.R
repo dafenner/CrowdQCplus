@@ -153,8 +153,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   # (5) Number of stations/values.
   if(has_p_id & has_time & has_ta) {
-    n_pid <- data[, sum(!is.na(ta)), by = time][, median(V1, na.rm = T)]
-    #n_pid <- length(unique(data$p_id)) # this is a rough estimate and not meaningful for long data sets
+    n_pid <- data[, sum(!is.na(ta)), by = time][, median(V1, na.rm = T)] # median value of available stations per time step
     if(n_pid < 100) {
       mess_5 <- cqcp_colourise(paste0("     ! Low number of stations with non-NA values per time step (median = ",n_pid,").\n     --> Usage of 't_distribution = T' in filter cqcp_m2 is recommended.\n"), "yellow")
       mess_5_l <- "low number of stations"
@@ -336,7 +335,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' via the 'file' parameter (path to geotiff) or via the 'raster' parameter 
 #' (RasterLayer Object).
 #' 
-#' A new column 'z' is added to the data.table to be used in filter level M2.
+#' A new column 'z' is added to the data.table to be used in QC level m2.
 #' 
 #' Reference: 
 #' Jarvis A., Reuter, H. I., Nelson, A. and Guevara, E. (2008): Hole-filled 
@@ -467,7 +466,7 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
 #' Simple statistics on data availability and number of stations after CrowdQC+.
 #' 
 #' Calculate how many valid values and unique stations with valid data remain 
-#' after each QC step and print the information.
+#' after each QC level and print the information.
 #'
 #' @param data data.table after CrowdQC+
 #' @param print Set to TRUE to print information in the console. Default: TRUE

@@ -7,7 +7,7 @@
 cqcp_m3(data, cutOff = 0.2, complete = FALSE, duration = NULL, quiet = FALSE)
 }
 \arguments{
-\item{data}{data.table object obtained from m2}
+\item{data}{data.table object as returned by cqcp_m2}
 
 \item{cutOff}{Value above which data are flagged with FALSE, 0 < cutOff < 1.
 Default is 0.2, i.e., 20 percent of data.}

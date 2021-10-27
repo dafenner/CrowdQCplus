@@ -18,7 +18,7 @@ cqcp_m5(
 )
 }
 \arguments{
-\item{data}{data.table as returned by m4}
+\item{data}{data.table object as returned by cqcp_m4}
 
 \item{radius}{A radius in meter around each station to check for neighbours.
 Default: 3000}
@@ -66,8 +66,8 @@ A minimum number of buddies within the radius has to be present for the
 calculations, thus this filter also flags isolated stations. Set 
 'keep_isolated' = TRUE if you want to keep the isolated stations.
 In addition to flag variable 'm5' another variable 'isolated' is added to the
-data.table with FALSE/TRUE, if stations have >='n_buddies' within 'radius' or
-not.
+data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius' 
+or not, respectively.
 }
 \examples{
 data(CWSBer)

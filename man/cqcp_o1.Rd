@@ -7,7 +7,7 @@
 cqcp_o1(data, fun = cqcp_interpol, quiet = FALSE, ...)
 }
 \arguments{
-\item{data}{data.table as returned from m4}
+\item{data}{data.table object as returned by cqcp_m5}
 
 \item{fun}{Function to use for interpolation, default is interpol}
 
@@ -22,7 +22,7 @@ data.table
 In this step missing data is interpolated, default is to perform linear
 interpolation on gaps of maximal length = 1.
 A new column named "ta_int" is added to the data.table, containing the
-filtered data at level m4 with the interpolated data.
+filtered data at QC level m5 with the interpolated data.
 }
 \examples{
 #default

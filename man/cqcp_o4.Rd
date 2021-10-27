@@ -28,8 +28,8 @@ step to the next.
 In the correction the original data "ta" is used instead of the interpolated
 values "ta_int". Hence, this function can be applied at/after any QC level. 
 Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
-is added to the data.table for cqcp_o4. Data after the correction thus can be 
-selected at any QC level.
+is added to the data.table during cqcp_o4. Data after the correction thus can be 
+selected at any QC level. The corrected data are written in a new column 'ta_corr'.
 }
 \examples{
 data(CWSBer)

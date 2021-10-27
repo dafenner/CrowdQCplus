@@ -7,7 +7,7 @@
 cqcp_o3(data, cutOff = 0.8, complete = FALSE, duration = NULL, quiet = FALSE)
 }
 \arguments{
-\item{data}{data.table as returned from o2}
+\item{data}{data.table object as returned by cqcp_o2}
 
 \item{cutOff}{Percentage of values that must be present for each duration before
 all values of that duration are flagged with FALSE, expressed in fraction: 0 <
@@ -26,8 +26,8 @@ data.table
 }
 \description{
 Optional QC for temporal data availability. Flags all values in a specified 
-duration (if nothing specified on a monthly basis) as FALSE if less than '
-cutOff' percent of valid values are available for that duration.
+duration (if nothing specified on a monthly basis) as FALSE if less than 
+'cutOff' percent of valid values are available for that duration.
 }
 \examples{
 data(CWSBer)

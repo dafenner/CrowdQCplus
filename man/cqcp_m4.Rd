@@ -7,7 +7,7 @@
 cqcp_m4(data, cutOff = 0.9, complete = FALSE, duration = NULL, quiet = FALSE)
 }
 \arguments{
-\item{data}{data.table as returned by m3}
+\item{data}{data.table object as returned by cqcp_m3}
 
 \item{cutOff}{Value of correlation coefficient below which data are flagged
 with FALSE, 0 < cutOff < 1. Default is 0.9.}

@@ -7,7 +7,7 @@
 cqcp_o2(data, cutOff = 0.8, quiet = FALSE)
 }
 \arguments{
-\item{data}{data.table as returned from o1}
+\item{data}{data.table object as returned by cqcp_o1}
 
 \item{cutOff}{Percentage of values that must be present for each day before
 all values of that day are flagged with FALSE, expressed in fraction: 0 <

@@ -70,10 +70,10 @@ cqcp_getZ <- function(x){
 #'
 #' Flags all values as FALSE if robust z-score is not within the critical values
 #' obtained from low and high. This approach is based on the distribution
-#' function of all values. If number of stations is < 200 it would be
+#' function of all values. If number of stations is < 100 it would be
 #' better to use the Student-t distribution (t_distribution = TRUE).
 #'
-#' @param data data.table object obtained from m1
+#' @param data data.table object as returned by cqcp_m1
 #' @param low 0 < low < high < 1
 #' @param high 0 < low < high < 1
 #' @param heightCorrection If set to true (default) and the column "z" exists in
@@ -148,12 +148,12 @@ cqcp_add_episode <- function(data, duration, quiet = FALSE){
   return(data)
 }
 
-#' Correlation of individual CWS with median for a certain timespan.
+#' Correlation of individual CWS with median for a certain time span.
 #'
 #' Calculates the correlation of each CWS vs. a data.set containing an
-#' aggregated time series in the column 'med' per timespan. Both series need to
-#' have the same length and values at the same position are expected to belong
-#' to the same position in time. Function is called internally by QC m4.
+#' aggregated time series in the column 'med' per time span. Both series need to
+#' have the same length, and values at the same position are expected to belong
+#' to the same position in time. Function is called internally by cqcp_m4.
 #' This function was formerly cor_month but is now compatible with 'duration' parameter.
 #'
 #' @param x Values of unaggregated time series
@@ -188,7 +188,7 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #' set (e.g. for short data sets, 'complete = T'), or some other fixed duration 
 #' (e.g. 'duration = "10 days"').
 #'
-#' @param data data.table object obtained from m2
+#' @param data data.table object as returned by cqcp_m2
 #' @param cutOff Value above which data are flagged with FALSE, 0 < cutOff < 1.
 #'   Default is 0.2, i.e., 20 percent of data.
 #' @param complete Set to TRUE to use the complete data set for the filter 
@@ -244,7 +244,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #' set (e.g. for short data sets, 'complete = T'), or some other fixed duration 
 #' (e.g. 'duration = "10 days"'). 
 #'
-#' @param data data.table as returned by m3
+#' @param data data.table object as returned by cqcp_m3
 #' @param cutOff Value of correlation coefficient below which data are flagged
 #'   with FALSE, 0 < cutOff < 1. Default is 0.9.
 #' @param complete Set to TRUE to use the complete data set for the filter 
@@ -329,10 +329,10 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' calculations, thus this filter also flags isolated stations. Set 
 #' 'keep_isolated' = TRUE if you want to keep the isolated stations.
 #' In addition to flag variable 'm5' another variable 'isolated' is added to the
-#' data.table with FALSE/TRUE, if stations have >='n_buddies' within 'radius' or
-#' not.
+#' data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius' 
+#' or not, respectively.
 #'
-#' @param data data.table as returned by m4
+#' @param data data.table object as returned by cqcp_m4
 #' @param radius A radius in meter around each station to check for neighbours.
 #'   Default: 3000
 #' @param n_buddies Minimum number of neighbouring stations with a valid 
@@ -470,7 +470,7 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
 #' This function takes a numerical vector x and fills NaNs with linearly
 #' interpolated values. The allowed length of the gap, i.e., the number of
 #' consecutive NaNs to be interpolated and replaced, is smaller or equal
-#' maxLength. Internally called by o1.
+#' maxLength. Internally called by cqcp_o1.
 #'
 #' @param x A numeric vector
 #' @param maxLength Allowed length of the gap to interpolate, default is 1.
@@ -498,9 +498,9 @@ cqcp_interpol <- function(x, maxLength = 1){
 #' In this step missing data is interpolated, default is to perform linear
 #' interpolation on gaps of maximal length = 1.
 #' A new column named "ta_int" is added to the data.table, containing the
-#' filtered data at level m4 with the interpolated data.
+#' filtered data at QC level m5 with the interpolated data.
 #'
-#' @param data data.table as returned from m4
+#' @param data data.table object as returned by cqcp_m5
 #' @param fun  Function to use for interpolation, default is interpol
 #' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #' @param ...  Additional parameters for interpolation function
@@ -539,7 +539,7 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
 #' calendar day as FALSE if less than 'cutOff' percent of valid values are
 #' available for that day.
 #'
-#' @param data data.table as returned from o1
+#' @param data data.table object as returned by cqcp_o1
 #' @param cutOff Percentage of values that must be present for each day before
 #'   all values of that day are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
@@ -572,10 +572,10 @@ cqcp_o2 <- function(data, cutOff = 0.8, quiet = FALSE){
 #' Optional QC step o3
 #'
 #' Optional QC for temporal data availability. Flags all values in a specified 
-#' duration (if nothing specified on a monthly basis) as FALSE if less than '
-#' cutOff' percent of valid values are available for that duration.
+#' duration (if nothing specified on a monthly basis) as FALSE if less than 
+#' 'cutOff' percent of valid values are available for that duration.
 #'
-#' @param data data.table as returned from o2
+#' @param data data.table object as returned by cqcp_o2
 #' @param cutOff Percentage of values that must be present for each duration before
 #'   all values of that duration are flagged with FALSE, expressed in fraction: 0 <
 #'   cutOff < 1. Default is 0.8, i.e, 80 percent of data.
@@ -634,8 +634,8 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' In the correction the original data "ta" is used instead of the interpolated
 #' values "ta_int". Hence, this function can be applied at/after any QC level. 
 #' Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
-#' is added to the data.table for cqcp_o4. Data after the correction thus can be 
-#' selected at any QC level.
+#' is added to the data.table during cqcp_o4. Data after the correction thus can be 
+#' selected at any QC level. The corrected data are written in a new column 'ta_corr'. 
 #'
 #' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
 #' @param time_constant Time constant value for the sensor in seconds (must be 

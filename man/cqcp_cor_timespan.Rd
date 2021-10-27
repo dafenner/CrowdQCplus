@@ -2,7 +2,7 @@
 % Please edit documentation in R/cqcp_filter.R
 \name{cqcp_cor_timespan}
 \alias{cqcp_cor_timespan}
-\title{Correlation of individual CWS with median for a certain timespan.}
+\title{Correlation of individual CWS with median for a certain time span.}
 \usage{
 cqcp_cor_timespan(x, y, t, cutOff, timespan = "month")
 }
@@ -24,8 +24,8 @@ TRUE if correlation for the given month is higher than cutOff, FALSE
 }
 \description{
 Calculates the correlation of each CWS vs. a data.set containing an
-aggregated time series in the column 'med' per timespan. Both series need to
-have the same length and values at the same position are expected to belong
-to the same position in time. Function is called internally by QC m4.
+aggregated time series in the column 'med' per time span. Both series need to
+have the same length, and values at the same position are expected to belong
+to the same position in time. Function is called internally by cqcp_m4.
 This function was formerly cor_month but is now compatible with 'duration' parameter.
 }
