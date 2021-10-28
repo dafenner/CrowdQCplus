@@ -101,7 +101,6 @@ if(ok) {
 }
 ```
 
-
 ## How to contribute?
 If you are using CrowdQC+ and have ideas how to make it better, improve its performance, resolve errors, please create <a href="https://github.com/dafenner/CrowdQCplus/issues">issues</a>.
 
