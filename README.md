@@ -1,8 +1,11 @@
 # CrowdQC+
 
-This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions, improvements, and bug fixes. Both packages were originally designed for and tested with air-temperature data but should also work with other near-normally distributed data. It is not designed for precipitation data. 
+This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package <a href="http://dx.doi.org/10.14279/depositonce-6740.3">'CrowdQC'</a> but offers several additions, improvements, and bug fixes. Both packages were originally designed for and tested with air-temperature data but should also work with other near-normally distributed data. It is not designed for precipitation data.
 
-A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this open-access journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science.
+CrowdQC+ is a statistically-based QC that identifies individual possibly faulty observations by comparing them to a large crowd of other observations. It does not need reference meteorological observations to be applied. The main idea of CrowdQC+ is that there is trustworthy information in the crowd, which can be used to check and remove individual values during the QC. Yet, there is no guarantee that all faulty observations are filtered by the QC.
+
+A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this open-access journal article: CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science.<br>
+It is recommended that you read the article before you start working with CrowdQC+ to understand its capabilities and limitations.
 
 ## Dependencies
 CrowdQC+ requires an R version >= 3.5.0 to work.
