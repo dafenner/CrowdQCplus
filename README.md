@@ -21,16 +21,19 @@ It also requires the following packages:
 Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
 When installing 'rgdal' package on a Linux system, you might run into issues. Try running 
-
-`sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev` 
+```
+sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev
+```
 
 first and then again installing rgdal in R with 
-
-`install.packages("rgdal")`. 
+```
+install.packages("rgdal")
+```
 
 For 'older' Linux versions this could also work: 
-
-`install.packages('rgdal', configure.args = c(rgdal = "--with-proj_api=proj_api.h"))`
+```
+install.packages("rgdal", configure.args = c(rgdal = "--with-proj_api=proj_api.h"))
+```
 
 ## Installation of the package
 
@@ -78,7 +81,7 @@ Data should be represented as a <a href="https://CRAN.R-project.org/package=data
 Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.
 
-Exemplarily, this is how an input data table with hourly data of a month should be organised (values completely nonesense and made up):
+This is how an input data table with hourly data of a month should be organised (values completely nonesense and made up):
 | p_id | time | ta | lon | lat | z |
 | -----| ---- | -- | --- | --- | - |
 | 1 | 2021-01-01 00:00 | 7.5 | 12.6789 | 40.5432 | 45 |
@@ -105,8 +108,6 @@ Beside the actual QC functions, several helper functions are available to, e.g.,
 
 A detailed description of each QC level can be found in the R help and in the corresponding journal article (see details below).
 
-There is a sample data set (`CWSBer`) in the package, which includes one month of CWS data for Berlin, Germany (June 2017), for testing.
-
 ### Example workflow
 A basic example workflow with CrowdQC+ could look like this (after installation of the package, see above):
 ```
@@ -127,6 +128,12 @@ if(ok) {
 
 ## How to contribute?
 If you are using CrowdQC+ and have ideas how to make it better, improve its performance, resolve errors, please create <a href="https://github.com/dafenner/CrowdQCplus/issues">issues</a>.
+
+## How to obtain CWS data?
+To crowdsource CWS data different data providers with application programming interfaces (API) exist, each with advantages and disadvantages, e.g.:
+- <a href="https://www.netatmo.com/">Netatmo</a>: <a href="https://dev.netatmo.com/">Netatmo Connect API</a>
+- <a href="https://synopticdata.com/">Synoptic</a>: <a href="https://developers.synopticdata.com/mesonet/">Mesonet API</a>
+- <a href="https://www.wow.metoffice.gov.uk/">Weather Observations Website (WOW)</a>: <a href="https://mowowprod.portal.azure-api.net/">WOW API</a>
 
 ## Reference
 Please reference the following open-access journal article when using CrowdQC+:
