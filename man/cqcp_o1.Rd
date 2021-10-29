@@ -24,15 +24,3 @@ interpolation on gaps of maximal length = 1.
 A new column named "ta_int" is added to the data.table, containing the
 filtered data at QC level m5 with the interpolated data.
 }
-\examples{
-#default
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
-m_2 <- cqcp_m2(m_1)
-m_3 <- cqcp_m3(m_2)
-m_4 <- cqcp_m4(m_3)
-m_5 <- cqcp_m5(m_4)
-o_1 <- cqcp_o1(m_5)
-#interpolate gaps up to 5 hours
-o_1 <- cqcp_o1(m_5, maxLength = 5)
-}

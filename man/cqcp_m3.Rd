@@ -31,9 +31,3 @@ Default is to apply m3 per month, but can be changed to use the complete data
 set (e.g. for short data sets, 'complete = T'), or some other fixed duration 
 (e.g. 'duration = "10 days"').
 }
-\examples{
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
-m_2 <- cqcp_m2(m_1)
-m_3 <- cqcp_m3(m_2)
-}

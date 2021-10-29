@@ -47,8 +47,3 @@ obtained from low and high. This approach is based on the distribution
 function of all values. If number of stations is < 100 it would be
 better to use the Student-t distribution (t_distribution = TRUE).
 }
-\examples{
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
-m_2 <- cqcp_m2(m_1)
-}

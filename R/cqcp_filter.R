@@ -19,7 +19,7 @@
 #' Flag values with FALSE that are missing or belong to a p_id having lon & lat
 #' values which occur more often than the 'cutOff' value.
 #'
-#' @param data A data set (a data.table object) formated the same way as the sample data (CWSBer)
+#' @param data A data set (a data.table object) with required columns p_id, time, ta, lon, lat
 #' @param cutOff How much stations are allowed to have the same coordinates,
 #'   default is 1. This means that if two p_ids share the same lon & lat values,
 #'   data at these stations are set to FALSE.
@@ -27,10 +27,6 @@
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
 cqcp_m1 <- function(data, cutOff = 1, quiet = FALSE){
   val  <- data[!is.na(ta),.(a = 1), by = .(p_id,lon,lat)]
   bad_s  <- val[,.(anz = sum(lon == val$lon & lat == val$lat)), by = p_id]
@@ -90,11 +86,6 @@ cqcp_getZ <- function(x){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
 cqcp_m2 <- function(data, low = 0.01, high = 0.95, heightCorrection = TRUE, 
                     debug = FALSE, lapse_rate = 0.0065, t_distribution = FALSE,
                     quiet = FALSE){
@@ -199,12 +190,6 @@ cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
 cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
                     quiet = FALSE){
   
@@ -255,13 +240,6 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
-#' m_4 <- cqcp_m4(m_3)
 cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
                     quiet = FALSE){
   
@@ -360,17 +338,6 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
-#' m_4 <- cqcp_m4(m_3)
-#' # default
-#' m_5 <- cqcp_m5(m_4)
-#' # keep isolated stations, do not check for elevation differences, use more buddies
-#' m_5 <- cqcp_m5(m_4, keep_isolated = TRUE, check_elevation = FALSE, n_buddies = 10)
 cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1, 
                     heightCorrection = TRUE, lapse_rate = 0.0065,
                     check_elevation = TRUE, max_elev_diff = 100,
@@ -477,11 +444,6 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
 #'
 #' @return vector
 #' @export
-#'
-#' @examples
-#' x <- c(1, NaN, 3, NaN, NaN, 6, NaN, 8)
-#' cqcp_interpol(x)
-#' cqcp_interpol(x, 2)
 cqcp_interpol <- function(x, maxLength = 1){
   rl <- rle(is.na(x))
   re <- rl$lengths <= maxLength & rl$values
@@ -507,18 +469,6 @@ cqcp_interpol <- function(x, maxLength = 1){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' #default
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
-#' m_4 <- cqcp_m4(m_3)
-#' m_5 <- cqcp_m5(m_4)
-#' o_1 <- cqcp_o1(m_5)
-#' #interpolate gaps up to 5 hours
-#' o_1 <- cqcp_o1(m_5, maxLength = 5)
 cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
   data[,ta_int := ta]
   data[!m5, "ta_int"] <- NA
@@ -547,16 +497,6 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
-#' m_4 <- cqcp_m4(m_3)
-#' m_5 <- cqcp_m5(m_4)
-#' o_1 <- cqcp_o1(m_5)
-#' o_2 <- cqcp_o2(o_1)
 cqcp_o2 <- function(data, cutOff = 0.8, quiet = FALSE){
   has_d <- cqcp_has_column(data, column = "day")
   if(!has_d){
@@ -587,17 +527,6 @@ cqcp_o2 <- function(data, cutOff = 0.8, quiet = FALSE){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' m_1 <- cqcp_m1(CWSBer)
-#' m_2 <- cqcp_m2(m_1)
-#' m_3 <- cqcp_m3(m_2)
-#' m_4 <- cqcp_m4(m_3)
-#' m_5 <- cqcp_m5(m_4)
-#' o_1 <- cqcp_o1(m_5)
-#' o_2 <- cqcp_o2(o_1)
-#' o_3 <- cqcp_o3(o_2)
 cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
                     quiet = FALSE){
 
@@ -646,10 +575,6 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' o_4 <- cqcp_o4(CWSBer, 1480.5)
 cqcp_o4 <- function(data, time_constant, quiet = FALSE) {
   
   if(is.null(time_constant) | missing(time_constant)) return(data)
@@ -697,7 +622,7 @@ cqcp_has_column <- function(data, column = "month"){
 #' kept throughout the remaining QC steps. In the end, only those data
 #' values containing TRUE after the all QC steps are valid according to this QC.
 #'
-#' @param data Input data in the format as the example data (CWSBer)
+#' @param data A data set (a data.table object) with required columns p_id, time, ta, lon, lat
 #' @param m1_cutOff see cutOff in ?cqcp_m1
 #' @param m2_low see low in ?cqcp_m2
 #' @param m2_high see high in ?cqcp_m2
@@ -728,10 +653,6 @@ cqcp_has_column <- function(data, column = "month"){
 #'
 #' @return data.table
 #' @export
-#'
-#' @examples
-#' data(CWSBer)
-#' y <- cqcp_qcCWS(CWSBer)
 cqcp_qcCWS <- function(data,
                        m1_cutOff = 1,
                        m2_low = 0.01, m2_high = 0.95, 

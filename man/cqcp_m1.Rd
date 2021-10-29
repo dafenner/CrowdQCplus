@@ -7,7 +7,7 @@
 cqcp_m1(data, cutOff = 1, quiet = FALSE)
 }
 \arguments{
-\item{data}{A data set (a data.table object) formated the same way as the sample data (CWSBer)}
+\item{data}{A data set (a data.table object) with required columns p_id, time, ta, lon, lat}
 
 \item{cutOff}{How much stations are allowed to have the same coordinates,
 default is 1. This means that if two p_ids share the same lon & lat values,
@@ -21,8 +21,4 @@ data.table
 \description{
 Flag values with FALSE that are missing or belong to a p_id having lon & lat
 values which occur more often than the 'cutOff' value.
-}
-\examples{
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
 }

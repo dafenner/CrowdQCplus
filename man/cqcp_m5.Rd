@@ -69,14 +69,3 @@ In addition to flag variable 'm5' another variable 'isolated' is added to the
 data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius' 
 or not, respectively.
 }
-\examples{
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
-m_2 <- cqcp_m2(m_1)
-m_3 <- cqcp_m3(m_2)
-m_4 <- cqcp_m4(m_3)
-# default
-m_5 <- cqcp_m5(m_4)
-# keep isolated stations, do not check for elevation differences, use more buddies
-m_5 <- cqcp_m5(m_4, keep_isolated = TRUE, check_elevation = FALSE, n_buddies = 10)
-}

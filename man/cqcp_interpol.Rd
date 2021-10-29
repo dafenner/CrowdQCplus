@@ -20,8 +20,3 @@ interpolated values. The allowed length of the gap, i.e., the number of
 consecutive NaNs to be interpolated and replaced, is smaller or equal
 maxLength. Internally called by cqcp_o1.
 }
-\examples{
-x <- c(1, NaN, 3, NaN, NaN, 6, NaN, 8)
-cqcp_interpol(x)
-cqcp_interpol(x, 2)
-}

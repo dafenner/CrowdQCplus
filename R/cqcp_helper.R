@@ -53,10 +53,6 @@ cqcp_colourise <- function(str, colour) {
 #'
 #' @return logical (or list), TRUE if data passed all checks.
 #' @export
-#' 
-#' @examples
-#' data(CWSBer)
-#' cqcp_check_input(CWSBer)
 cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   ok <- TRUE
@@ -474,11 +470,6 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
 #'
 #' @return data.table with output statistics
 #' @export
-#' 
-#' @examples
-#' data(CWSBer)
-#' y <- cqcp_qcCWS(CWSBer)
-#' z <- cqcp_output_statistics(y)
 cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
   
   levels <- c("m1", "m2", "m3", "m4", "m5", "o1", "o2", "o3")

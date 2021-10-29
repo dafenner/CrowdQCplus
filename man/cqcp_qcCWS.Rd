@@ -35,7 +35,7 @@ cqcp_qcCWS(
 )
 }
 \arguments{
-\item{data}{Input data in the format as the example data (CWSBer)}
+\item{data}{A data set (a data.table object) with required columns p_id, time, ta, lon, lat}
 
 \item{m1_cutOff}{see cutOff in ?cqcp_m1}
 
@@ -105,8 +105,4 @@ included in the output, containing TRUE or FALSE flags. Flags of the previous
 levels are carried along, i.e., if a value failed in step m2, this FALSE is
 kept throughout the remaining QC steps. In the end, only those data
 values containing TRUE after the all QC steps are valid according to this QC.
-}
-\examples{
-data(CWSBer)
-y <- cqcp_qcCWS(CWSBer)
 }

@@ -23,13 +23,3 @@ Optional QC for temporal data availability. Flags all values in a
 calendar day as FALSE if less than 'cutOff' percent of valid values are
 available for that day.
 }
-\examples{
-data(CWSBer)
-m_1 <- cqcp_m1(CWSBer)
-m_2 <- cqcp_m2(m_1)
-m_3 <- cqcp_m3(m_2)
-m_4 <- cqcp_m4(m_3)
-m_5 <- cqcp_m5(m_4)
-o_1 <- cqcp_o1(m_5)
-o_2 <- cqcp_o2(o_1)
-}
