@@ -78,6 +78,27 @@ Data should be represented as a <a href="https://CRAN.R-project.org/package=data
 Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.
 
+Exemplarily, this is how an input data table with hourly data of a month should be organised (values completely nonesense and made up):
+| p_id | time | ta | lon | lat | z |
+| -----| ---- | -- | --- | --- | - |
+| 1 | 2021-01-01 00:00 | 7.5 | 12.6789 | 40.5432 | 45 |
+| 1 | 2021-01-01 01:00 | 7.3 | 12.6789 | 40.5432 | 45 |
+| 1 | 2021-01-01 02:00 | 7.0 | 12.6789 | 40.5432 | 45 |
+| 1 | ... | ... | 12.6789 | 40.5432 | 45 |
+| 1 | 2021-01-31 23:00 | 16.4 | 12.6789 | 40.5432 | 45 |
+| 2 | 2021-01-01 00:00 | 8.1 | 12.6543 | 40.5678 | 48 |
+| 2 | 2021-01-01 01:00 | 7.9 | 12.6543 | 40.5678 | 48 |
+| 2 | 2021-01-01 02:00 | 7.5 | 12.6543 | 40.5678 | 48 |
+| 2 | ... | ... | 12.6543 | 40.5678 | 48 |
+| 2 | 2021-01-31 23:00 | 15.3 | 12.6543 | 40.5678 | 48 |
+| ... | ... | ... | ... | ... | ... |
+| 1896 | 2021-01-01 00:00 | 6.9 | 12.1234 | 40.5666 | 39 |
+| 1896 | 2021-01-01 01:00 | 6.8 | 12.1234 | 40.5666 | 39 |
+| 1896 | 2021-01-01 02:00 | 6.4 | 12.1234 | 40.5666 | 39 |
+| 1896 | ... | ... | 12.1234 | 40.5666 | 39 |
+| 1896 | 2021-01-31 23:00 | 17.0 | 12.1234 | 40.5666 | 39 |
+
+
 ### Functionalities
 The QC consists of five main QC levels (m1-m5) and four optional levels (o1-o4). Each QC level can be called individually or the complete QC can be applied (`cqcp_qcCWS()`). <br>
 Beside the actual QC functions, several helper functions are available to, e.g., add elevation information to each station (`cqcp_add_dem_height()`), check the data.table for compliance with CrowdQC+ (`cqcp_check_input()`), preparation of input data (`cqcp_padding()`) and output simple statistics an data availability after application of the QC (`cqcp_output_statistics()`).
@@ -94,7 +115,7 @@ library(data.table)
 library(CrowdQCplus)
 
 # Data & input check
-data <- CWSBer # get the example data (or your own data)
+data <- <YOUR_CWS_DATA>
 ok <- cqcp_check_input(data)
 
 # Perform complete QC
