@@ -1,8 +1,8 @@
 Package: CrowdQCplus
 Type: Package
 Title: Enhanced quality control for crowdsourced data from citizen weather stations
-Version: 0.0.4
-Date: 2021-10-29
+Version: 1.0.0
+Date: 2021-11-01
 Author: Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 Authors@R: c(
     person("Daniel", "Fenner", email = "daniel.fenner@meteo.uni-freiburg.de", role = c("aut", "cre")),
@@ -23,4 +23,4 @@ RoxygenNote: 7.1.2
 Depends: R (>= 3.5.0)
 Imports: data.table, methods, stats, robustbase, lubridate, sp, raster, rgdal
 NeedsCompilation: no
-Packaged: 2021-10-29 18:50 UTC; dafenner
+Packaged: 2021-11-01 22:50 UTC; dafenner
