@@ -563,8 +563,14 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' In the correction the original data "ta" is used instead of the interpolated
 #' values "ta_int". Hence, this function can be applied at/after any QC level. 
 #' Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
-#' is added to the data.table during cqcp_o4. Data after the correction thus can be 
+#' is added to the data.table during cqcp_o4. Corrected data can thus be 
 #' selected at any QC level. The corrected data are written in a new column 'ta_corr'. 
+#' For Netatmo CWS (https://www.netatmo.com/en-us/weather), Coney et al. 2022 
+#' (https://doi.org/10.1002/met.2075) determined a mean time constant of the 
+#' air-temperature sensor of tau = 12.7 minutes (762 seconds).
+#' Büchau 2018 (MSc thesis, https://bis-erdsystem.de/fileadmin/user_upload/bise/Texte/MSC_Met_61-20180313.pdf)
+#' determined a mean time constant of the Netatmo air-temperature sensor (including 
+#' silver aluminium shell) of tau = 24.675 minutes (1480.5 seconds).
 #'
 #' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
 #' @param time_constant Time constant value for the sensor in seconds (must be 
