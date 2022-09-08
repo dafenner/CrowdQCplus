@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2021  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2022  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -262,7 +262,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
   return(value) # Output
 }
 
-#' Download SRTM data using raster package for bounding box of data.
+#' Download SRTM data using geodata package for bounding box of data.
 #' 
 #' SRTM data is automatically downloaded and, in case of more than one SRTM tile, 
 #' merged together as a mosaic.
@@ -276,7 +276,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
 #' @param outfile File path to save the SRTM raster as geotiff 
 #' @param overwrite Overwrite existing geotiff? Default is TRUE. 
 #' @param crop Crop raster/geotiff to data extent? Default is FALSE. 
-#' @param ... Additional parameters supported by raster::getData
+#' @param ... Additional parameters supported by geodata::elevation_3s
 #'
 #' @return RasterLayer object with SRTM data
 #' @export
@@ -286,7 +286,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   # Check if directory exists
   if(!is.null(directory)) {
     if(!dir.exists(directory)) dir.create(directory)
-  }
+  } else directory = getwd()
   
   # Get bounding box coordinates
   min_lon <- min(data$lon)
@@ -295,10 +295,10 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   max_lat <- max(data$lat)
   
   # Download data
-  ll <- raster::getData(name="SRTM", lat=min_lat, lon=min_lon, path = directory, ...)
-  lr <- raster::getData(name="SRTM", lat=min_lat, lon=max_lon, path = directory, ...)
-  ur <- raster::getData(name="SRTM", lat=max_lat, lon=max_lon, path = directory, ...)
-  ul <- raster::getData(name="SRTM", lat=max_lat, lon=min_lon, path = directory, ...)
+  ll <- raster::raster(geodata::elevation_3s(lat=min_lat, lon=min_lon, path = directory, ...))
+  lr <- raster::raster(geodata::elevation_3s(lat=min_lat, lon=max_lon, path = directory, ...))
+  ur <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=max_lon, path = directory, ...))
+  ul <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=min_lon, path = directory, ...))
   
   # Combine tiles, if necessary
   mosaic <- raster::mosaic(ll, lr, ur, ul, fun=mean)
@@ -313,7 +313,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   # Store merged raster?
   if(!is.null(outfile)) {
     if(!dir.exists(dirname(outfile))) dir.create(dirname(outfile))
-    raster::writeRaster(mosaic, filename=outfile, overwrite=overwrite)
+    raster::writeRaster(mosaic, filename = outfile, overwrite = overwrite)
   }
   
   return(mosaic)
@@ -349,7 +349,7 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param na_vals Set NA values in DEM to this value to avoid missing value in 
 #'   cqcp_m2. Default: 0
 #' @param quiet Suppress messages by CrowdQC+. Default: FALSE
-#' @param ... Additional parameters supported by raster::getData
+#' @param ... Additional parameters supported by geodata::elevation_3s
 #'
 #' @return data table with new column 'z' with DEM information
 #' @export
