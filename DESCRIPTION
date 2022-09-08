@@ -14,7 +14,7 @@ Authors@R: c(
 Maintainer: Daniel Fenner <daniel.fenner@meteo.uni-freiburg.de>
 Description: This package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It was originally designed for and tested with hourly air-temperature data but should work with other near-normally distributed data. It is based on the package 'CrowdQC' but offers several additions and improvements.
 License: GPL-3 + file LICENCE
-Citation: Fenner et al. 2021
+Citation: Fenner et al. 2022
 URL: https://github.com/dafenner/CrowdQCplus
 BugReports: https://github.com/dafenner/CrowdQCplus/issues
 Encoding: UTF-8
