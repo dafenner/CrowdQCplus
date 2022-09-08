@@ -2,7 +2,7 @@
 % Please edit documentation in R/cqcp_helper.R
 \name{cqcp_download_srtm}
 \alias{cqcp_download_srtm}
-\title{Download SRTM data using raster package for bounding box of data.}
+\title{Download SRTM data using geodata package for bounding box of data.}
 \usage{
 cqcp_download_srtm(
   data,
@@ -25,7 +25,7 @@ downloaded data is stored in the current working directory.}
 
 \item{crop}{Crop raster/geotiff to data extent? Default is FALSE.}
 
-\item{...}{Additional parameters supported by raster::getData}
+\item{...}{Additional parameters supported by geodata::elevation_3s}
 }
 \value{
 RasterLayer object with SRTM data

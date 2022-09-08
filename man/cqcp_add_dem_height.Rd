@@ -38,7 +38,7 @@ cqcp_m2. Default: 0}
 
 \item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 
-\item{...}{Additional parameters supported by raster::getData}
+\item{...}{Additional parameters supported by geodata::elevation_3s}
 }
 \value{
 data table with new column 'z' with DEM information

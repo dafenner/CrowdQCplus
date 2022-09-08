@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2021  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2022  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -563,8 +563,23 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' In the correction the original data "ta" is used instead of the interpolated
 #' values "ta_int". Hence, this function can be applied at/after any QC level. 
 #' Diverging from all other QC levels, no additional flag variable with TRUE/FALSE 
-#' is added to the data.table during cqcp_o4. Data after the correction thus can be 
+#' is added to the data.table during cqcp_o4. Corrected data can thus be 
 #' selected at any QC level. The corrected data are written in a new column 'ta_corr'. 
+#' For Netatmo CWS (https://www.netatmo.com/en-us/weather), Coney et al. (2022) 
+#' determined a mean time constant of the air-temperature sensor of 
+#' tau = 12.7 minutes (762 seconds).
+#' Büchau (2018) determined a mean time constant of the Netatmo air-temperature 
+#' sensor (including silver aluminium shell) of tau = 24.675 minutes (1480.5 seconds).
+#' 
+#' References: 
+#' Büchau, Y. G. (2018): Modelling Shielded Temperature Sensors - An Assessment 
+#' of the Netatmo Citizen Weather Station. MSc Thesis, Universität Hamburg, Germany.
+#' Available at: https://bis-erdsystem.de/fileadmin/user_upload/bise/Texte/MSC_Met_61-20180313.pdf
+#' 
+#' Coney, J., Pickering, B., Dufton, D., Lukach, M., Brooks, B. and Neely, R. R. (2022):
+#' How useful are crowdsourced air temperature observations? An assessment of 
+#' Netatmo stations and quality control schemes over the United Kingdom. 
+#' Meteorol. Appl. 29 (3): e2075. https://doi.org/10.1002/met.2075
 #'
 #' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
 #' @param time_constant Time constant value for the sensor in seconds (must be 
