@@ -73,7 +73,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     if(!has_ta) miss_1a <- c(miss_1a, "ta")
     if(!has_lon) miss_1a <- c(miss_1a, "lon")
     if(!has_lat) miss_1a <- c(miss_1a, "lat")
-    mess_1a <- cqcp_colourise(paste0("     ! Missing: ",paste(test, collapse = ", "),"\n     --> CrowdQC+ will not work with this data.\n"), "red")
+    mess_1a <- cqcp_colourise(paste0("     ! Missing: ", paste(miss_1a, collapse = ", "),"\n     --> CrowdQC+ will not work with this data.\n"), "red")
     ch_1a <- FALSE
     ok <- FALSE
   } else mess_1a <- cqcp_colourise("     OK\n", "green")
@@ -83,7 +83,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   if(!has_z) {
     miss_1b <- c(miss_1b, "z")
     mess_1b <- cqcp_colourise("     ! Missing: z\n", "yellow")
-    mess_1b <- cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow")
+    mess_1b <- c(mess_1b, cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     ch_1b <- FALSE
   } else mess_1b <- cqcp_colourise("     OK\n", "green")
   
