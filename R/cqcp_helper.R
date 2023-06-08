@@ -191,7 +191,6 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     ch_5 <- FALSE
     ok <- FALSE
   }
-    
   # Print
   if(print) {
     cat("+++++++++++++++++++++++++++++\n")
