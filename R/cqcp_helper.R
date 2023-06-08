@@ -57,7 +57,6 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   ok <- TRUE
   ch_1a <- ch_1b <- ch_1c <- ch_2 <- ch_3 <- ch_4 <- ch_5 <- TRUE
-  #mess_1a <- mess_1b <- mess_1c <- mess_2 <- mess_3 <- mess_4 <- mess_5 <- cqcp_colourise(paste0("     ! Check not carried out.\n"), "red")
   mess_2_l <- mess_3_l <- mess_4_l <- mess_5_l <- "OK"
  
   # (1) Check for column names
@@ -191,6 +190,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     ch_5 <- FALSE
     ok <- FALSE
   }
+  
   # Print
   if(print) {
     cat("+++++++++++++++++++++++++++++\n")
