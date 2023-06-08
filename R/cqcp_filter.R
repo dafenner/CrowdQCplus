@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2022, 2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2021-2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
