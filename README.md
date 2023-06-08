@@ -72,16 +72,16 @@ library(CrowdQCplus)
 ### Data
 Data should be represented as a [data.table](https://CRAN.R-project.org/package=data.table) with the following required columns:
 
-`p_id`: unique ID of each station<br>
-`time`: time as POSIX.ct. Keep in mind time zones!<br>
-`ta`: air-temperature values (or other near-normally distributed variable)<br>
-`lon`: longitude of the station<br>
-`lat`: latitude of the station<br>
+`p_id`: Unique ID of each station. Data format: Integer or character<br>
+`time`: Time. Keep in mind time zones! Data format: POSIX.ct<br>
+`ta`: Air-temperature values (or other near-normally distributed variable). Data format: Numeric/double<br>
+`lon`: Longitude of the station. Data format: Numeric/double<br>
+`lat`: Latitude of the station. Data format: Numeric/double<br>
 
 Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.
 
-This is how an input data table with hourly data of a month should be organised (values completely nonesense and made up):
+This is how an input data table with hourly data of a month should be organised (values completely nonsense and made up):
 | p_id | time | ta | lon | lat | z |
 | -----| ---- | -- | --- | --- | - |
 | 1 | 2021-01-01 00:00 | 7.5 | 12.6789 | 40.5432 | 45 |

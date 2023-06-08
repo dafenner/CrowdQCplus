@@ -24,7 +24,7 @@ Checks if a data.table has the required format for CrowdQC+ and gives hints
 regarding the application of the package.
 }
 \details{
-1. Check for column names.
+1. Check for column names and respective data types.
 2. Check for same temporal coverage.
 3. Check for data regularity.
 4. Geographical extent of data.

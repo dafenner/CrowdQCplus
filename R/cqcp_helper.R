@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2022  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2021-2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ cqcp_colourise <- function(str, colour) {
 #' Checks if a data.table has the required format for CrowdQC+ and gives hints
 #' regarding the application of the package.
 #' 
-#' 1. Check for column names.
+#' 1. Check for column names and respective data types.
 #' 2. Check for same temporal coverage.
 #' 3. Check for data regularity.
 #' 4. Geographical extent of data.
@@ -56,11 +56,11 @@ cqcp_colourise <- function(str, colour) {
 cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   ok <- TRUE
-  ch_1a <- ch_1b <- ch_2 <- ch_3 <- ch_4 <- ch_5 <- TRUE
+  ch_1a <- ch_1b <- ch_1c <- ch_2 <- ch_3 <- ch_4 <- ch_5 <- TRUE
   mess_2_l <- mess_3_l <- mess_4_l <- mess_5_l <- "OK"
  
   # (1) Check for column names
-  # required
+  # (1a) Required columns
   has_p_id <- cqcp_has_column(data, column = "p_id")
   has_time <- cqcp_has_column(data, column = "time")
   has_ta <- cqcp_has_column(data, column = "ta")
@@ -77,7 +77,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     ch_1a <- FALSE
     ok <- FALSE
   } else mess_1a <- cqcp_colourise("     OK\n", "green")
-  # optional
+  # (1b) Optional columns
   has_z <- cqcp_has_column(data, column = "z")
   miss_1b <- c()
   if(!has_z) {
@@ -86,6 +86,33 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     mess_1b <- c(mess_1b, cqcp_colourise("     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'. You can run 'cqcp_add_dem_height' to add DEM information.\n", "yellow"))
     ch_1b <- FALSE
   } else mess_1b <- cqcp_colourise("     OK\n", "green")
+  # (1c) Check for correct data type
+  if (has_p_id) type_p_id <- (is.integer(data$p_id) | is.character(data$p_id)) else type_p_id <- FALSE
+  if (has_time) type_time <- is.POSIXct(data$time) else type_time <- FALSE
+  if (has_ta) type_ta <- is.numeric(data$ta) else type_ta <- FALSE
+  if (has_lon) type_lon <- is.numeric(data$lon) else type_lon <- FALSE
+  if (has_lat) type_lat <- is.numeric(data$lat) else type_lat <- FALSE
+  if (has_z) type_z <- is.numeric(data$z) else type_z <- TRUE
+  wrong_1c <- c()
+  if(!type_p_id | !type_time | !type_ta | !type_lon | !type_lat | !type_z) {
+    if(!type_p_id) wrong_1c <- c(wrong_1c, "p_id")
+    if(!type_time) wrong_1c <- c(wrong_1c, "time")
+    if(!type_ta) wrong_1c <- c(wrong_1c, "ta")
+    if(!type_lon) wrong_1c <- c(wrong_1c, "lon")
+    if(!type_lat) wrong_1c <- c(wrong_1c, "lat")
+    if(!type_z) wrong_1c <- c(wrong_1c, "z")
+    if ("z" %in% wrong_1c) {
+      if (length(wrong_1c) == 1) {
+        mess_1c <- cqcp_colourise(paste0("     ! Wrong data type: ", paste(wrong_1c, collapse = ", "),"\n     --> Filters cqcp_m2 and cqcp_m5 will not work with 'heightCorrection = T'\n"), "yellow")
+      } else {
+        mess_1c <- cqcp_colourise(paste0("     ! Wrong data type: ", paste(wrong_1c, collapse = ", "),"\n     --> CrowdQC+ will not work with this data.\n"), "red")
+        ok <- FALSE
+      }
+    } else {
+      mess_1c <- cqcp_colourise(paste0("     ! Wrong data type: ", paste(wrong_1c, collapse = ", "),"\n     --> CrowdQC+ will not work with this data.\n"), "red")
+      ok <- FALSE
+    }
+  } else mess_1c <- cqcp_colourise("     OK\n", "green")
   
   # (2) Check for same temporal coverage.
   if(has_time & has_p_id) {
@@ -174,6 +201,8 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     cat(mess_1a)
     cat("Check 1b - Optional columns:\n")
     cat(mess_1b)
+    cat("Check 1c - Column data types:\n")
+    cat(mess_1c)
     # (2)
     cat("Check 2 - Temporal coverage:\n")
     cat(mess_2)
@@ -200,27 +229,30 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
     cat("+++++++++++++++++++++++++++++++++++++\n")
     # (1)
     cat("Check 1a - Required columns:\n")
-    cat(mess_1a)
+    cat(substr(mess_1a, 6, nchar(mess_1a)-4))
     cat("Check 1b - Optional columns:\n")
-    cat(mess_1b)
+    cat(substr(mess_1b, 6, nchar(mess_1b)-4))
+    cat("Check 1c - Column data types:\n")
+    cat(substr(mess_1c, 6, nchar(mess_1c)-4))
     # (2)
     cat("Check 2 - Temporal coverage:\n")
-    cat(mess_2)
+    cat(substr(mess_2, 6, nchar(mess_2)-4))
     # (3)
     cat("Check 3 - Regularity:\n")
-    cat(mess_3)
+    cat(substr(mess_3, 6, nchar(mess_3)-4))
     # (4)
     cat("Check 4 - Geographical extent:\n")
-    cat(mess_4)
+    cat(substr(mess_4, 6, nchar(mess_4)-4))
     # (5)
     cat("Check 5 - Number of stations:\n")
-    cat(mess_5)
+    cat(substr(mess_5, 6, nchar(mess_5)-4))
     sink()
   }
   
   if(as_list) {
     out_list <- list("check" = ok, "check_1a_flag" = ch_1a, "check_1a_missing" = miss_1a,
                      "check_1b_flag" = ch_1b, "check_1b_missing" = miss_1b,
+                     "check_1c_flag" = ch_1c, "check_1c_wrong" = wrong_1c,
                      "check_2_flag" = ch_2, "check_2_message" = mess_2_l,
                      "check_3_flag" = ch_3, "check_3_message" = mess_3_l,
                      "check_4_flag" = ch_4, "check_4_message" = mess_4_l, 
@@ -433,8 +465,7 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
   
   # calculate mean and select first instance of all columns in case of multiple 
   # values per time stamp
-  in_data <- in_data[, `:=`(ta, mean(ta, na.rm = T)),
-                     by = .(p_id, time)][,.SD[1], by = .(p_id, time)]
+  in_data[, `:=`(ta, mean(ta, na.rm = T)), by = .(p_id, time)][,.SD[1], by = .(p_id, time)]
   
   # Create regular time series
   m0 = min(in_data$time)
@@ -475,14 +506,14 @@ cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
   levels <- c("m1", "m2", "m3", "m4", "m5", "o1", "o2", "o3")
   
   n_data <- data.table()
-  n_data <- n_data[, n_raw := data[, sum(!is.na(ta))]]
+  n_data[, n_raw := data[, sum(!is.na(ta))]]
   n_stat <- data.table()
-  n_stat <- n_stat[, n_raw := data[, !(sum(is.na(ta)) == .N), by = .(p_id)][, sum(V1)]]
+  n_stat[, n_raw := data[, !(sum(is.na(ta)) == .N), by = .(p_id)][, sum(V1)]]
   
   for(i in levels) {
     if(cqcp_has_column(data, column = i)) {
-      n_data <- n_data[, (i) := data[, sum(get(i))]]
-      n_stat <- n_stat[, (i) := data[, !(sum(get(i) == F) == .N), by = .(p_id)][, sum(V1)]]
+      n_data[, (i) := data[, sum(get(i))]]
+      n_stat[, (i) := data[, !(sum(get(i) == F) == .N), by = .(p_id)][, sum(V1)]]
     }
   }
   

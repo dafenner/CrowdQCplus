@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2022  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2021-2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@
 #' @return data.table
 #' @export
 cqcp_m1 <- function(data, cutOff = 1, quiet = FALSE){
-  val  <- data[!is.na(ta),.(a = 1), by = .(p_id,lon,lat)]
+  val  <- data[!is.na(ta), .(a = 1), by = .(p_id,lon,lat)]
   bad_s  <- val[,.(anz = sum(lon == val$lon & lat == val$lat)), by = p_id]
   bad_s  <- bad_s[anz > cutOff,]$p_id
-  data[,m1:= T]
-  data[p_id %in% bad_s,"m1"] <- F
-  data[is.na(ta),"m1"] <- F
+  data[, m1 := T]
+  data[p_id %in% bad_s, "m1"] <- F
+  data[is.na(ta), "m1"] <- F
   return(data)
 }
 
@@ -135,7 +135,7 @@ cqcp_add_episode <- function(data, duration, quiet = FALSE){
   if(length(episode) != n & !quiet) {
     cat(cqcp_colourise("[CrowdQC+] Last episode in data shorter than specified duration.\n", "yellow"))
   }
-  data <- data[, episode := episode[1:n], by = .(p_id)]
+  data[, episode := episode[1:n], by = .(p_id)]
   return(data)
 }
 
@@ -243,7 +243,7 @@ cqcp_m3 <- function(data, cutOff = 0.2, complete = FALSE, duration = NULL,
 cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
                     quiet = FALSE){
   
-  data[,rem_ta := ta]
+  data[, rem_ta := ta]
   data[!m3, "rem_ta"] <- NaN
   
   # case 1: nothing specified.
@@ -251,7 +251,7 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
   if(is.null(duration) & !complete) {
     has_m <- cqcp_has_column(data, column = "month")
     if(!has_m){
-      data[,month := lubridate::floor_date(time,"month")]
+      data[, month := lubridate::floor_date(time,"month")]
     }
     data_agg <- data[,.(med = median(rem_ta, na.rm = T)), by=.(month, time)]
     cor_station <- data[,.(c = cqcp_cor_timespan(rem_ta, data_agg, unique(month), 
@@ -369,6 +369,12 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
   dist <- dist[(p_x != p_y) & (!is.na(distance))] # reduce table size
   combi <- dist[distance <= radius] # station within radius
   
+  # check for p_id column type (integer?) and convert indices to integer, if necessary
+  if (is.integer(data$p_id)) {
+    combi[, p_x := as.integer(p_x)]
+    combi[, p_y := as.integer(p_y)]
+  }
+  
   # ensure the right keys are set to make subsetting fast
   setkey(data, p_id, time)
 
@@ -376,7 +382,7 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
   for(i in loc$p_id) {
     
     rel_stat <- combi[p_x == i | p_y == i] # get relevant station p_id
-    uni_p <- as.integer(unique(c(rel_stat$p_x, rel_stat$p_y))) # retrieve unique
+    uni_p <- unique(c(rel_stat$p_x, rel_stat$p_y)) # retrieve unique
     buddies <- uni_p[which(uni_p != i)] # remove station itself
     
     if(check_elevation) {
@@ -396,7 +402,7 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     rad_v <- data[.(buddies), .(median = median(rem_ta, na.rm = T), qn = cqcp_Qnr(rem_ta),
                                 val = sum(!is.na(rem_ta)) >= n_buddies, 
                                 df = sum(!is.nan(rem_ta))-2), by = time]
-    data <- data[.(i), c("median", "qn", "val_rad", "df") := as.list(rad_v[, c("median", "qn", "val", "df")])]
+    data[.(i), c("median", "qn", "val_rad", "df") := as.list(rad_v[, c("median", "qn", "val", "df")])]
   
   }
 
@@ -470,16 +476,16 @@ cqcp_interpol <- function(x, maxLength = 1){
 #' @return data.table
 #' @export
 cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
-  data[,ta_int := ta]
+  data[, ta_int := ta]
   data[!m5, "ta_int"] <- NA
-  data[,ta_int := fun(ta_int, ...), by = .(p_id)]
+  data[, ta_int := fun(ta_int, ...), by = .(p_id)]
   is_interpolated = data$ta != data$ta_int
   #handle NA compare
   #first NA's are always false
   is_interpolated[is.na(is_interpolated)] <- FALSE
   #but if we created a value it has to be interpolated
   is_interpolated[is.na(data$ta) & !is.na(data$ta_int)] <- TRUE
-  data[, o1:= is_interpolated | m5] #a value ready to use
+  data[, o1 := is_interpolated | m5] #a value ready to use
   return(data)
 }
 
@@ -535,7 +541,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
   if(is.null(duration) & !complete) {
     has_m <- cqcp_has_column(data, column = "month")
     if(!has_m){
-      data[,month := lubridate::floor_date(time,"month")]
+      data[, month := lubridate::floor_date(time,"month")]
     }
     data[, o3 := o2 & sum(o2)/.N > cutOff, by = .(month, p_id)]
     if(!has_m){
@@ -597,11 +603,11 @@ cqcp_o4 <- function(data, time_constant, quiet = FALSE) {
   # add shifted values and time diff
   cols = c("time","ta")
   lag_cols = paste("lag", cols, sep="_")
-  data <- data[, (lag_cols) := shift(.SD, 1, fill=NA, type = "lag"), .SDcols=cols, by = p_id]
-  data <- data[, dt := as.numeric(time-lag_time, units = "secs"), by = p_id]
+  data[, (lag_cols) := shift(.SD, 1, fill=NA, type = "lag"), .SDcols = cols, by = p_id]
+  data[, dt := as.numeric(time-lag_time, units = "secs"), by = p_id]
   
   # correction
-  data <- data[, ta_corr := (ta - (lag_ta*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
+  data[, ta_corr := (ta - (lag_ta*exp(-dt/time_constant)))/(1-exp(-dt/time_constant))]
   
   data[, lag_time := NULL]
   data[, lag_ta := NULL]
