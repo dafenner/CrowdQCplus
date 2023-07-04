@@ -361,7 +361,8 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
   # calculate distances between stations and get relevant stations
   loc <- data[, .SD[1], by = p_id, .SDcols = get_cols]
   setkey(loc, p_id)
-  dist <- raster::pointDistance(loc[,c("lon", "lat")], lonlat=TRUE) # calculate distances between points
+  #dist <- raster::pointDistance(loc[,c("lon", "lat")], lonlat=TRUE) # calculate distances between points  - OLD VERSION with raster
+  dist <- as.matrix(terra::distance(as.matrix(loc[,c("lon", "lat")]), lonlat = TRUE)) # calculate distances between points
   colnames(dist) <- loc$p_id
   rownames(dist) <- loc$p_id
   dist <- as.data.table(as.table(dist))

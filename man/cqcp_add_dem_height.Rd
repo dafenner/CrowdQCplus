@@ -22,7 +22,7 @@ cqcp_add_dem_height(
 
 \item{file}{Path to a DEM geotiff}
 
-\item{raster}{RasterLayer object with DEM data}
+\item{raster}{SpatRaster object with DEM data}
 
 \item{directory}{Directory path to store the downloaded SRTM data. If NULL,
 downloaded data is stored in the current working directory.}
@@ -44,15 +44,15 @@ cqcp_m2. Default: 0}
 data table with new column 'z' with DEM information
 }
 \description{
-Adds Digital Elevation Model (DEM) information from a RasterLayer Object or 
+Adds Digital Elevation Model (DEM) information from a SptaRaster object or 
 geotiff to the data.table.
-If no RasterLayer Object or file are given as parameters, SRTM data 
+If no SptaRaster object or file are given as parameters, SRTM data 
 (Jarvis et al. 2008) is automatically downloaded and used to extract DEM 
 information at the positions of the stations. Keep in mind that SRTM data is 
 only available for regions between 60° N and 56° S. For regions outside that 
 range, or if the user wants to use another DEM, that DEM can be used as input 
 via the 'file' parameter (path to geotiff) or via the 'raster' parameter 
-(RasterLayer Object).
+(SpatRaster object).
 }
 \details{
 A new column 'z' is added to the data.table to be used in QC level m2.
