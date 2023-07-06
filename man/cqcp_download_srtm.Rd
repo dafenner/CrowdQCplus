@@ -38,7 +38,7 @@ Default: "-k"}
 \item{...}{Additional parameters supported by geodata::elevation_3s}
 }
 \value{
-RasterLayer object with SRTM data
+SpatRaster object with SRTM data
 }
 \description{
 SRTM data is automatically downloaded and, in case of more than one SRTM tile, 

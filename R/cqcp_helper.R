@@ -88,7 +88,7 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   } else mess_1b <- cqcp_colourise("     OK\n", "green")
   # (1c) Check for correct data type
   if (has_p_id) type_p_id <- (is.integer(data$p_id) | is.character(data$p_id)) else type_p_id <- FALSE
-  if (has_time) type_time <- is.POSIXct(data$time) else type_time <- FALSE
+  if (has_time) type_time <- lubridate::is.POSIXct(data$time) else type_time <- FALSE
   if (has_ta) type_ta <- is.numeric(data$ta) else type_ta <- FALSE
   if (has_lon) type_lon <- is.numeric(data$lon) else type_lon <- FALSE
   if (has_lat) type_lat <- is.numeric(data$lat) else type_lat <- FALSE
@@ -285,7 +285,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
   
   # Convert lon/lat to "SpatialPoints"
   coords <- data.frame(lon=lon, lat=lat)
-  #coords <- sp::SpatialPoints(coords, proj4string = raster::crs("+init=epsg:4326")) # WGS-84 - OLD VERSION using sp
+  # coords <- sp::SpatialPoints(coords, proj4string = raster::crs("+init=epsg:4326")) # WGS-84 - OLD VERSION using sp
   coords <- terra::vect(coords, crs = "EPSG:4326") # WGS-84
   
   # Transform to CRS of raster
@@ -321,7 +321,7 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
 #'    Default: "-k"
 #' @param ... Additional parameters supported by geodata::elevation_3s
 #'
-#' @return RasterLayer object with SRTM data
+#' @return SpatRaster object with SRTM data
 #' @export
 cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL, 
                                overwrite = TRUE, crop = FALSE, 
@@ -343,10 +343,10 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   # lr <- raster::raster(geodata::elevation_3s(lat=min_lat, lon=max_lon, path = directory, ...))
   # ur <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=max_lon, path = directory, ...))
   # ul <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=min_lon, path = directory, ...))
-  ll <- geodata::elevation_3s(lat=min_lat, lon=min_lon, path = directory, method = method, extra = extra, ...)
-  lr <- geodata::elevation_3s(lat=min_lat, lon=max_lon, path = directory, method = method, extra = extra, ...)
-  ur <- geodata::elevation_3s(lat=max_lat, lon=max_lon, path = directory, method = method, extra = extra, ...)
-  ul <- geodata::elevation_3s(lat=max_lat, lon=min_lon, path = directory, method = method, extra = extra, ...)
+  ll <- geodata::elevation_3s(lat = min_lat, lon = min_lon, path = directory, method = method, extra = extra, ...)
+  lr <- geodata::elevation_3s(lat = min_lat, lon = max_lon, path = directory, method = method, extra = extra, ...)
+  ur <- geodata::elevation_3s(lat = max_lat, lon = max_lon, path = directory, method = method, extra = extra, ...)
+  ul <- geodata::elevation_3s(lat = max_lat, lon = min_lon, path = directory, method = method, extra = extra, ...)
   
   # Combine tiles, if necessary
   # mosaic <- raster::mosaic(ll, lr, ur, ul, fun=mean) - OLD VERSION using raster
@@ -432,7 +432,7 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
   
   # Put information back together
   locations <- cbind(locations, z = height)
-  data_out <- merge(data, locations[,.(p_id, z)], all.x = T, by = "p_id", sort = FALSE)
+  data_out <- merge(data, locations[, .(p_id, z)], all.x = T, by = "p_id", sort = FALSE)
   
   return(data_out)
 }
