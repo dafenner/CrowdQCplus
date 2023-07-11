@@ -158,7 +158,6 @@ cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   if(has_p_id & has_lon & has_lon) {
     p_id <- unique(data$p_id)
     loc <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")][,c("lon", "lat")]
-    # dist <- raster::pointDistance(loc, lonlat=TRUE) # calculate distances between points - OLD VERSION with raster
     dist <- as.matrix(terra::distance(as.matrix(loc), lonlat = TRUE)) # calculate distances between points
     max_dist <- max(dist, na.rm = T)
     if(max_dist > 141421.4) {
@@ -279,21 +278,17 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
   if(!is.null(raster)) {
     gtiff <- raster
   } else if(!is.null(file)) {
-    # gtiff <- raster::raster(file) # Open GeoTIFF - OLD VERSION using raster
     gtiff <- terra::rast(file) # Open GeoTIFF
   } else stop("[CrowdQC+] No input given as 'file' or 'raster'.")
   
   # Convert lon/lat to "SpatialPoints"
   coords <- data.frame(lon=lon, lat=lat)
-  # coords <- sp::SpatialPoints(coords, proj4string = raster::crs("+init=epsg:4326")) # WGS-84 - OLD VERSION using sp
   coords <- terra::vect(coords, crs = "EPSG:4326") # WGS-84
   
   # Transform to CRS of raster
-  # coords <- sp::spTransform(coords, raster::crs(gtiff)) - OLD VERSION using sp and raster
   coords <- terra::project(coords, terra::crs(gtiff))
   
   # Extract data for each location
-  # value <- raster::extract(gtiff, coords) # OLD VERSION using raster
   value <- as.numeric(terra::extract(gtiff, coords, ID = FALSE, raw = TRUE))
   
   return(value) # Output
@@ -311,8 +306,8 @@ cqcp_extract_raster_data <- function(lon, lat, raster = NULL, file = NULL){
 #' @param directory Directory path to optionally store the SRTM data. If NULL,
 #'   downloaded data is stored in the current working directory. 
 #' @param outfile File path to save the SRTM raster as geotiff 
-#' @param overwrite Overwrite existing geotiff? Default is TRUE. 
-#' @param crop Crop raster/geotiff to data extent? Default is FALSE. 
+#' @param overwrite Overwrite existing geotiff? Default: TRUE. 
+#' @param crop Crop raster/geotiff to data extent? Default: FALSE. 
 #' @param method Download method for geodata::elevation_3s. Use default here to 
 #'    avoid SSL certificate issues (cf. https://github.com/rspatial/geodata/issues/39#issuecomment-1404513208). 
 #'    Default: "curl".
@@ -339,24 +334,16 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   max_lat <- max(data$lat)
   
   # Download data
-  # ll <- raster::raster(geodata::elevation_3s(lat=min_lat, lon=min_lon, path = directory, ...))
-  # lr <- raster::raster(geodata::elevation_3s(lat=min_lat, lon=max_lon, path = directory, ...))
-  # ur <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=max_lon, path = directory, ...))
-  # ul <- raster::raster(geodata::elevation_3s(lat=max_lat, lon=min_lon, path = directory, ...))
   ll <- geodata::elevation_3s(lat = min_lat, lon = min_lon, path = directory, method = method, extra = extra, ...)
   lr <- geodata::elevation_3s(lat = min_lat, lon = max_lon, path = directory, method = method, extra = extra, ...)
   ur <- geodata::elevation_3s(lat = max_lat, lon = max_lon, path = directory, method = method, extra = extra, ...)
   ul <- geodata::elevation_3s(lat = max_lat, lon = min_lon, path = directory, method = method, extra = extra, ...)
   
   # Combine tiles, if necessary
-  # mosaic <- raster::mosaic(ll, lr, ur, ul, fun=mean) - OLD VERSION using raster
   mosaic <- terra::mosaic(ll, lr, ur, ul, fun=mean)
   
   # Crop to data extent
   if(crop) {
-    # data_extent <- as(raster::extent(min_lon, max_lon, min_lat, max_lat), 'SpatialPolygons')
-    # raster::crs(data_extent) <- raster::crs(mosaic)
-    # mosaic <- raster::crop(mosaic, data_extent)
     data_extent <- terra::ext(min_lon, max_lon, min_lat, max_lat)
     mosaic <- terra::crop(mosaic, data_extent)
   }
@@ -364,7 +351,6 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
   # Store merged raster?
   if(!is.null(outfile)) {
     if(!dir.exists(dirname(outfile))) dir.create(dirname(outfile))
-    # raster::writeRaster(mosaic, filename = outfile, overwrite = overwrite) - OLD VERSION using raster
     terra::writeRaster(mosaic, filename = outfile, overwrite = overwrite)
   }
   
@@ -373,9 +359,9 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 
 #' Add DEM height to data.table.
 #' 
-#' Adds Digital Elevation Model (DEM) information from a SptaRaster object or 
+#' Adds Digital Elevation Model (DEM) information from a SpatRaster object or 
 #' geotiff to the data.table.
-#' If no SptaRaster object or file are given as parameters, SRTM data 
+#' If no SpatRaster object or file are given as parameters, SRTM data 
 #' (Jarvis et al. 2008) is automatically downloaded and used to extract DEM 
 #' information at the positions of the stations. Keep in mind that SRTM data is 
 #' only available for regions between 60° N and 56° S. For regions outside that 
@@ -396,19 +382,21 @@ cqcp_download_srtm <- function(data, directory = NULL, outfile = NULL,
 #' @param directory Directory path to store the downloaded SRTM data. If NULL,
 #'   downloaded data is stored in the current working directory. 
 #' @param outfile File path to save the created SRTM raster as geotiff 
-#' @param overwrite overwrite existing geotiff? 
-#' @param crop Crop SRTM raster/geotiff to data extent
+#' @param overwrite Overwrite existing geotiff? Default: TRUE.
+#' @param crop Crop SRTM raster/geotiff to data extent. Default: FALSE.
 #' @param na_vals Set NA values in DEM to this value to avoid missing value in 
 #'   cqcp_m2. Default: 0
+#' @param overwrite_z If column 'z' exists in data, should it be overwritten? Default: TRUE.
 #' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #' @param ... Additional parameters supported by geodata::elevation_3s
 #'
-#' @return data table with new column 'z' with DEM information
+#' @return data table with column 'z' with DEM information
 #' @export
 cqcp_add_dem_height <- function(data, file = NULL, raster = NULL, 
                                 directory = NULL, outfile = NULL, 
                                 overwrite = TRUE, crop = FALSE, 
-                                na_vals = 0, quiet = FALSE, ...){
+                                na_vals = 0, quiet = FALSE, 
+                                overwrite_z = TRUE, ...){
   
   # Extract unique locations from data
   locations <- data[, .SD[1], by = p_id, .SDcols = c("lon", "lat")]
@@ -432,6 +420,7 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
   
   # Put information back together
   locations <- cbind(locations, z = height)
+  if(cqcp_has_column(data, column = "z") & overwrite_z) data[, z := NULL]
   data_out <- merge(data, locations[, .(p_id, z)], all.x = T, by = "p_id", sort = FALSE)
   
   return(data_out)

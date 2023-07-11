@@ -14,6 +14,7 @@ cqcp_add_dem_height(
   crop = FALSE,
   na_vals = 0,
   quiet = FALSE,
+  overwrite_z = TRUE,
   ...
 )
 }
@@ -29,24 +30,26 @@ downloaded data is stored in the current working directory.}
 
 \item{outfile}{File path to save the created SRTM raster as geotiff}
 
-\item{overwrite}{overwrite existing geotiff?}
+\item{overwrite}{Overwrite existing geotiff? Default: TRUE.}
 
-\item{crop}{Crop SRTM raster/geotiff to data extent}
+\item{crop}{Crop SRTM raster/geotiff to data extent. Default: FALSE.}
 
 \item{na_vals}{Set NA values in DEM to this value to avoid missing value in 
 cqcp_m2. Default: 0}
 
 \item{quiet}{Suppress messages by CrowdQC+. Default: FALSE}
 
+\item{overwrite_z}{If column 'z' exists in data, should it be overwritten? Default: TRUE.}
+
 \item{...}{Additional parameters supported by geodata::elevation_3s}
 }
 \value{
-data table with new column 'z' with DEM information
+data table with column 'z' with DEM information
 }
 \description{
-Adds Digital Elevation Model (DEM) information from a SptaRaster object or 
+Adds Digital Elevation Model (DEM) information from a SpatRaster object or 
 geotiff to the data.table.
-If no SptaRaster object or file are given as parameters, SRTM data 
+If no SpatRaster object or file are given as parameters, SRTM data 
 (Jarvis et al. 2008) is automatically downloaded and used to extract DEM 
 information at the positions of the stations. Keep in mind that SRTM data is 
 only available for regions between 60° N and 56° S. For regions outside that 

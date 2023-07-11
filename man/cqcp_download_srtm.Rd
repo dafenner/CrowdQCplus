@@ -23,9 +23,9 @@ downloaded data is stored in the current working directory.}
 
 \item{outfile}{File path to save the SRTM raster as geotiff}
 
-\item{overwrite}{Overwrite existing geotiff? Default is TRUE.}
+\item{overwrite}{Overwrite existing geotiff? Default: TRUE.}
 
-\item{crop}{Crop raster/geotiff to data extent? Default is FALSE.}
+\item{crop}{Crop raster/geotiff to data extent? Default: FALSE.}
 
 \item{method}{Download method for geodata::elevation_3s. Use default here to 
 avoid SSL certificate issues (cf. https://github.com/rspatial/geodata/issues/39#issuecomment-1404513208). 
