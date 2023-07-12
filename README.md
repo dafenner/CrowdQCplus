@@ -2,7 +2,7 @@
 
 This R package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It is based on the package ['CrowdQC'](http://dx.doi.org/10.14279/depositonce-6740.3) but offers several additions, improvements, and bug fixes. Both packages were originally designed for and tested with air-temperature data but should also work with other near-normally distributed data. It is not designed for precipitation data.
 
-CrowdQC+ is a statistically-based QC that identifies individual possibly faulty observations by comparing them to a large crowd of other observations. It does not need reference meteorological observations to be applied. The main idea of CrowdQC+ is that there is trustworthy information in the crowd, which can be used to check and remove individual values during the QC. Yet, there is no guarantee that all faulty observations are filtered by the QC.
+CrowdQC+ is a statistically-based QC that identifies individual possibly faulty observations by comparing them to a large crowd of other observations. It does not need reference meteorological observations. The main idea of CrowdQC+ is that there is trustworthy information in the crowd, which can be used to check and remove individual values during the QC. Yet, there is no guarantee that all faulty observations are filtered by the QC.
 
 A detailed description of the functionalities and an evaluation of the performance of the QC can be found in this open-access journal article: [CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science](https://doi.org/10.3389/fenvs.2021.720747).<br>
 It is recommended that you read the article before you start working with CrowdQC+ to understand its capabilities and limitations.
@@ -12,28 +12,18 @@ CrowdQC+ requires an R version >= 3.5.0 to work.
 
 It also requires the following packages: 
 - data.table
+- methods
+- stats
 - robustbase
 - lubridate
-- sp
-- raster
-- rgdal
+- terra
+- geodata
 
 Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
-When installing 'rgdal' package on a Linux system, you might run into issues. Try running 
-```
-sudo apt-get install gdal-bin proj-bin libgdal-dev libproj-dev
-```
+## Update for version v1.1
+CrowdQC+ now uses the `terra` package for the geospatial components instead of the older packages `raster` and `sp`, which are based on (soon-to-be) retired `rgdal`.
 
-first and then again installing rgdal in R with 
-```
-install.packages("rgdal")
-```
-
-For 'older' Linux versions this could also work: 
-```
-install.packages("rgdal", configure.args = c(rgdal = "--with-proj_api=proj_api.h"))
-```
 
 ## Installation of the package
 
@@ -75,8 +65,8 @@ Data should be represented as a [data.table](https://CRAN.R-project.org/package=
 `p_id`: Unique ID of each station. Data format: Integer or character<br>
 `time`: Time. Keep in mind time zones! Data format: POSIX.ct<br>
 `ta`: Air-temperature values (or other near-normally distributed variable). Data format: Numeric/double<br>
-`lon`: Longitude of the station. Data format: Numeric/double<br>
-`lat`: Latitude of the station. Data format: Numeric/double<br>
+`lon`: Longitude of the station (WGS 84). Data format: Numeric/double<br>
+`lat`: Latitude of the station (WGS 84). Data format: Numeric/double<br>
 
 Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.

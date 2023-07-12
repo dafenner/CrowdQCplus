@@ -2,7 +2,7 @@
 % Please edit documentation in R/cqcp_helper.R
 \name{cqcp_extract_raster_data}
 \alias{cqcp_extract_raster_data}
-\title{Extract raster value at given position(s) for a RasterLayer Object or geotiff
+\title{Extract raster value(s) at given position(s) from a SpatRaster object or geotiff
 file.}
 \usage{
 cqcp_extract_raster_data(lon, lat, raster = NULL, file = NULL)
@@ -12,7 +12,7 @@ cqcp_extract_raster_data(lon, lat, raster = NULL, file = NULL)
 
 \item{lat}{Latitude values(s)}
 
-\item{raster}{RasterLayer object (cf. raster package)}
+\item{raster}{SpatRaster object (cf. terra package)}
 
 \item{file}{Path to a geotiff file}
 }
@@ -20,6 +20,6 @@ cqcp_extract_raster_data(lon, lat, raster = NULL, file = NULL)
 extracted value(s) for given lon/lat
 }
 \description{
-Extract raster value at given position(s) for a RasterLayer Object or geotiff
+Extract raster value(s) at given position(s) from a SpatRaster object or geotiff
 file.
 }

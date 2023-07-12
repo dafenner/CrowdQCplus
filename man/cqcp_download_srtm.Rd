@@ -10,6 +10,8 @@ cqcp_download_srtm(
   outfile = NULL,
   overwrite = TRUE,
   crop = FALSE,
+  method = "curl",
+  extra = "-k",
   ...
 )
 }
@@ -21,19 +23,27 @@ downloaded data is stored in the current working directory.}
 
 \item{outfile}{File path to save the SRTM raster as geotiff}
 
-\item{overwrite}{Overwrite existing geotiff? Default is TRUE.}
+\item{overwrite}{Overwrite existing geotiff? Default: TRUE.}
 
-\item{crop}{Crop raster/geotiff to data extent? Default is FALSE.}
+\item{crop}{Crop raster/geotiff to data extent? Default: FALSE.}
+
+\item{method}{Download method for geodata::elevation_3s. Use default here to 
+avoid SSL certificate issues (cf. https://github.com/rspatial/geodata/issues/39#issuecomment-1404513208). 
+Default: "curl".}
+
+\item{extra}{Additional keyword for "curl" method. Use default here to avoid SSL
+certificate issues (cf. https://github.com/rspatial/geodata/issues/39#issuecomment-1404513208). 
+Default: "-k"}
 
 \item{...}{Additional parameters supported by geodata::elevation_3s}
 }
 \value{
-RasterLayer object with SRTM data
+SpatRaster object with SRTM data
 }
 \description{
 SRTM data is automatically downloaded and, in case of more than one SRTM tile, 
 merged together as a mosaic.
-The SRTM RasterLayer Object can be cropped to the geographical extent of 
+The SRTM SpatRaster object can be cropped to the geographical extent of 
 the data (crop = TRUE).
 SRTM source: https://srtm.csi.cgiar.org/
 }
