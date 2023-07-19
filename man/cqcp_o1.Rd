@@ -24,3 +24,13 @@ interpolation on gaps of maximal length = 1.
 A new column named "ta_int" is added to the data.table, containing the
 filtered data at QC level m5 with the interpolated data.
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_qc <- cqcp_m1(data)
+data_qc <- cqcp_m2(data_qc)
+data_qc <- cqcp_m3(data_qc)
+data_qc <- cqcp_m4(data_qc)
+data_qc <- cqcp_m5(data_qc)
+data_qc <- cqcp_o1(data_qc)
+}

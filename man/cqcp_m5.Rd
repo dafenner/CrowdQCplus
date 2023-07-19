@@ -69,3 +69,13 @@ In addition to flag variable 'm5' another variable 'isolated' is added to the
 data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius' 
 or not, respectively.
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_qc <- cqcp_m1(data)
+data_qc <- cqcp_m2(data_qc)
+data_qc <- cqcp_m3(data_qc)
+data_qc <- cqcp_m4(data_qc)
+data_qc <- cqcp_m5(data_qc)
+data_qc_keep <- cqcp_m5(data_qc, keep_isolated = TRUE) # keep isolated CWS
+}

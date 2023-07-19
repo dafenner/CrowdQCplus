@@ -53,6 +53,10 @@ cqcp_colourise <- function(str, colour) {
 #'
 #' @return logical (or list), TRUE if data passed all checks.
 #' @export
+#' 
+#' @examples
+#' data(cqcp_cws_data)
+#' cqcp_check_input(cqcp_cws_data)
 cqcp_check_input <- function(data, print = TRUE, file = NULL, as_list = FALSE){
   
   ok <- TRUE
@@ -442,6 +446,10 @@ cqcp_add_dem_height <- function(data, file = NULL, raster = NULL,
 #'
 #' @return data.table with regular time series for all stations.
 #' @export
+#' 
+#' @examples
+#' data(cqcp_cws_data)
+#' cqcp_padding(cqcp_cws_data)
 cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest",
                          quiet = FALSE) {
   
@@ -510,6 +518,10 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
 #'
 #' @return data.table with output statistics
 #' @export
+#' 
+#' @examples
+#' data(cqcp_cws_data)
+#' n_data <- cqcp_output_statistics(cqcp_cws_data)
 cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
   
   levels <- c("m1", "m2", "m3", "m4", "m5", "o1", "o2", "o3")
@@ -532,10 +544,12 @@ cqcp_output_statistics <- function(data, print = TRUE, file = NULL) {
     cat("+ CrowdQC+ output statistics +\n")
     cat("++++++++++++++++++++++++++++++\n")
     cat(paste0("Raw data: ",n_data$n_raw," values, ",n_stat$n_raw," stations\n"))
-    for(j in 2:length(columns)) {
-      cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))],
-                 " values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100),
-                 " % of raw data), ",n_stat[,as.character(get(columns[j]))]," stations\n"))
+    if (length(columns) > 1) {
+      for(j in 2:length(columns)) {
+        cat(paste0("QC level ",columns[j],": ",n_data[,as.character(get(columns[j]))],
+                   " values (= ",sprintf("%.2f",n_data[,(get(columns[j]))]/n_data$n_raw*100),
+                   " % of raw data), ",n_stat[,as.character(get(columns[j]))]," stations\n"))
+      }
     }
   }
   # File?

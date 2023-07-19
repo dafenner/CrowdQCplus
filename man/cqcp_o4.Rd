@@ -47,3 +47,8 @@ How useful are crowdsourced air temperature observations? An assessment of
 Netatmo stations and quality control schemes over the United Kingdom. 
 Meteorol. Appl. 29 (3): e2075. https://doi.org/10.1002/met.2075
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_corr <- cqcp_o4(data, 762)
+}

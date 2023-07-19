@@ -18,6 +18,7 @@ It also requires the following packages:
 - lubridate
 - terra
 - geodata
+- testthat
 
 Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
@@ -70,6 +71,12 @@ Data should be represented as a [data.table](https://CRAN.R-project.org/package=
 
 Optionally, the user can provide elevation information per station (column `z`), as to perform a height correction in some of the QC levels.
 Any other column can be present, but is quietly ignored by CrowdQC+.
+
+Please have a look at the [example data](https://github.com/dafenner/CrowdQCplus/blob/master/data/cqcp_cws_data.rda) to see how the data should look like:
+```R
+data(cqcp_cws_data)
+head(cqcp_cws_data)
+```
 
 This is how an input data table with hourly data of a month should be organised (values completely nonsense and made up):
 | p_id | time | ta | lon | lat | z |

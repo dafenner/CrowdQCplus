@@ -22,3 +22,8 @@ data.table
 Flag values with FALSE that are missing or belong to a p_id having lon & lat
 values which occur more often than the 'cutOff' value.
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_qc <- cqcp_m1(data)
+}

@@ -31,3 +31,7 @@ same length and the same temporal resolution. Missing times are set to NaN.
 This can be done using cqcp_padding. Currently, time stamps are rounded and
 no interpolation is carried out to the data itself.
 }
+\examples{
+data(cqcp_cws_data)
+cqcp_padding(cqcp_cws_data)
+}
