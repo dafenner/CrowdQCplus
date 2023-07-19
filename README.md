@@ -31,7 +31,7 @@ CrowdQC+ now uses the `terra` package for the geospatial components instead of t
 
 Directly pull the code from this repository into your programming environment, using the [devtools](https://devtools.r-lib.org/) package:
 
-```
+```R
 install.packages("devtools")
 devtools::install_github("dafenner/CrowdQCplus")
 ```
@@ -39,7 +39,7 @@ devtools::install_github("dafenner/CrowdQCplus")
 **Option 2:**
 
 Download the [zip-file](https://github.com/dafenner/CrowdQCplus/archive/refs/heads/master.zip) from this repository, save it locally, and install it in your programming environment using the [devtools](https://devtools.r-lib.org/) package:
-```
+```R
 install.packages("devtools")
 devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
 ```
@@ -47,13 +47,13 @@ devtools::install_local(<PATH_TO_THE_ZIP_FILE>)
 **Option 3:**
 
 Download the latest release of CrowdQC+ as a `.tar.gz` file ([list of releases](https://github.com/dafenner/CrowdQCplus/releases)), save it locally, and install it in your programming environment:
-```
+```R
 install.packages(<PATH_TO_THE_tar.gz_FILE>, repos = NULL, type ="source")
 ```
 
 Once installed, load CrowdQC+ (and data.table) via
 
-```
+```R
 library(data.table)
 library(CrowdQCplus)
 ```
@@ -100,18 +100,22 @@ A detailed description of each QC level can be found in the R help and in the co
 
 ### Example workflow
 A basic example workflow with CrowdQC+ could look like this (after installation of the package, see above):
-```
+```R
 # Load libraries
 library(data.table)
 library(CrowdQCplus)
 
+# load the package's example data
+data(cqcp_cws_data)
+
 # Data & input check
-data <- <YOUR_CWS_DATA>
+# the data likely needs padding (filling data gaps per station)
+data <- cqcp_padding(cqcp_cws_data)
 ok <- cqcp_check_input(data)
 
 # Perform complete QC
-if(ok) {
-   data_qc <- cqcp_qcCWS(data) # QC   
+if (ok) {
+   data_qc <- cqcp_qcCWS(data) # QC
    n_data_qc <- cqcp_output_statistics(data_qc) # output statistics
 }
 ```
