@@ -106,3 +106,8 @@ levels are carried along, i.e., if a value failed in step m2, this FALSE is
 kept throughout the remaining QC steps. In the end, only those data
 values containing TRUE after the all QC steps are valid according to this QC.
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_qc <- cqcp_qcCWS(data)
+}

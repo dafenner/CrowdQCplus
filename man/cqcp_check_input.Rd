@@ -30,3 +30,7 @@ regarding the application of the package.
 4. Geographical extent of data.
 5. Number of stations.
 }
+\examples{
+data(cqcp_cws_data)
+cqcp_check_input(cqcp_cws_data)
+}

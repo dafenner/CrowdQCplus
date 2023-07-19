@@ -47,3 +47,9 @@ obtained from low and high. This approach is based on the distribution
 function of all values. If number of stations is < 100 it would be
 better to use the Student-t distribution (t_distribution = TRUE).
 }
+\examples{
+data(cqcp_cws_data)
+data <- cqcp_padding(cqcp_cws_data)
+data_qc <- cqcp_m1(data)
+data_qc <- cqcp_m2(data_qc)
+}
