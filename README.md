@@ -18,7 +18,6 @@ It also requires the following packages:
 - lubridate
 - terra
 - geodata
-- testthat
 
 Make sure to have these installed (and 'data.table' needs to be loaded) before running CrowdQC+.
 
