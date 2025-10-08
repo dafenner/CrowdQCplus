@@ -482,7 +482,7 @@ cqcp_padding <- function(data, resolution = "1 hour", rounding_method = "nearest
   
   # calculate mean and select first instance of all columns in case of multiple 
   # values per time stamp
-  in_data[, `:=`(ta, mean(ta, na.rm = T)), by = .(p_id, time)][,.SD[1], by = .(p_id, time)]
+  in_data <- in_data[, `:=`(ta, mean(ta, na.rm = T)), by = .(p_id, time)][,.SD[1], by = .(p_id, time)]
   
   # Create regular time series
   m0 = min(in_data$time)
