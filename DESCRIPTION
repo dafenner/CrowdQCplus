@@ -1,8 +1,8 @@
 Package: CrowdQCplus
 Type: Package
 Title: Enhanced quality control for crowdsourced data from citizen weather stations
-Version: 1.1.0
-Date: 2023-07-19
+Version: 1.1.1
+Date: 2025-10-08
 Author: Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 Authors@R: c(
     person("Daniel", "Fenner", email = "daniel.fenner@meteo.uni-freiburg.de", role = c("aut", "cre")),
@@ -14,7 +14,7 @@ Authors@R: c(
 Maintainer: Daniel Fenner <daniel.fenner@meteo.uni-freiburg.de>
 Description: This package performs a quality control (QC) and filters suspicious data from citizen weather stations (CWS). It was originally designed for and tested with hourly air-temperature data but should work with other near-normally distributed data. It is based on the package 'CrowdQC' but offers several additions and improvements.
 License: GPL-3 + file LICENCE
-Citation: Fenner et al. 2023
+Citation: Fenner et al. 2025
 URL: https://github.com/dafenner/CrowdQCplus
 BugReports: https://github.com/dafenner/CrowdQCplus/issues
 Encoding: UTF-8
@@ -24,4 +24,4 @@ Depends: R (>= 3.5.0)
 Imports: data.table, methods, stats, robustbase, lubridate, terra, geodata
 Suggests: testthat
 NeedsCompilation: no
-Packaged: 2023-07-19 19:00 UTC; dafenner
+Packaged: 2025-10-08 14:00 UTC; dafenner
