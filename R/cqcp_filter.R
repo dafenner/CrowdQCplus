@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2021-2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2021-2026  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -526,12 +526,14 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
   data[!m5, "ta_int"] <- NA
   data[, ta_int := fun(ta_int, ...), by = .(p_id)]
   is_interpolated = data$ta != data$ta_int
-  #handle NA compare
-  #first NA's are always false
+  # Handle NAs and compare
+  # 1) FALSE always for NAs
   is_interpolated[is.na(is_interpolated)] <- FALSE
-  #but if we created a value it has to be interpolated
+  # 2) TRUE if we created a value
   is_interpolated[is.na(data$ta) & !is.na(data$ta_int)] <- TRUE
-  data[, o1 := is_interpolated | m5] #a value ready to use
+  # 3) TRUE if the interpolated value is identical to the original ta
+  is_interpolated[data$ta == data$ta_int & !m5] <- TRUE
+  data[, o1 := is_interpolated | m5] # a value ready to use
   return(data)
 }
 
