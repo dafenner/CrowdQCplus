@@ -24,6 +24,8 @@ Make sure to have these installed (and 'data.table' needs to be loaded) before r
 ## Update for version v1.1
 CrowdQC+ now uses the `terra` package for the geospatial components instead of the older packages `raster` and `sp`, which are based on (soon-to-be) retired `rgdal`.
 
+Further, CrowdQC+ now contains a data example to test the code with.
+
 
 ## Installation of the package
 
