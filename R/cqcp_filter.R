@@ -1,5 +1,5 @@
 # CrowdQC+ - Quality control for citizen weather station data.
-# Copyright (C) 2021-2023  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
+# Copyright (C) 2021-2026  Daniel Fenner, Tom Grassmann, Benjamin Bechtel, Matthias Demuzere, Jonas Kittner, Fred Meier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -526,12 +526,14 @@ cqcp_o1 <- function(data, fun = cqcp_interpol, quiet = FALSE, ...){
   data[!m5, "ta_int"] <- NA
   data[, ta_int := fun(ta_int, ...), by = .(p_id)]
   is_interpolated = data$ta != data$ta_int
-  #handle NA compare
-  #first NA's are always false
+  # Handle NAs and compare
+  # 1) FALSE always for NAs
   is_interpolated[is.na(is_interpolated)] <- FALSE
-  #but if we created a value it has to be interpolated
+  # 2) TRUE if we created a value
   is_interpolated[is.na(data$ta) & !is.na(data$ta_int)] <- TRUE
-  data[, o1 := is_interpolated | m5] #a value ready to use
+  # 3) TRUE if the interpolated value is identical to the original ta
+  is_interpolated[data$ta == data$ta_int & !data$m5] <- TRUE
+  data[, o1 := is_interpolated | m5] # a value ready to use
   return(data)
 }
 
@@ -659,7 +661,7 @@ cqcp_o3 <- function(data, cutOff = 0.8, complete = FALSE, duration = NULL,
 #' @param data data.table in CrowdQC+ format (columns "time" and "ta" must be present)
 #' @param time_constant Time constant value for the sensor in seconds (must be 
 #' the same for all p_id). Time constant/tau is defined as the time for a 
-#' system's step response to ≈ 63.2 % of its final (asymptotic) value (from a 
+#' system's step response to appr. 63.2 % of its final (asymptotic) value (from a 
 #' step change) (https://en.wikipedia.org/wiki/Time_constant).
 #' @param quiet Suppress messages by CrowdQC+. Default: FALSE 
 #'
