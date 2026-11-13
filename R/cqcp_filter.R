@@ -333,8 +333,9 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #' calculations, thus this filter also flags isolated stations. Set 
 #' 'keep_isolated' = TRUE if you want to keep the isolated stations.
 #' In addition to flag variable 'm5' another variable 'isolated' is added to the
-#' data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius' 
-#' or not, respectively.
+#' data.table with FALSE and TRUE, if stations have >='n_buddies' within 'radius'
+#' or not, respectively. 'isolated' is also TRUE at time steps where fewer than
+#' 'n_buddies' buddies within 'radius' have valid data.
 #'
 #' @param data data.table object as returned by cqcp_m4
 #' @param radius A radius in meter around each station to check for neighbours.
@@ -358,8 +359,11 @@ cqcp_m4 <- function(data, cutOff = 0.9, complete = FALSE, duration = NULL,
 #'   neighbour is left out of the calculations. Default: TRUE
 #' @param max_elev_diff Maximum allowed elevation difference in meters between 
 #'   the station that is checked and each neighbour within 'radius'. Default: 100 m.
-#' @param keep_isolated Set to TRUE if isolated stations (with less buddies than 
-#'  'n_buddies') should be kept (m5 = TRUE) or removed (m5 = FALSE). Default: FALSE.
+#' @param keep_isolated Set to TRUE if isolated stations (with less buddies than
+#'  'n_buddies') should be kept (m5 = TRUE) or removed (m5 = FALSE). If TRUE,
+#'  values of non-isolated stations are also kept at time steps where fewer
+#'  than 'n_buddies' buddies have valid data, since no buddy check can be
+#'  performed then. Default: FALSE.
 #' @param quiet Suppress messages by CrowdQC+. Default: FALSE
 #'
 #' @return data.table
@@ -446,10 +450,19 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
   if(cqcp_has_column(data, column = "median")) {
     data[, z_rad := abs((rem_ta - median)/qn)]
     if(keep_isolated) {
-      data[isolated == FALSE, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
+      # only look into stations that are NOT isolated by default
+      # we only touch the ones that are NOT isolated the other were already set to the
+      # value of m4.
+      # m4 has to be TRUE; if there are too few buddies with valid data at a time step
+      # (val_rad == FALSE), the buddy check cannot be performed and the value is kept
+      # (m5 = m4), consistent with isolated stations; otherwise the z-score must be
+      # smaller than the critical value
+      data[isolated == FALSE, m5 := m4 & (!val_rad | z_rad < suppressWarnings(abs(qt(alpha/2., df))))] # suppressWarnings, just return NaN
     } else {
       data[, m5 := m4 & val_rad & z_rad < suppressWarnings(abs(qt(alpha/2., df)))] # suppressWarnings, just return NaN
     }
+    # stations are also isolated at time steps where too few buddies have data
+    data[val_rad == FALSE, isolated := TRUE]
     data[is.na(m5), m5 := FALSE]
   } else {
     if(!keep_isolated) {
