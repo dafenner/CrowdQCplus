@@ -441,9 +441,14 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     if(data[.(i), sum(m4 == FALSE) == .N]) next # only FALSE at QC level m4
     
     # computation of statistics for buddies
-    rad_v <- data[.(buddies), .(median = median(rem_ta, na.rm = T), qn = cqcp_Qnr(rem_ta),
-                                val = sum(!is.na(rem_ta)) >= n_buddies, 
-                                df = sum(!is.nan(rem_ta))-2), by = time]
+    bud <- data[.(buddies), .(time, rem_ta, nna = !is.na(rem_ta), nnan = !is.nan(rem_ta))]
+    rad_v <- bud[, .(median = median(rem_ta, na.rm = T), val = sum(nna), df = sum(nnan)), by = time]
+    rad_v[, `:=`(val = val >= n_buddies, df = df - 2, qn = NA_real_)]
+    # only compute expensive Qn where it can affect m5
+    need <- which(rad_v$val & data[.(i), m4])
+    if(length(need)) {
+      rad_v[need, qn := bud[time %in% rad_v$time[need], cqcp_Qnr(rem_ta), by = time]$V1]
+    }
     data[.(i), c("median", "qn", "val_rad", "df") := as.list(rad_v[, c("median", "qn", "val", "df")])]
   
   }
