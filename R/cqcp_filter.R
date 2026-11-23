@@ -168,10 +168,11 @@ cqcp_add_episode <- function(data, duration, quiet = FALSE){
 #' @return TRUE if correlation for the given month is higher than cutOff, FALSE
 #'   otherwise
 cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
-  if(length(x) != length(y[get(timespan) == t,]$med)){
+  y_med <- y$med[which(y[[timespan]] == t)]
+  if(length(x) != length(y_med)){
     stop("[CrowdQC+] Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
   }
-  c <- suppressWarnings(cor(x, y[get(timespan) == t,]$med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
+  c <- suppressWarnings(cor(x, y_med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
   if(is.na(c)){
     return(F) #treat NA as no correlation
   }
