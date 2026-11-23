@@ -427,8 +427,9 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     buddies <- uni_p[which(uni_p != i)] # remove station itself
     
     if(check_elevation) {
-      valid_loc <- loc[.(buddies)][, z_diff := abs(z - loc[.(i)]$z)]
-      buddies <- valid_loc[z_diff <= max_elev_diff]$p_id
+      if(!has_z) stop("[CrowdQC+] 'check_elevation = TRUE' requires a column 'z'.")
+      z_diff <- abs(loc$z[match(buddies, loc$p_id)] - loc$z[match(i, loc$p_id)])
+      buddies <- buddies[which(z_diff <= max_elev_diff)]
     }
 
     if(length(buddies) < n_buddies) {
