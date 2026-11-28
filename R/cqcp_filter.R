@@ -168,10 +168,11 @@ cqcp_add_episode <- function(data, duration, quiet = FALSE){
 #' @return TRUE if correlation for the given month is higher than cutOff, FALSE
 #'   otherwise
 cqcp_cor_timespan <- function(x, y, t, cutOff, timespan = "month"){
-  if(length(x) != length(y[get(timespan) == t,]$med)){
+  y_med <- y$med[which(y[[timespan]] == t)]
+  if(length(x) != length(y_med)){
     stop("[CrowdQC+] Dimensions are off, are you sure your data set contain an NaN value for each p_id at each missing time step?")
   }
-  c <- suppressWarnings(cor(x, y[get(timespan) == t,]$med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
+  c <- suppressWarnings(cor(x, y_med, use="pairwise.complete.obs")) #suppress warning if no pairwise complete obs exists, just return FALSE
   if(is.na(c)){
     return(F) #treat NA as no correlation
   }
@@ -426,8 +427,9 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     buddies <- uni_p[which(uni_p != i)] # remove station itself
     
     if(check_elevation) {
-      valid_loc <- loc[.(buddies)][, z_diff := abs(z - loc[.(i)]$z)]
-      buddies <- valid_loc[z_diff <= max_elev_diff]$p_id
+      if(!has_z) stop("[CrowdQC+] 'check_elevation = TRUE' requires a column 'z'.")
+      z_diff <- abs(loc$z[match(buddies, loc$p_id)] - loc$z[match(i, loc$p_id)])
+      buddies <- buddies[which(z_diff <= max_elev_diff)]
     }
 
     if(length(buddies) < n_buddies) {
@@ -439,9 +441,14 @@ cqcp_m5 <- function(data, radius = 3000, n_buddies = 5, alpha = 0.1,
     if(data[.(i), sum(m4 == FALSE) == .N]) next # only FALSE at QC level m4
     
     # computation of statistics for buddies
-    rad_v <- data[.(buddies), .(median = median(rem_ta, na.rm = T), qn = cqcp_Qnr(rem_ta),
-                                val = sum(!is.na(rem_ta)) >= n_buddies, 
-                                df = sum(!is.nan(rem_ta))-2), by = time]
+    bud <- data[.(buddies), .(time, rem_ta, nna = !is.na(rem_ta), nnan = !is.nan(rem_ta))]
+    rad_v <- bud[, .(median = median(rem_ta, na.rm = T), val = sum(nna), df = sum(nnan)), by = time]
+    rad_v[, `:=`(val = val >= n_buddies, df = df - 2, qn = NA_real_)]
+    # only compute expensive Qn where it can affect m5
+    need <- which(rad_v$val & data[.(i), m4])
+    if(length(need)) {
+      rad_v[need, qn := bud[time %in% rad_v$time[need], cqcp_Qnr(rem_ta), by = time]$V1]
+    }
     data[.(i), c("median", "qn", "val_rad", "df") := as.list(rad_v[, c("median", "qn", "val", "df")])]
   
   }
